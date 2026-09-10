@@ -247,24 +247,28 @@ on conflict (id) do nothing;
 
 create policy "Users read their own media and admins read all media" on storage.objects
 for select to authenticated using (
-  (bucket_id in ('avatars', 'artist-covers', 'works') and owner_id = auth.uid())
+  (bucket_id in ('avatars', 'artist-covers', 'works') and owner_id = auth.uid()::text )
   or public.is_admin()
 );
 create policy "Users upload their own avatar" on storage.objects
 for insert to authenticated with check (
-  bucket_id = 'avatars' and owner_id = auth.uid() and (storage.foldername(name))[1] = auth.uid()::text
+  bucket_id = 'avatars' and owner_id = auth.uid()::text
+   and (storage.foldername(name))[1] = auth.uid()::text
 );
 create policy "Creators upload their own work media" on storage.objects
 for insert to authenticated with check (
-  bucket_id in ('artist-covers', 'works') and owner_id = auth.uid()
+  bucket_id in ('artist-covers', 'works') and owner_id = auth.uid()::text
   and public.is_creator_or_admin() and (storage.foldername(name))[1] = auth.uid()::text
 );
 create policy "Users update or delete their own media" on storage.objects
 for all to authenticated using (
-  ((bucket_id in ('avatars', 'artist-covers', 'works') and owner_id = auth.uid()) or public.is_admin())
+  ((bucket_id in ('avatars', 'artist-covers', 'works') and owner_id = auth.uid()::text
+
+
+  ) or public.is_admin())
 ) with check (
-  ((bucket_id = 'avatars' and owner_id = auth.uid() and (storage.foldername(name))[1] = auth.uid()::text)
-   or (bucket_id in ('artist-covers', 'works') and owner_id = auth.uid() and public.is_creator_or_admin() and (storage.foldername(name))[1] = auth.uid()::text)
+  ((bucket_id = 'avatars' and owner_id = auth.uid()::text and (storage.foldername(name))[1] = auth.uid()::text)
+   or (bucket_id in ('artist-covers', 'works') and owner_id = auth.uid()::text and public.is_creator_or_admin() and (storage.foldername(name))[1] = auth.uid()::text)
    or public.is_admin())
 );
 create policy "Admins manage event media" on storage.objects

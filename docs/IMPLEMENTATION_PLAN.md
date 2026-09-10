@@ -11,14 +11,14 @@ Public discovery: `/`, `/artists`, `/artists/[username]`, `/artworks`, `/artwork
 ## Core entities
 
 - `profiles`: user identity and role metadata linked to Supabase Auth.
-- `artist_profiles`: public creative profile, username, biography, disciplines, contact destination, publication state.
-- `artworks`: artist-owned work, slug, description, media references, discipline, publication state.
+- `artists`: one creator-owned public profile, with username kept on the linked `profiles` record.
+- `works`: artist-owned work, slug, description, media references, type, publication state.
 - `events`: public event listing, slug, schedule, venue, publication state.
 - `categories`: controlled creative disciplines used for discovery.
 
 ## Supabase plan
 
-Use `@supabase/ssr` browser and server clients in `src/lib/supabase`. Store public configuration in `.env.local`; never commit credentials. Create migrations for the entities above, storage buckets for public media, and generated database types after schema stabilizes. Query public records from Server Components; use Route Handlers or Server Actions for authenticated writes.
+Use `@supabase/ssr` browser and server clients in `src/lib/supabase`. Store public configuration in `.env.local`; never commit credentials. The V1 foundation is recorded in `supabase/migrations/20260910130000_thaiarthub_v1.sql`, including private media buckets. Generate database types after applying the migration. Query public records from Server Components; use Route Handlers or Server Actions for authenticated writes.
 
 ## RLS and security
 
