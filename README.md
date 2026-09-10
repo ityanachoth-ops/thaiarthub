@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Thaiarthub
 
-## Getting Started
+Thai-first discovery platform for artists and creators across creative disciplines. This repository currently contains the technical bootstrap for the MVP journey: **Discover → Explore Artist/Artwork → Contact Creator**.
 
-First, run the development server:
+## Tech stack
+
+- Next.js (App Router), TypeScript, Tailwind CSS, ESLint
+- shadcn/ui configuration and shared UI utilities
+- Supabase SSR client foundation
+- Zod validation schemas
+
+## Local setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.example .env.local
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in `.env.local` after creating a Supabase project. Do not commit `.env.local` or real credentials.
 
-## Learn More
+## Commands
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm dev
+pnpm lint
+pnpm typecheck
+pnpm build
+pnpm start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Current MVP scope
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The foundation includes responsive Thai-first navigation, public route skeletons, protected-area placeholders, shared entity types, and initial Zod schemas. It deliberately excludes payments, checkout, favorites, private messaging, recommendations, advanced search, marketplace behavior, complex moderation, production maps, native apps, microservices, Elasticsearch, and Redis.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md) for architectural decisions and next milestones.
