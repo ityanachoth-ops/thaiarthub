@@ -1,2 +1,85 @@
-import { RoutePlaceholder } from "@/components/shared/route-placeholder";
-export default async function ArtworkPage({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; return <RoutePlaceholder title={`ผลงาน: ${slug}`} description="โครงหน้ารายละเอียดผลงาน" />; }
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+import { getPublishedArtworkBySlug } from "@/modules/artworks/queries";
+
+interface ArtworkDetailPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: ArtworkDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const artwork = await getPublishedArtworkBySlug(slug);
+
+  if (!artwork) {
+    return { title: "ไม่พบผลงาน | Thaiarthub" };
+  }
+
+  return {
+    title: `${artwork.title} | Thaiarthub`,
+    description:
+      artwork.description?.slice(0, 160) ??
+      `ผลงาน ${artwork.title}${artwork.artist ? ` โดย ${artwork.artist.name}` : ""} บน Thaiarthub`,
+  };
+}
+
+export default async function ArtworkDetailPage({ params }: ArtworkDetailPageProps) {
+  const { slug } = await params;
+  const artwork = await getPublishedArtworkBySlug(slug);
+
+  if (!artwork) {
+    notFound();
+  }
+
+  return (
+    <article className="flex flex-col gap-8">
+      <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 sm:aspect-[16/9]">
+        {artwork.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL
+          <img src={artwork.imageUrl} alt={artwork.title} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-4xl font-semibold text-stone-300">
+            {artwork.title.charAt(0)}
+          </div>
+        )}
+      </div>
+
+      <header className="flex flex-col gap-3">
+        <span className="w-fit rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
+          {artwork.type}
+        </span>
+        <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{artwork.title}</h1>
+        {artwork.artist ? (
+          <p className="text-stone-600">
+            โดย{" "}
+            <Link href={`/artists/${artwork.artist.slug}`} className="font-medium text-orange-700 hover:underline">
+              {artwork.artist.name}
+            </Link>
+          </p>
+        ) : (
+          <p className="text-stone-500">ศิลปินไม่ระบุ</p>
+        )}
+      </header>
+
+      {artwork.description ? (
+        <section className="max-w-2xl">
+          <p className="whitespace-pre-line leading-relaxed text-stone-700">{artwork.description}</p>
+        </section>
+      ) : null}
+
+      {artwork.externalUrl ? (
+        <section className="flex flex-col gap-4 border-t border-stone-200 pt-8">
+          <a
+            href={artwork.externalUrl}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="w-fit rounded-full bg-orange-700 px-5 py-2 text-sm font-medium text-white hover:bg-orange-800"
+          >
+            ดูผลงานเพิ่มเติม
+          </a>
+        </section>
+      ) : null}
+    </article>
+  );
+}
