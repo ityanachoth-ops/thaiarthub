@@ -1,0 +1,192 @@
+import { z } from "zod";
+
+import { createClient } from "@/lib/supabase/server";
+import type { Database } from "@/types/database.types";
+
+/**
+ * `artists.cover_image_url` is resolved as a path within the `artist-covers`
+ * bucket -- justified by the direct name correspondence between the column
+ * and the bucket, and matching the "artist-covers: public read when artist
+ * published" convention documented in docs/IMPLEMENTATION_PLAN.md.
+ *
+ * `artists.avatar_url` is a plain `text` column with no bucket-reference
+ * column anywhere in the V1 schema, and there is no equivalent naming
+ * correspondence to lean on: it could equally plausibly live in the
+ * `avatars` bucket (name match, but that bucket is private with no
+ * published-read policy) or in `artist-covers` alongside the cover image.
+ * Nothing in the repository resolves this either way, so it is
+ * intentionally NOT resolved to a signed URL here -- `avatarUrl` is always
+ * `null` until this is confirmed. See docs/IMPLEMENTATION_PLAN.md for the
+ * open decision; do not guess a bucket for it without confirming first.
+ *
+ * The `artist-covers` bucket is private (`public: false`), so
+ * `getPublicUrl()` will not serve files from it -- Supabase only serves the
+ * public-URL endpoint when a bucket is flagged public, and that endpoint
+ * bypasses RLS entirely rather than honoring it. Signed URLs are generated
+ * here, per request, only for rows already filtered to `status = 'published'`.
+ */
+const ARTIST_COVERS_BUCKET = "artist-covers";
+const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour; regenerated on every render
+
+const artistSlugSchema = z
+  .string()
+  .regex(/^[a-z0-9][a-z0-9-]{2,159}$/);
+
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+type CategoryRow = Pick<Database["public"]["Tables"]["categories"]["Row"], "id" | "name" | "slug">;
+
+type ArtistCategoryJoinRow = {
+  category: CategoryRow | null;
+};
+
+type ArtistQueryRow = Pick<
+  Database["public"]["Tables"]["artists"]["Row"],
+  | "id"
+  | "slug"
+  | "name"
+  | "bio"
+  | "location"
+  | "avatar_url"
+  | "cover_image_url"
+  | "website_url"
+  | "instagram_url"
+  | "facebook_url"
+  | "tiktok_url"
+  | "contact_url"
+> & {
+  artist_categories: ArtistCategoryJoinRow[];
+};
+
+export interface ArtistCategorySummary {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface ArtistListItem {
+  id: string;
+  slug: string;
+  name: string;
+  location: string | null;
+  avatarUrl: string | null;
+  coverUrl: string | null;
+  categories: ArtistCategorySummary[];
+}
+
+export interface ArtistDetail extends ArtistListItem {
+  bio: string | null;
+  websiteUrl: string | null;
+  instagramUrl: string | null;
+  facebookUrl: string | null;
+  tiktokUrl: string | null;
+  contactUrl: string | null;
+}
+
+const ARTIST_SELECT = `
+  id, slug, name, bio, location, avatar_url, cover_image_url,
+  website_url, instagram_url, facebook_url, tiktok_url, contact_url,
+  artist_categories ( category:categories ( id, name, slug ) )
+`;
+
+async function resolveCoverUrl(
+  supabase: SupabaseServerClient,
+  path: string | null,
+): Promise<string | null> {
+  if (!path) return null;
+  const { data, error } = await supabase.storage
+    .from(ARTIST_COVERS_BUCKET)
+    .createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
+  if (error || !data) return null;
+  return data.signedUrl;
+}
+
+/**
+ * Deliberately not resolved -- see the bucket-ambiguity note above. Returns
+ * null so callers render the initials fallback until the avatar bucket is
+ * confirmed. Do not change this to guess a bucket.
+ */
+function resolveAvatarUrl(_path: string | null): null {
+  return null;
+}
+
+function mapCategories(rows: ArtistCategoryJoinRow[]): ArtistCategorySummary[] {
+  return rows
+    .map((row) => row.category)
+    .filter((category): category is CategoryRow => category !== null)
+    .map((category) => ({ id: category.id, name: category.name, slug: category.slug }));
+}
+
+async function toListItem(
+  supabase: SupabaseServerClient,
+  row: ArtistQueryRow,
+): Promise<ArtistListItem> {
+  const avatarUrl = resolveAvatarUrl(row.avatar_url);
+  const coverUrl = await resolveCoverUrl(supabase, row.cover_image_url);
+
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    location: row.location,
+    avatarUrl,
+    coverUrl,
+    categories: mapCategories(row.artist_categories),
+  };
+}
+
+/**
+ * Published artists for the public discovery grid. Filters on
+ * `status = 'published'` explicitly rather than relying on RLS alone
+ * (defense in depth -- RLS still enforces this independently).
+ */
+export async function getPublishedArtists(): Promise<ArtistListItem[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("artists")
+    .select(ARTIST_SELECT)
+    .eq("status", "published")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to load published artists: ${error.message}`);
+  }
+  if (!data) return [];
+
+  return Promise.all((data as unknown as ArtistQueryRow[]).map((row) => toListItem(supabase, row)));
+}
+
+/**
+ * A single published artist by public slug. Returns null (not an error) for
+ * both "no such slug" and "exists but not published" -- callers should
+ * treat null as a 404, never distinguish the two cases to the visitor.
+ */
+export async function getPublishedArtistBySlug(slug: string): Promise<ArtistDetail | null> {
+  const parsedSlug = artistSlugSchema.safeParse(slug);
+  if (!parsedSlug.success) return null;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("artists")
+    .select(ARTIST_SELECT)
+    .eq("slug", parsedSlug.data)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load artist "${slug}": ${error.message}`);
+  }
+  if (!data) return null;
+
+  const row = data as unknown as ArtistQueryRow;
+  const listItem = await toListItem(supabase, row);
+
+  return {
+    ...listItem,
+    bio: row.bio,
+    websiteUrl: row.website_url,
+    instagramUrl: row.instagram_url,
+    facebookUrl: row.facebook_url,
+    tiktokUrl: row.tiktok_url,
+    contactUrl: row.contact_url,
+  };
+}
