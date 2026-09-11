@@ -15,15 +15,17 @@ export default async function EventsPage() {
   const events = await getPublishedEvents();
 
   return (
-    <main className="container mx-auto px-4 py-10">
-      <header className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">กิจกรรม</h1>
-        <p className="text-muted-foreground">
+    <div className="flex flex-col gap-8">
+      <header className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold font-display tracking-tight text-foreground">
+          กิจกรรม
+        </h1>
+        <p className="max-w-2xl text-sm text-muted-foreground">
           ค้นพบกิจกรรมศิลปะ ดนตรี และวัฒนธรรมใต้ดินทั่วประเทศไทย
         </p>
       </header>
 
       <EventGrid events={events} />
-    </main>
+    </div>
   );
 }
