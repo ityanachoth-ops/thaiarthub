@@ -6,7 +6,8 @@ import {
 } from "@/modules/dashboard/queries";
 import { DashboardView } from "@/modules/dashboard/components/dashboard-view";
 import { AccessDenied } from "@/modules/dashboard/components/access-denied";
-import { AuthRequired } from "@/modules/dashboard/components/auth-required";
+
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -19,13 +20,18 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const { user, profile } = await getAuthenticatedProfile(supabase);
 
-  // 1. Unauthenticated: user has no active Supabase session
+  // 1. Unauthenticated: redirect to /login
   if (!user) {
-    return <AuthRequired />;
+    redirect("/login?redirect=/dashboard");
   }
 
-  // 2. Unauthorized: authenticated user lacks 'creator' or 'admin' role
-  if (!profile || (profile.role !== "creator" && profile.role !== "admin")) {
+  // 2. Authenticated but profile not onboarded: redirect to /onboarding
+  if (!profile) {
+    redirect("/onboarding");
+  }
+
+  // 3. Unauthorized: authenticated user lacks 'creator' or 'admin' role
+  if (profile.role !== "creator" && profile.role !== "admin") {
     return <AccessDenied profile={profile} />;
   }
 

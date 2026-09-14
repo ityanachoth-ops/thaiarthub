@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Search, Sparkles } from "lucide-react";
 
+import { AuthNavButton } from "@/modules/auth/components/auth-nav-button";
+
 const navigation = [
   { href: "/artists", label: "ศิลปิน" },
   { href: "/artworks", label: "ผลงาน" },
@@ -49,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </nav>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/search"
               className="flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-2xs transition hover:border-primary/40 hover:text-primary"
@@ -59,6 +61,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="hidden sm:inline">ค้นหาศิลปิน ผลงาน กิจกรรม...</span>
               <span className="sm:hidden">ค้นหา</span>
             </Link>
+
+            <div className="h-4 w-px bg-border/60 hidden sm:block" />
+
+            <AuthNavButton />
           </div>
         </div>
       </header>
