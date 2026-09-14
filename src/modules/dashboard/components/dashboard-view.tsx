@@ -12,6 +12,7 @@ import {
   Pencil,
 } from "lucide-react";
 import type { CreatorDashboardData } from "../types";
+import { CreatorArtworkManager } from "@/modules/artworks/components/creator-artwork-manager";
 
 interface DashboardViewProps {
   data: CreatorDashboardData;
@@ -195,6 +196,8 @@ export function DashboardView({ data }: DashboardViewProps) {
           </div>
         </div>
       </div>
+
+      <CreatorArtworkManager artworks={data.artworks} artistId={artist?.id ?? null} />
 
       {/* Contemporary Gallery Discovery Context & Quick Links */}
       <div className="rounded-3xl border border-border/80 bg-muted/20 p-6 sm:p-8">

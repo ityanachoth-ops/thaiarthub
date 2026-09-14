@@ -18,9 +18,23 @@ export interface ArtistProfileSummary {
   avatarUrl: string | null;
 }
 
+export interface CreatorArtworkSummary {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  type: string;
+  year: number | null;
+  imagePath: string | null;
+  imageUrl: string | null;
+  externalUrl: string | null;
+  status: ContentStatus;
+}
+
 export interface CreatorDashboardData {
   profile: CreatorProfile;
   artist: ArtistProfileSummary | null;
   publishedWorksCount: number;
   publishedEventsCount: number;
+  artworks: CreatorArtworkSummary[];
 }

@@ -1,7 +1,11 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import type { CreatorProfile, CreatorDashboardData } from "./types";
+import type {
+  CreatorProfile,
+  CreatorDashboardData,
+  CreatorArtworkSummary,
+} from "./types";
 
 export type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -16,6 +20,19 @@ async function resolveAvatarUrl(
   const { data: signed } = await supabase.storage
     .from("avatars")
     .createSignedUrl(avatarPath, 3600);
+
+  return signed?.signedUrl ?? null;
+}
+
+async function resolveWorkImageUrl(
+  supabase: SupabaseServerClient,
+  imagePath: string | null
+): Promise<string | null> {
+  if (!imagePath) return null;
+
+  const { data: signed } = await supabase.storage
+    .from("works")
+    .createSignedUrl(imagePath, 3600);
 
   return signed?.signedUrl ?? null;
 }
@@ -77,15 +94,31 @@ export async function getCreatorDashboardData(
       artist: null,
       publishedWorksCount: 0,
       publishedEventsCount: 0,
+      artworks: [],
     };
   }
 
-  // Count published works associated with this creator's artist
-  const { count: worksCount } = await supabase
+  // Load all creator-owned works so drafts can be managed from the dashboard.
+  const { data: workRows } = await supabase
     .from("works")
-    .select("id", { count: "exact", head: true })
+    .select("id, title, slug, description, image_url, external_url, type, year, status")
     .eq("artist_id", artistRow.id)
-    .eq("status", "published");
+    .order("created_at", { ascending: false });
+
+  const artworks: CreatorArtworkSummary[] = await Promise.all(
+    (workRows ?? []).map(async (work) => ({
+      id: work.id,
+      title: work.title,
+      slug: work.slug,
+      description: work.description,
+      type: work.type,
+      year: work.year,
+      imagePath: work.image_url,
+      imageUrl: await resolveWorkImageUrl(supabase, work.image_url),
+      externalUrl: work.external_url,
+      status: work.status,
+    }))
+  );
 
   // Query events associated with this artist through event_artists
   const { data: eventLinks } = await supabase
@@ -114,8 +147,9 @@ export async function getCreatorDashboardData(
       coverImageUrl: artistRow.cover_image_url,
       avatarUrl: artistRow.avatar_url,
     },
-    publishedWorksCount: worksCount ?? 0,
+    publishedWorksCount: artworks.filter((work) => work.status === "published").length,
     publishedEventsCount: eventsCount,
+    artworks,
   };
 }
 

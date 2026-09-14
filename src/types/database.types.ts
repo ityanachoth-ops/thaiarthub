@@ -124,6 +124,7 @@ export interface Database {
           image_url: string | null;
           external_url: string | null;
           type: string;
+          year: number | null;
           status: ContentStatus;
           created_at: string;
           updated_at: string;
@@ -137,6 +138,7 @@ export interface Database {
           image_url?: string | null;
           external_url?: string | null;
           type: string;
+          year?: number | null;
           status?: ContentStatus;
           created_at?: string;
           updated_at?: string;
