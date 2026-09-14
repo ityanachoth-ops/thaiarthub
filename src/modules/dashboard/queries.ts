@@ -5,6 +5,21 @@ import type { CreatorProfile, CreatorDashboardData } from "./types";
 
 export type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
+async function resolveAvatarUrl(
+  supabase: SupabaseServerClient,
+  avatarPath: string | null
+): Promise<string | null> {
+  if (!avatarPath || avatarPath.startsWith("http://") || avatarPath.startsWith("https://")) {
+    return avatarPath;
+  }
+
+  const { data: signed } = await supabase.storage
+    .from("avatars")
+    .createSignedUrl(avatarPath, 3600);
+
+  return signed?.signedUrl ?? null;
+}
+
 /**
  * Validates the current session and retrieves the authenticated user's profile.
  * Returns null for user or profile if unauthenticated or profile not found.
@@ -33,7 +48,7 @@ export async function getAuthenticatedProfile(supabase: SupabaseServerClient) {
     id: profileRow.id,
     displayName: profileRow.display_name,
     username: profileRow.username,
-    avatarUrl: profileRow.avatar_url,
+    avatarUrl: await resolveAvatarUrl(supabase, profileRow.avatar_url),
     bio: profileRow.bio,
     role: profileRow.role,
   };
@@ -102,4 +117,32 @@ export async function getCreatorDashboardData(
     publishedWorksCount: worksCount ?? 0,
     publishedEventsCount: eventsCount,
   };
+}
+
+/**
+ * Loads profile and artist records for the profile edit page.
+ * Scoped to the authenticated user's ID.
+ */
+export async function getCreatorProfileEditData(
+  supabase: SupabaseServerClient,
+  userId: string
+) {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, display_name, username, bio, avatar_url, role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  const { data: artist } = await supabase
+    .from("artists")
+    .select("id, name, slug, bio, location, avatar_url, status")
+    .eq("profile_id", userId)
+    .maybeSingle();
+
+  // Storage paths are persisted in the database, while the client receives a
+  // time-limited signed URL only for previewing a private avatar.
+  const avatarPath = profile?.avatar_url ?? artist?.avatar_url ?? null;
+  const avatarPreviewUrl = await resolveAvatarUrl(supabase, avatarPath);
+
+  return { profile, artist, avatarPreviewUrl };
 }

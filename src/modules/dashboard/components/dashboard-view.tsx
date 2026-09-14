@@ -9,6 +9,7 @@ import {
   Compass,
   MapPin,
   User,
+  Pencil,
 } from "lucide-react";
 import type { CreatorDashboardData } from "../types";
 
@@ -82,8 +83,16 @@ export function DashboardView({ data }: DashboardViewProps) {
             </div>
           </div>
 
-          {/* Action: Link to public artist profile if one exists */}
-          <div className="flex shrink-0 items-center gap-2">
+          {/* Actions: Edit Profile & View Public Artist Profile */}
+          <div className="flex flex-wrap shrink-0 items-center gap-2">
+            <Link
+              href="/dashboard/profile"
+              className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-background px-4 py-2.5 text-xs font-medium text-foreground shadow-2xs transition hover:bg-muted hover:border-border"
+            >
+              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+              <span>แก้ไขโปรไฟล์</span>
+            </Link>
+
             {artist ? (
               <Link
                 href={`/artists/${artist.slug}`}
