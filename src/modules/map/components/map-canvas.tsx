@@ -18,30 +18,27 @@ interface MapCanvasProps {
   onSelectLocation: (location: MapLocationItem | null) => void;
 }
 
-// Minimal, gallery-grade CartoDB Positron raster basemap (light, desaturated, clean)
-const CARTO_POSITRON_STYLE: StyleSpecification = {
+// Minimal, gallery-grade Esri World Light Gray Canvas raster basemap (light, neutral, clean)
+const ESRI_LIGHT_GRAY_STYLE: StyleSpecification = {
   version: 8,
   sources: {
-    "carto-positron": {
+    "esri-light-gray": {
       type: "raster",
       tiles: [
-        "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
-        "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
-        "https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
-        "https://d.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+        "https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       ],
       tileSize: 256,
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>',
+        '&copy; <a href="https://www.esri.com" target="_blank" rel="noopener noreferrer">Esri</a> &mdash; Sources: Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
     },
   },
   layers: [
     {
-      id: "carto-positron-layer",
+      id: "esri-light-gray-layer",
       type: "raster",
-      source: "carto-positron",
+      source: "esri-light-gray",
       minzoom: 0,
-      maxzoom: 19,
+      maxzoom: 18,
     },
   ],
 };
@@ -64,7 +61,7 @@ export function MapCanvas({
 
     const map = new MapLibreMap({
       container: mapContainerRef.current,
-      style: CARTO_POSITRON_STYLE,
+      style: ESRI_LIGHT_GRAY_STYLE,
       center: THAILAND_CENTER,
       zoom: DEFAULT_ZOOM,
       minZoom: 4,
