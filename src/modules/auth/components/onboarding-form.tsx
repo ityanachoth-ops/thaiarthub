@@ -140,7 +140,7 @@ export function OnboardingForm({
         .maybeSingle();
 
       if (existingArtist) {
-        await supabase
+        const { error: updateArtistError } = await supabase
           .from("artists")
           .update({
             name: displayName.trim(),
@@ -151,8 +151,14 @@ export function OnboardingForm({
             status: "published",
           })
           .eq("id", existingArtist.id);
+
+        if (updateArtistError) {
+          setErrorMessage(`บันทึกข้อมูลศิลปินไม่สำเร็จ: ${updateArtistError.message}`);
+          setIsLoading(false);
+          return;
+        }
       } else {
-        await supabase.from("artists").insert({
+        const { error: insertArtistError } = await supabase.from("artists").insert({
           profile_id: initialUserId,
           name: displayName.trim(),
           slug: username.toLowerCase().trim(),
@@ -161,6 +167,12 @@ export function OnboardingForm({
           avatar_url: finalAvatarUrl,
           status: "published",
         });
+
+        if (insertArtistError) {
+          setErrorMessage(`บันทึกข้อมูลศิลปินไม่สำเร็จ: ${insertArtistError.message}`);
+          setIsLoading(false);
+          return;
+        }
       }
 
       // 3. Redirect to creator dashboard
