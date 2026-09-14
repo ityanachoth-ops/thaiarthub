@@ -113,6 +113,26 @@ export async function getPublishedArtworks(): Promise<ArtworkListItem[]> {
   return Promise.all((data as unknown as WorkQueryRow[]).map((row) => toListItem(supabase, row)));
 }
 
+/** Published works belonging to one published artist profile. */
+export async function getPublishedArtworksByArtistId(
+  artistId: string,
+): Promise<ArtworkListItem[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("works")
+    .select(ARTWORK_SELECT)
+    .eq("artist_id", artistId)
+    .eq("status", "published")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to load published works for artist: ${error.message}`);
+  }
+  if (!data) return [];
+
+  return Promise.all((data as unknown as WorkQueryRow[]).map((row) => toListItem(supabase, row)));
+}
+
 /**
  * A single published work by public slug. Returns null (not an error) for
  * both "no such slug" and "exists but not published" -- callers should

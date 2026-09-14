@@ -145,6 +145,58 @@ export async function getPublishedEvents(): Promise<EventListItem[]> {
   }));
 }
 
+/** Published events linked to one artist through the public junction table. */
+export async function getPublishedEventsByArtistId(
+  artistId: string,
+): Promise<EventListItem[]> {
+  const supabase = await createClient();
+  const { data: links, error: linkError } = await supabase
+    .from("event_artists")
+    .select("event_id")
+    .eq("artist_id", artistId);
+
+  if (linkError) {
+    throw new Error(`ไม่สามารถโหลดกิจกรรมของศิลปินได้: ${linkError.message}`);
+  }
+
+  const eventIds = Array.from(new Set((links ?? []).map((link) => link.event_id)));
+  if (eventIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from("events")
+    .select(EVENT_LIST_COLUMNS)
+    .in("id", eventIds)
+    .eq("status", "published")
+    .order("start_at", { ascending: true });
+
+  if (error) {
+    throw new Error(`ไม่สามารถโหลดกิจกรรมของศิลปินได้: ${error.message}`);
+  }
+
+  const rows = data ?? [];
+  const signedUrls = await signCoverUrls(
+    supabase,
+    rows
+      .map((row) => row.cover_image_url)
+      .filter((value): value is string => Boolean(value)),
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    coverImageUrl: row.cover_image_url
+      ? isAbsoluteUrl(row.cover_image_url)
+        ? row.cover_image_url
+        : (signedUrls.get(row.cover_image_url) ?? null)
+      : null,
+    venueName: row.venue_name,
+    province: row.province,
+    startAt: row.start_at,
+    endAt: row.end_at,
+  }));
+}
+
 /**
  * Related artists via the event_artists junction (many-to-many).
  *
