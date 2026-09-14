@@ -240,7 +240,7 @@ export function ArtworkForm({
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="slug" className="block text-xs font-medium text-foreground">URL ของผลงาน *</label>
+            <label htmlFor="slug" className="block text-xs font-medium text-foreground">รหัส URL (Slug) ของผลงาน *</label>
             <input id="slug" required value={slug} onChange={(event) => setSlug(event.target.value.toLowerCase())} placeholder="my-artwork" className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary" />
             <p className="text-[11px] text-muted-foreground">ใช้ภาษาอังกฤษตัวพิมพ์เล็ก ตัวเลข และขีด (-)</p>
           </div>
@@ -265,7 +265,7 @@ export function ArtworkForm({
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="externalUrl" className="block text-xs font-medium text-foreground">ลิงก์เพิ่มเติม</label>
+            <label htmlFor="externalUrl" className="block text-xs font-medium text-foreground">URL เพิ่มเติม (ไม่บังคับ)</label>
             <input id="externalUrl" type="url" value={externalUrl} onChange={(event) => setExternalUrl(event.target.value)} placeholder="Instagram, portfolio หรือเว็บไซต์ผลงาน" className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary" />
           </div>
 
