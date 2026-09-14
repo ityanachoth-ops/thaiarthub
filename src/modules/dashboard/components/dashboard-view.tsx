@@ -10,6 +10,7 @@ import {
   MapPin,
   User,
   Pencil,
+  FileText,
 } from "lucide-react";
 import type { CreatorDashboardData } from "../types";
 import { CreatorArtworkManager } from "@/modules/artworks/components/creator-artwork-manager";
@@ -226,6 +227,19 @@ export function DashboardView({ data }: DashboardViewProps) {
             </div>
             <Compass className="h-4 w-4 text-muted-foreground" />
           </Link>
+          {profile.role === "admin" ? (
+            <Link
+              href="/dashboard/culture"
+              className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition hover:border-primary/40 hover:bg-card/80"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <FileText className="h-4 w-4" />
+                </div>
+                <span className="text-xs font-medium text-foreground">จัดการเรื่องราว</span>
+              </div>
+            </Link>
+          ) : null}
 
           <Link
             href="/events"

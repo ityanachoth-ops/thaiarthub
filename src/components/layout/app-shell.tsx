@@ -8,6 +8,7 @@ const navigation = [
   { href: "/artists", label: "ศิลปิน" },
   { href: "/artworks", label: "ผลงาน" },
   { href: "/events", label: "กิจกรรม" },
+  { href: "/culture", label: "เรื่องราว" },
   { href: "/map", label: "แผนที่" },
 ];
 

@@ -195,6 +195,37 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["event_artists"]["Insert"]>;
       };
+      articles: {
+        Row: {
+          id: string;
+          author_id: string;
+          title: string;
+          slug: string;
+          excerpt: string | null;
+          content: string;
+          cover_image_url: string | null;
+          category: string;
+          status: ContentStatus;
+          published_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_id: string;
+          title: string;
+          slug: string;
+          excerpt?: string | null;
+          content: string;
+          cover_image_url?: string | null;
+          category: string;
+          status?: ContentStatus;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["articles"]["Insert"]>;
+      };
     };
     Views: Record<string, never>;
     Functions: {
