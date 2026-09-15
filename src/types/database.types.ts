@@ -285,6 +285,43 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["articles"]["Insert"]>;
       };
+      creative_places: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          description: string | null;
+          cover_image_url: string | null;
+          type: string;
+          address: string | null;
+          province: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          external_url: string | null;
+          status: string;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          description?: string | null;
+          cover_image_url?: string | null;
+          type: string;
+          address?: string | null;
+          province?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          external_url?: string | null;
+          status?: string;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["creative_places"]["Insert"]>;
+      };
     };
     Views: Record<string, never>;
     Functions: {
