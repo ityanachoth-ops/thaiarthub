@@ -15,8 +15,8 @@ const navigation = [
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/15 selection:text-primary">
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background">
-        <div className="mx-auto flex min-h-[4.5rem] max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md">
+        <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-6">
             <Link
               href="/"
@@ -44,7 +44,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="px-3 py-2 text-[11px] font-medium tracking-wide text-stone-600 transition hover:text-primary whitespace-nowrap"
+                  className="rounded-lg px-3 py-1.5 font-medium text-stone-600 transition hover:bg-muted hover:text-primary whitespace-nowrap"
                 >
                   {item.label}
                 </Link>
@@ -55,7 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/search"
-              className="flex items-center gap-2 border-b border-border bg-background px-1 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-primary hover:text-primary"
+              className="flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-2xs transition hover:border-primary/40 hover:text-primary"
               aria-label="ค้นหาศิลปินและผลงาน"
             >
               <Search className="h-3.5 w-3.5 text-primary" />
