@@ -44,8 +44,12 @@ function mapPlace(row: CreativePlaceRow, signed: Map<string, string>, includePat
   };
 }
 
-async function getPlaces(supabase: SupabaseServerClient, query: ReturnType<SupabaseServerClient["from"]>, includePath = false) {
-  const { data, error } = await query;
+async function getPlaces(
+  supabase: SupabaseServerClient,
+  data: CreativePlaceRow[] | null,
+  error: { message: string } | null,
+  includePath = false,
+) {
   if (error) throw new Error(`ไม่สามารถโหลด Creative Places ได้: ${error.message}`);
   const rows = (data ?? []) as CreativePlaceRow[];
   const signed = await signPaths(supabase, rows.map((row) => row.cover_image_url).filter((path): path is string => Boolean(path)));
@@ -54,18 +58,19 @@ async function getPlaces(supabase: SupabaseServerClient, query: ReturnType<Supab
 
 export async function getCreativePlaces(userId: string, isAdmin: boolean) {
   const supabase = await createClient();
-  const query = supabase.from("creative_places").select(PLACE_COLUMNS).order("updated_at", { ascending: false });
-  const scoped = isAdmin ? query : query.eq("created_by", userId);
-  return getPlaces(supabase, scoped, true);
+  let query = supabase.from("creative_places").select(PLACE_COLUMNS).order("updated_at", { ascending: false });
+  if (!isAdmin) query = query.eq("created_by", userId);
+  const { data, error } = await query;
+  return getPlaces(supabase, data, error, true);
 }
 
 export async function getCreativePlaceById(id: string, userId: string, isAdmin: boolean): Promise<CreativePlace | null> {
   const supabase = await createClient();
-  const query = supabase.from("creative_places").select(PLACE_COLUMNS).eq("id", id);
-  const scoped = isAdmin ? query : query.eq("created_by", userId);
-  const { data, error } = await scoped.maybeSingle();
+  let query = supabase.from("creative_places").select(PLACE_COLUMNS).eq("id", id);
+  if (!isAdmin) query = query.eq("created_by", userId);
+  const { data, error } = await query.maybeSingle();
   if (error) throw new Error(`ไม่สามารถโหลด Creative Place ได้: ${error.message}`);
   if (!data) return null;
   const signed = await signPaths(supabase, data.cover_image_url ? [data.cover_image_url] : []);
-  return mapPlace(data as CreativePlaceRow, signed, true);
+  return mapPlace(data, signed, true);
 }
