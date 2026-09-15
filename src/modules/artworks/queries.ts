@@ -54,9 +54,17 @@ export interface ArtworkListItem {
   artist: ArtworkArtistSummary | null;
 }
 
+export interface ArtworkGalleryImage {
+  id: string;
+  imageUrl: string | null;
+  sortOrder: number;
+  createdAt: string;
+}
+
 export interface ArtworkDetail extends ArtworkListItem {
   description: string | null;
   externalUrl: string | null;
+  gallery: ArtworkGalleryImage[];
 }
 
 const ARTWORK_SELECT = `
@@ -74,6 +82,44 @@ async function resolveWorkImageUrl(
     .createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
   if (error || !data) return null;
   return data.signedUrl;
+}
+
+async function getPublishedWorkGallery(
+  supabase: SupabaseServerClient,
+  workId: string,
+): Promise<ArtworkGalleryImage[]> {
+  const { data, error } = await supabase
+    .from("work_images")
+    .select("id, image_path, sort_order, created_at")
+    .eq("work_id", workId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(`Failed to load artwork gallery: ${error.message}`);
+
+  const rows = data ?? [];
+  const paths = rows
+    .map((row) => row.image_path)
+    .filter((path) => !/^https?:\/\//i.test(path));
+  const signedUrls = new Map<string, string>();
+
+  if (paths.length > 0) {
+    const { data: signedData } = await supabase.storage
+      .from(WORKS_BUCKET)
+      .createSignedUrls(Array.from(new Set(paths)), SIGNED_URL_TTL_SECONDS);
+    for (const item of signedData ?? []) {
+      if (item.path && item.signedUrl) signedUrls.set(item.path, item.signedUrl);
+    }
+  }
+
+  return rows.map((row) => ({
+    id: row.id,
+    imageUrl: /^https?:\/\//i.test(row.image_path)
+      ? row.image_path
+      : signedUrls.get(row.image_path) ?? null,
+    sortOrder: row.sort_order,
+    createdAt: row.created_at,
+  }));
 }
 
 async function toListItem(
@@ -162,5 +208,6 @@ export async function getPublishedArtworkBySlug(slug: string): Promise<ArtworkDe
     ...listItem,
     description: row.description,
     externalUrl: row.external_url,
+    gallery: await getPublishedWorkGallery(supabase, row.id),
   };
 }

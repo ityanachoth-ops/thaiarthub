@@ -10,11 +10,15 @@ import {
   ImagePlus,
   Loader2,
   Save,
+  Trash2,
 } from "lucide-react";
 
 import { artworkSchema } from "@/lib/validations/artwork";
 import { createClient } from "@/lib/supabase/client";
-import type { CreatorArtwork } from "@/modules/artworks/creator-queries";
+import type {
+  CreatorArtwork,
+  CreatorArtworkGalleryImage,
+} from "@/modules/artworks/creator-queries";
 
 const CATEGORIES = [
   ["visual-art", "ทัศนศิลป์"],
@@ -31,7 +35,11 @@ interface ArtworkFormProps {
   artistId: string;
   artwork?: CreatorArtwork;
   imagePreviewUrl?: string | null;
+  gallery: CreatorArtworkGalleryImage[];
 }
+
+const MAX_GALLERY_IMAGES = 8;
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 function slugFromTitle(title: string) {
   return title
@@ -41,11 +49,36 @@ function slugFromTitle(title: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+async function removeUploadedGalleryPaths(
+  supabase: ReturnType<typeof createClient>,
+  workId: string,
+  paths: string[],
+  rowIds: string[],
+) {
+  if (paths.length === 0 && rowIds.length === 0) return null;
+  const storageResult = paths.length > 0
+    ? await supabase.storage.from("works").remove(paths)
+    : { error: null };
+  if (storageResult.error) return storageResult.error;
+
+  if (rowIds.length > 0) {
+    const { error } = await supabase
+      .from("work_images")
+      .delete()
+      .eq("work_id", workId)
+      .in("id", rowIds);
+    if (error) return error;
+  }
+
+  return null;
+}
+
 export function ArtworkForm({
   userId,
   artistId,
   artwork,
   imagePreviewUrl = null,
+  gallery: initialGallery,
 }: ArtworkFormProps) {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -62,6 +95,10 @@ export function ArtworkForm({
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(imagePreviewUrl);
+  const [gallery, setGallery] = useState(initialGallery);
+  const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
+  const [newGalleryPreviews, setNewGalleryPreviews] = useState<string[]>([]);
+  const [removedGallery, setRemovedGallery] = useState<CreatorArtworkGalleryImage[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -74,7 +111,7 @@ export function ArtworkForm({
       setErrorMessage("กรุณาเลือกไฟล์รูปภาพ");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > MAX_IMAGE_SIZE) {
       setErrorMessage("ขนาดรูปภาพต้องไม่เกิน 5 MB");
       return;
     }
@@ -82,6 +119,53 @@ export function ArtworkForm({
     setErrorMessage(null);
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleGalleryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length === 0) return;
+
+    const availableSlots = MAX_GALLERY_IMAGES - gallery.length - newGalleryFiles.length;
+    if (files.length > availableSlots) {
+      setErrorMessage(`เพิ่มภาพเพิ่มเติมได้อีกไม่เกิน ${Math.max(availableSlots, 0)} รูป`);
+      event.target.value = "";
+      return;
+    }
+
+    const invalidFile = files.find(
+      (file) => !["image/png", "image/jpeg", "image/webp"].includes(file.type),
+    );
+    if (invalidFile) {
+      setErrorMessage("ภาพเพิ่มเติมต้องเป็นไฟล์ PNG, JPG หรือ WebP");
+      event.target.value = "";
+      return;
+    }
+
+    const oversizedFile = files.find((file) => file.size > MAX_IMAGE_SIZE);
+    if (oversizedFile) {
+      setErrorMessage("ภาพเพิ่มเติมแต่ละไฟล์ต้องมีขนาดไม่เกิน 5 MB");
+      event.target.value = "";
+      return;
+    }
+
+    setErrorMessage(null);
+    setNewGalleryFiles((current) => [...current, ...files]);
+    setNewGalleryPreviews((current) => [
+      ...current,
+      ...files.map((file) => URL.createObjectURL(file)),
+    ]);
+    event.target.value = "";
+  };
+
+  const removeNewGalleryFile = (index: number) => {
+    URL.revokeObjectURL(newGalleryPreviews[index]);
+    setNewGalleryFiles((current) => current.filter((_, itemIndex) => itemIndex !== index));
+    setNewGalleryPreviews((current) => current.filter((_, itemIndex) => itemIndex !== index));
+  };
+
+  const removeGalleryImage = (image: CreatorArtworkGalleryImage) => {
+    setGallery((current) => current.filter((item) => item.id !== image.id));
+    setRemovedGallery((current) => [...current, image]);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -104,10 +188,16 @@ export function ArtworkForm({
       setErrorMessage(validation.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง");
       return;
     }
+    if (gallery.length + newGalleryFiles.length > MAX_GALLERY_IMAGES) {
+      setErrorMessage(`ภาพเพิ่มเติมรวมกันต้องไม่เกิน ${MAX_GALLERY_IMAGES} รูป`);
+      return;
+    }
 
     setIsSaving(true);
     try {
       const supabase = createClient();
+      const uploadedGalleryPaths: string[] = [];
+      const uploadedGalleryRowIds: string[] = [];
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -162,6 +252,58 @@ export function ArtworkForm({
       if (error) {
         setErrorMessage(`บันทึกผลงานไม่สำเร็จ: ${error.message}`);
         return;
+      }
+
+      for (const image of removedGallery) {
+        const { error: storageError } = await supabase.storage
+          .from("works")
+          .remove([image.imagePath]);
+        if (storageError) {
+          setErrorMessage(`ลบไฟล์ภาพเพิ่มเติมไม่สำเร็จ: ${storageError.message}`);
+          return;
+        }
+        const { error: deleteError } = await supabase
+          .from("work_images")
+          .delete()
+          .eq("id", image.id)
+          .eq("work_id", workId);
+        if (deleteError) {
+          setErrorMessage(`ลบรายการภาพเพิ่มเติมไม่สำเร็จ: ${deleteError.message}`);
+          return;
+        }
+      }
+
+      const galleryStartOrder = gallery.length;
+      for (const [index, file] of newGalleryFiles.entries()) {
+        const fileExtension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        const galleryPath = `${userId}/${workId}/gallery/${Date.now()}-${index}.${fileExtension}`;
+        const { error: uploadError } = await supabase.storage
+          .from("works")
+          .upload(galleryPath, file, { upsert: false });
+        if (uploadError) {
+          const cleanupError = await removeUploadedGalleryPaths(supabase, workId, uploadedGalleryPaths, uploadedGalleryRowIds);
+          setErrorMessage(`อัปโหลดภาพเพิ่มเติมไม่สำเร็จ: ${uploadError.message}`);
+          if (cleanupError) setErrorMessage(`อัปโหลดภาพเพิ่มเติมไม่สำเร็จ และล้างไฟล์ค้างไม่สำเร็จ: ${cleanupError.message}`);
+          return;
+        }
+        uploadedGalleryPaths.push(galleryPath);
+
+        const { data: insertedImage, error: insertError } = await supabase
+          .from("work_images")
+          .insert({
+            work_id: workId,
+            image_path: galleryPath,
+            sort_order: galleryStartOrder + index,
+          })
+          .select("id")
+          .single();
+        if (insertError) {
+          const cleanupError = await removeUploadedGalleryPaths(supabase, workId, uploadedGalleryPaths, uploadedGalleryRowIds);
+          setErrorMessage(`บันทึกภาพเพิ่มเติมไม่สำเร็จ: ${insertError.message}`);
+          if (cleanupError) setErrorMessage(`บันทึกภาพเพิ่มเติมไม่สำเร็จ และล้างไฟล์ค้างไม่สำเร็จ: ${cleanupError.message}`);
+          return;
+        }
+        uploadedGalleryRowIds.push(insertedImage.id);
       }
 
       setSuccessMessage(isEditing ? "บันทึกการแก้ไขแล้ว" : "เพิ่มผลงานแล้ว");
@@ -232,6 +374,43 @@ export function ArtworkForm({
                 <p className="mt-2 text-[11px] text-muted-foreground">PNG, JPG หรือ WebP ขนาดไม่เกิน 5 MB</p>
               </div>
             </div>
+          </section>
+
+          <section className="space-y-3 border-t border-border/60 pt-6">
+            <div className="flex items-baseline justify-between gap-3">
+              <label className="block text-xs font-medium text-foreground">ภาพเพิ่มเติม</label>
+              <span className="text-[11px] text-muted-foreground">{gallery.length + newGalleryFiles.length} / {MAX_GALLERY_IMAGES}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {gallery.map((image) => (
+                <div key={image.id} className="relative aspect-square overflow-hidden rounded-xl border border-border bg-muted/40">
+                  {image.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={image.imageUrl} alt="ภาพเพิ่มเติมของผลงาน" className="h-full w-full object-cover" />
+                  ) : <div className="flex h-full items-center justify-center text-xs text-muted-foreground">โหลดภาพไม่สำเร็จ</div>}
+                  <button type="button" onClick={() => removeGalleryImage(image)} className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/65 text-white transition hover:bg-destructive" aria-label="ลบภาพเพิ่มเติม">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+              {newGalleryPreviews.map((preview, index) => (
+                <div key={preview} className="relative aspect-square overflow-hidden rounded-xl border border-primary/40 bg-muted/40">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={preview} alt="ตัวอย่างภาพเพิ่มเติม" className="h-full w-full object-cover" />
+                  <button type="button" onClick={() => removeNewGalleryFile(index)} className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/65 text-white transition hover:bg-destructive" aria-label="นำภาพเพิ่มเติมออก">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+              {gallery.length + newGalleryFiles.length < MAX_GALLERY_IMAGES ? (
+                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/20 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-primary">
+                  <ImagePlus className="h-5 w-5" />
+                  <span>เพิ่มรูป</span>
+                  <input type="file" multiple accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleGalleryChange} />
+                </label>
+              ) : null}
+            </div>
+            <p className="text-[11px] text-muted-foreground">PNG, JPG หรือ WebP ไม่เกิน 5 MB ต่อไฟล์ และรวมไม่เกิน 8 รูป</p>
           </section>
 
           <div className="space-y-1.5">

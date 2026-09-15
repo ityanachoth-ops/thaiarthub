@@ -27,5 +27,5 @@ export default async function NewArtworkPage() {
   const artist = await getCreatorArtistForWorks(supabase, user.id);
   if (!artist) redirect("/dashboard");
 
-  return <ArtworkForm userId={user.id} artistId={artist.id} />;
+  return <ArtworkForm userId={user.id} artistId={artist.id} gallery={[]} />;
 }

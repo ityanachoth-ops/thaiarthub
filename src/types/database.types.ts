@@ -145,6 +145,23 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["works"]["Insert"]>;
       };
+      work_images: {
+        Row: {
+          id: string;
+          work_id: string;
+          image_path: string;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          work_id: string;
+          image_path: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["work_images"]["Insert"]>;
+      };
       events: {
         Row: {
           id: string;

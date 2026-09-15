@@ -5,6 +5,7 @@ import { ArtworkForm } from "@/modules/artworks/components/artwork-form";
 import {
   getCreatorArtistForWorks,
   getCreatorArtworkById,
+  getCreatorArtworkGallery,
 } from "@/modules/artworks/creator-queries";
 import { AccessDenied } from "@/modules/dashboard/components/access-denied";
 import { getAuthenticatedProfile } from "@/modules/dashboard/queries";
@@ -33,6 +34,7 @@ export default async function EditArtworkPage({ params }: { params: Promise<{ id
 
   const artwork = await getCreatorArtworkById(supabase, artist.id, id);
   if (!artwork) notFound();
+  const gallery = await getCreatorArtworkGallery(supabase, artwork.id);
 
   const imagePreviewUrl = artwork.image_url
     ? (await supabase.storage.from("works").createSignedUrl(artwork.image_url, 3600)).data
@@ -45,6 +47,7 @@ export default async function EditArtworkPage({ params }: { params: Promise<{ id
       artistId={artist.id}
       artwork={artwork}
       imagePreviewUrl={imagePreviewUrl}
+      gallery={gallery}
     />
   );
 }

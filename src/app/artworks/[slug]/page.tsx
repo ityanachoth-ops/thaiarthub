@@ -45,6 +45,24 @@ export default async function ArtworkDetailPage({ params }: ArtworkDetailPagePro
         )}
       </div>
 
+      {artwork.gallery.length > 0 ? (
+        <section className="flex flex-col gap-4">
+          <h2 className="text-xl font-semibold tracking-tight text-stone-900">ภาพเพิ่มเติม</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {artwork.gallery.map((image) => (
+              <a key={image.id} href={image.imageUrl ?? undefined} target="_blank" rel="noreferrer noopener" className="aspect-square overflow-hidden rounded-xl border border-stone-200 bg-stone-100 transition hover:border-orange-300">
+                {image.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL
+                  <img src={image.imageUrl} alt={`${artwork.title} ภาพเพิ่มเติม`} className="h-full w-full object-cover" loading="lazy" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-xs text-stone-400">โหลดภาพไม่สำเร็จ</div>
+                )}
+              </a>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <header className="flex flex-col gap-3">
         <span className="w-fit rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
           {artwork.type}
