@@ -17,18 +17,19 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="home-surface flex flex-col gap-14 py-4 sm:gap-20 sm:py-8">
-      <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-card p-6 shadow-xs sm:p-12 lg:p-16">
+    <div className="flex flex-col gap-14 py-4 sm:gap-20 sm:py-8">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-b from-card to-background p-6 shadow-xs sm:p-12 lg:p-16">
         <div className="relative z-10 max-w-3xl space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1 text-xs font-medium text-primary">
             <Sparkles className="h-3.5 w-3.5" />
             <span>แพลตฟอร์มศิลปะและครีเอเตอร์ไทยร่วมสมัย</span>
           </div>
-          <h1 className="text-4xl font-bold font-display leading-[1.15] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-bold font-display tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.15]">
             พื้นที่สำหรับพบเจอศิลปิน <br />
             <span className="text-primary">และงานสร้างสรรค์</span>
           </h1>
-          <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="max-w-2xl text-base sm:text-lg leading-relaxed text-muted-foreground">
             ThaiArtHub พื้นที่เชื่อมโยงผู้คนเข้ากับศิลปิน นักออกแบบ คราฟต์แมน และกิจกรรมศิลปะทั่วประเทศไทย ค้นพบตัวตน เรื่องราว และแรงบันดาลใจใหม่ๆ ได้ในที่เดียว
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -43,6 +44,8 @@ export default async function Home() {
             </Link>
           </div>
         </div>
+        <div className="pointer-events-none absolute -right-20 -top-20 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 right-1/4 h-72 w-72 rounded-full bg-amber-500/5 blur-3xl" />
       </section>
 
       {featuredArticles.length > 0 ? (
@@ -109,5 +112,4 @@ export default async function Home() {
       </section>
     </div>
   );
-}
 }
