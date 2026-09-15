@@ -17,7 +17,7 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="flex flex-col gap-14 py-4 sm:gap-20 sm:py-8">
+    <div className="home-background-texture flex flex-col gap-14 py-4 sm:gap-20 sm:py-8">
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-b from-card to-background p-6 shadow-xs sm:p-12 lg:p-16">
         <div className="relative z-10 max-w-3xl space-y-6">
