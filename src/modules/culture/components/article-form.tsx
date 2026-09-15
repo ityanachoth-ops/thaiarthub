@@ -21,6 +21,7 @@ export function ArticleForm({ userId, article }: { userId: string; article?: Art
   const [content, setContent] = useState(article?.content ?? "");
   const [category, setCategory] = useState<Article["category"]>(article?.category ?? "artist");
   const [status, setStatus] = useState<"draft" | "published">(article?.status ?? "draft");
+  const [isFeatured, setIsFeatured] = useState(article?.isFeatured ?? false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(article?.coverImageUrl ?? null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -85,6 +86,7 @@ export function ArticleForm({ userId, article }: { userId: string; article?: Art
         cover_image_url: coverPath,
         category,
         status,
+        is_featured: isFeatured,
         published_at: publishedAt,
       };
 
@@ -97,7 +99,7 @@ export function ArticleForm({ userId, article }: { userId: string; article?: Art
         return;
       }
 
-      router.push("/dashboard/culture");
+      router.push(isEditing ? "/dashboard/culture" : `/dashboard/culture/${articleId}/edit`);
       router.refresh();
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการบันทึกเรื่องราว");
@@ -177,6 +179,11 @@ export function ArticleForm({ userId, article }: { userId: string; article?: Art
             </select>
           </div>
         </div>
+
+        <label className="flex items-center gap-2 text-sm text-foreground">
+          <input type="checkbox" checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} />
+          แสดงเป็นเรื่องเด่นบนหน้าแรก
+        </label>
 
         <div className="space-y-1.5">
           <label htmlFor="article-excerpt" className="block text-sm font-medium text-foreground">คำโปรย</label>

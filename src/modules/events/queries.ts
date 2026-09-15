@@ -5,6 +5,8 @@ import { z } from "zod";
 // ⚠️ ASSUMPTION — align this import with src/modules/artworks/queries.ts.
 // Expected: a cookie-scoped anon-key server client. Never service-role.
 import { createClient } from "@/lib/supabase/server";
+import type { GalleryImage } from "@/modules/culture/types";
+import type { Database, EventStatus } from "@/types/database.types";
 
 /** Mirrors the DB CHECK constraint in *_thaiarthub_v1.sql */
 export const EVENT_SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{2,159}$/;
@@ -18,10 +20,10 @@ const EVENTS_BUCKET = "events";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
 const EVENT_LIST_COLUMNS =
-  "id, title, slug, cover_image_url, venue_name, province, start_at, end_at";
+  "id, title, slug, cover_image_url, venue_name, province, start_at, end_at, is_featured";
 
 const EVENT_DETAIL_COLUMNS =
-  "id, title, slug, description, cover_image_url, venue_name, address, province, latitude, longitude, start_at, end_at, external_url";
+  "id, title, slug, description, cover_image_url, venue_name, address, province, latitude, longitude, start_at, end_at, external_url, status, is_featured";
 
 export type EventListItem = {
   id: string;
@@ -32,6 +34,7 @@ export type EventListItem = {
   province: string | null;
   startAt: string;
   endAt: string | null;
+  isFeatured: boolean;
 };
 
 export type EventRelatedArtist = {
@@ -41,15 +44,72 @@ export type EventRelatedArtist = {
 };
 
 export type EventDetail = EventListItem & {
+  coverImagePath?: string | null;
   description: string | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
   externalUrl: string | null;
+  status: EventStatus;
   artists: EventRelatedArtist[];
+  gallery: GalleryImage[];
 };
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+type EventGalleryRow = Database["public"]["Tables"]["event_images"]["Row"];
+
+async function getEventGalleries(
+  supabase: SupabaseServerClient,
+  eventIds: string[],
+  includeStoragePaths = false,
+): Promise<Map<string, GalleryImage[]>> {
+  const galleries = new Map<string, GalleryImage[]>();
+  if (eventIds.length === 0) return galleries;
+
+  const { data, error } = await supabase
+    .from("event_images")
+    .select("id, event_id, image_url, sort_order, caption")
+    .in("event_id", eventIds)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(`ไม่สามารถโหลดแกลเลอรีกิจกรรมได้: ${error.message}`);
+
+  const rows = (data ?? []) as EventGalleryRow[];
+  const paths = rows.map((row) => row.image_url).filter((path) => !isAbsoluteUrl(path));
+  const signed = new Map<string, string>();
+  if (paths.length > 0) {
+    const { data: signedData } = await supabase.storage
+      .from(EVENTS_BUCKET)
+      .createSignedUrls(Array.from(new Set(paths)), SIGNED_URL_TTL_SECONDS);
+    for (const item of signedData ?? []) {
+      if (item.path && item.signedUrl) signed.set(item.path, item.signedUrl);
+    }
+  }
+
+  for (const row of rows) {
+    const gallery = galleries.get(row.event_id) ?? [];
+    gallery.push({
+      id: row.id,
+      ...(includeStoragePaths ? { imagePath: row.image_url } : {}),
+      imageUrl: isAbsoluteUrl(row.image_url) ? row.image_url : signed.get(row.image_url) ?? null,
+      sortOrder: row.sort_order,
+      caption: row.caption,
+    });
+    galleries.set(row.event_id, gallery);
+  }
+
+  return galleries;
+}
+
+async function getEventGallery(
+  supabase: SupabaseServerClient,
+  eventId: string,
+  includeStoragePaths = false,
+): Promise<GalleryImage[]> {
+  const galleries = await getEventGalleries(supabase, [eventId], includeStoragePaths);
+  return galleries.get(eventId) ?? [];
+}
 
 function isAbsoluteUrl(value: string): boolean {
   return /^https?:\/\//i.test(value);
@@ -142,6 +202,43 @@ export async function getPublishedEvents(): Promise<EventListItem[]> {
     province: row.province,
     startAt: row.start_at,
     endAt: row.end_at,
+    isFeatured: row.is_featured,
+  }));
+}
+
+export async function getFeaturedEvents(limit = 3): Promise<EventListItem[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("events")
+    .select(EVENT_LIST_COLUMNS)
+    .eq("status", "published")
+    .eq("is_featured", true)
+    .gte("start_at", new Date().toISOString())
+    .order("start_at", { ascending: true })
+    .limit(limit);
+
+  if (error) throw new Error(`ไม่สามารถโหลดกิจกรรมเด่นได้: ${error.message}`);
+
+  const rows = data ?? [];
+  const signedUrls = await signCoverUrls(
+    supabase,
+    rows.map((row) => row.cover_image_url).filter((value): value is string => Boolean(value)),
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    coverImageUrl: row.cover_image_url
+      ? isAbsoluteUrl(row.cover_image_url)
+        ? row.cover_image_url
+        : signedUrls.get(row.cover_image_url) ?? null
+      : null,
+    venueName: row.venue_name,
+    province: row.province,
+    startAt: row.start_at,
+    endAt: row.end_at,
+    isFeatured: row.is_featured,
   }));
 }
 
@@ -194,6 +291,7 @@ export async function getPublishedEventsByArtistId(
     province: row.province,
     startAt: row.start_at,
     endAt: row.end_at,
+    isFeatured: row.is_featured,
   }));
 }
 
@@ -247,9 +345,10 @@ export async function getPublishedEventBySlug(
 
   if (!data) return null;
 
-  const [coverImageUrl, artists] = await Promise.all([
+  const [coverImageUrl, artists, gallery] = await Promise.all([
     signCoverUrl(supabase, data.cover_image_url),
     getPublishedEventArtists(supabase, data.id),
+    getEventGallery(supabase, data.id),
   ]);
 
   return {
@@ -266,6 +365,84 @@ export async function getPublishedEventBySlug(
     startAt: data.start_at,
     endAt: data.end_at,
     externalUrl: data.external_url,
+    status: data.status,
+    isFeatured: data.is_featured,
     artists,
+    gallery,
+  };
+}
+
+export async function getAdminEvents(): Promise<EventDetail[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("events")
+    .select(EVENT_DETAIL_COLUMNS)
+    .order("start_at", { ascending: true });
+
+  if (error) throw new Error(`ไม่สามารถโหลดรายการกิจกรรมจัดการได้: ${error.message}`);
+
+  const rows = data ?? [];
+  const signedUrls = await signCoverUrls(
+    supabase,
+    rows.map((row) => row.cover_image_url).filter((value): value is string => Boolean(value)),
+  );
+  const galleries = await getEventGalleries(supabase, rows.map((row) => row.id), true);
+
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    coverImagePath: row.cover_image_url,
+    coverImageUrl: row.cover_image_url
+      ? isAbsoluteUrl(row.cover_image_url)
+        ? row.cover_image_url
+        : signedUrls.get(row.cover_image_url) ?? null
+      : null,
+    venueName: row.venue_name,
+    province: row.province,
+    startAt: row.start_at,
+    endAt: row.end_at,
+    description: row.description,
+    address: row.address,
+    latitude: row.latitude,
+    longitude: row.longitude,
+    externalUrl: row.external_url,
+    status: row.status,
+    isFeatured: row.is_featured,
+    artists: [],
+    gallery: galleries.get(row.id) ?? [],
+  }));
+}
+
+export async function getAdminEventById(id: string): Promise<EventDetail | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("events")
+    .select(EVENT_DETAIL_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new Error(`ไม่สามารถโหลดกิจกรรมได้: ${error.message}`);
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    title: data.title,
+    slug: data.slug,
+    coverImagePath: data.cover_image_url,
+    coverImageUrl: await signCoverUrl(supabase, data.cover_image_url),
+    venueName: data.venue_name,
+    province: data.province,
+    startAt: data.start_at,
+    endAt: data.end_at,
+    description: data.description,
+    address: data.address,
+    latitude: data.latitude,
+    longitude: data.longitude,
+    externalUrl: data.external_url,
+    status: data.status,
+    isFeatured: data.is_featured,
+    artists: [],
+    gallery: await getEventGallery(supabase, data.id),
   };
 }

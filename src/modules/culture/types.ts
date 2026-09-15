@@ -18,13 +18,23 @@ export type Article = {
   slug: string;
   excerpt: string | null;
   content: string;
-  coverImagePath: string | null;
+  coverImagePath?: string | null;
   coverImageUrl: string | null;
   category: ArticleCategory;
   status: ContentStatus;
+  isFeatured: boolean;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  gallery: GalleryImage[];
+};
+
+export type GalleryImage = {
+  id: string;
+  imagePath?: string;
+  imageUrl: string | null;
+  sortOrder: number;
+  caption: string | null;
 };
 
 export function getArticleCategoryLabel(category: ArticleCategory) {

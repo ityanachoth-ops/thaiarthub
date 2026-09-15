@@ -255,6 +255,19 @@ export function DashboardView({ data }: DashboardViewProps) {
             </div>
             <Compass className="h-4 w-4 text-muted-foreground" />
           </Link>
+          {profile.role === "admin" ? (
+            <Link
+              href="/dashboard/events"
+              className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition hover:border-primary/40 hover:bg-card/80"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Calendar className="h-4 w-4" />
+                </div>
+                <span className="text-xs font-medium text-foreground">จัดการกิจกรรม</span>
+              </div>
+            </Link>
+          ) : null}
 
           <Link
             href="/map"

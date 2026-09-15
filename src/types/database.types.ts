@@ -161,6 +161,7 @@ export interface Database {
           end_at: string | null;
           external_url: string | null;
           status: EventStatus;
+          is_featured: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -179,6 +180,7 @@ export interface Database {
           end_at?: string | null;
           external_url?: string | null;
           status?: EventStatus;
+          is_featured?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -195,6 +197,44 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["event_artists"]["Insert"]>;
       };
+      article_images: {
+        Row: {
+          id: string;
+          article_id: string;
+          image_url: string;
+          sort_order: number;
+          caption: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          article_id: string;
+          image_url: string;
+          sort_order?: number;
+          caption?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["article_images"]["Insert"]>;
+      };
+      event_images: {
+        Row: {
+          id: string;
+          event_id: string;
+          image_url: string;
+          sort_order: number;
+          caption: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event_id: string;
+          image_url: string;
+          sort_order?: number;
+          caption?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["event_images"]["Insert"]>;
+      };
       articles: {
         Row: {
           id: string;
@@ -206,6 +246,7 @@ export interface Database {
           cover_image_url: string | null;
           category: string;
           status: ContentStatus;
+          is_featured: boolean;
           published_at: string | null;
           created_at: string;
           updated_at: string;
@@ -220,6 +261,7 @@ export interface Database {
           cover_image_url?: string | null;
           category: string;
           status?: ContentStatus;
+          is_featured?: boolean;
           published_at?: string | null;
           created_at?: string;
           updated_at?: string;

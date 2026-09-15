@@ -216,7 +216,7 @@ results.artworks = data.map((w: ArtworkRow) => ({
     if (fetchEvents) {
       let query = supabase
         .from("events")
-        .select("id, title, slug, cover_image_url, venue_name, province, start_at, end_at")
+        .select("id, title, slug, cover_image_url, venue_name, province, start_at, end_at, is_featured")
         .eq("status", "published");
 
       if (category && eventIds && eventIds.length > 0) {
@@ -239,6 +239,7 @@ results.artworks = data.map((w: ArtworkRow) => ({
           province: e.province,
           startAt: e.start_at,
           endAt: e.end_at,
+          isFeatured: e.is_featured,
         }));
       }
     }

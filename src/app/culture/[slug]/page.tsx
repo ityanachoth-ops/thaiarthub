@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { getArticleCategoryLabel } from "@/modules/culture/types";
 import { getPublishedArticleBySlug } from "@/modules/culture/queries";
+import { GalleryGrid } from "@/modules/culture/components/gallery-grid";
 
 export const dynamic = "force-dynamic";
 
@@ -89,6 +90,8 @@ export default async function CultureArticlePage({
       <div className="whitespace-pre-line text-base leading-8 text-foreground/85">
         {article.content}
       </div>
+
+      <GalleryGrid images={article.gallery} />
 
       <footer className="flex flex-wrap items-center gap-3 border-t border-border/60 pt-6">
         <Link

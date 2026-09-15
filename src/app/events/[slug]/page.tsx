@@ -7,6 +7,7 @@ import {
   toDateAttribute,
 } from "@/modules/events/format";
 import { getPublishedEventBySlug } from "@/modules/events/queries";
+import { GalleryGrid } from "@/modules/culture/components/gallery-grid";
 
 export const dynamic = "force-dynamic";
 
@@ -83,6 +84,8 @@ export default async function EventDetailPage({
             </p>
           </section>
         ) : null}
+
+        <GalleryGrid images={event.gallery} />
 
         {event.venueName || event.address || event.province ? (
           <section className="space-y-3">

@@ -6,6 +6,7 @@ import { ArticleForm } from "@/modules/culture/components/article-form";
 import { getAdminArticleById } from "@/modules/culture/queries";
 import { AccessDenied } from "@/modules/dashboard/components/access-denied";
 import { getAuthenticatedProfile } from "@/modules/dashboard/queries";
+import { GalleryManager } from "@/modules/culture/components/gallery-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -30,5 +31,12 @@ export default async function EditCultureArticlePage({
   const article = await getAdminArticleById(id);
   if (!article) notFound();
 
-  return <ArticleForm userId={user.id} article={article} />;
+  return (
+    <div className="flex flex-col gap-6">
+      <ArticleForm userId={user.id} article={article} />
+      <div className="mx-auto w-full max-w-3xl">
+        <GalleryManager kind="article" parentId={article.id} ownerId={user.id} images={article.gallery} />
+      </div>
+    </div>
+  );
 }

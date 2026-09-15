@@ -1,7 +1,18 @@
 import Link from "next/link";
 import { ArrowRight, Calendar, Compass, MapPin, Palette, Sparkles, Users } from "lucide-react";
+import { ArticleGrid } from "@/modules/culture/components/article-grid";
+import { getFeaturedArticles } from "@/modules/culture/queries";
+import { EventGrid } from "@/modules/events/components/event-grid";
+import { getFeaturedEvents } from "@/modules/events/queries";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const [featuredArticles, featuredEvents] = await Promise.all([
+    getFeaturedArticles(3),
+    getFeaturedEvents(3),
+  ]);
+
   return (
     <div className="flex flex-col gap-14 sm:gap-20 py-4 sm:py-8">
       {/* Hero Section */}
@@ -48,6 +59,26 @@ export default function Home() {
         <div className="pointer-events-none absolute -right-20 -top-20 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 right-1/4 h-72 w-72 rounded-full bg-amber-500/5 blur-3xl" />
       </section>
+
+      {featuredArticles.length > 0 ? (
+        <section className="space-y-6">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="text-2xl font-bold font-display text-foreground">เรื่องเด่น</h2>
+            <Link href="/culture" className="text-xs font-medium text-primary hover:underline">ดูทั้งหมด</Link>
+          </div>
+          <ArticleGrid articles={featuredArticles} />
+        </section>
+      ) : null}
+
+      {featuredEvents.length > 0 ? (
+        <section className="space-y-6">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="text-2xl font-bold font-display text-foreground">กิจกรรมเด่น</h2>
+            <Link href="/events" className="text-xs font-medium text-primary hover:underline">ดูกิจกรรมทั้งหมด</Link>
+          </div>
+          <EventGrid events={featuredEvents} />
+        </section>
+      ) : null}
 
       {/* Discovery Channels */}
       <section className="space-y-6">
