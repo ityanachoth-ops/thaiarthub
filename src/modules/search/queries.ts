@@ -11,6 +11,26 @@ export type SearchResults = {
   events: EventListItem[];
 };
 
+export async function getPublishedEventProvinces(): Promise<string[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("events")
+    .select("province")
+    .eq("status", "published")
+    .not("province", "is", null)
+    .order("province", { ascending: true });
+
+  if (error) throw new Error(`ไม่สามารถโหลดรายชื่อจังหวัดได้: ${error.message}`);
+
+  return Array.from(
+    new Set(
+      (data ?? [])
+        .map((row) => row.province?.trim())
+        .filter((province): province is string => Boolean(province)),
+    ),
+  );
+}
+
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
@@ -60,10 +80,11 @@ function sanitizeSearchQuery(q: string) {
 export async function performSearch(params: {
   q: string;
   category: string | null;
+  province: string | null;
   type: "artist" | "artwork" | "event" | "all";
 }): Promise<SearchResults> {
   const supabase = await createClient();
-  const { q, category, type } = params;
+  const { q, category, province, type } = params;
   const searchPattern = `%${sanitizeSearchQuery(q)}%`;
 
   const results: SearchResults = { artists: [], artworks: [], events: [] };
@@ -221,6 +242,10 @@ results.artworks = data.map((w: ArtworkRow) => ({
 
       if (category && eventIds && eventIds.length > 0) {
         query = query.in("id", eventIds);
+      }
+
+      if (province) {
+        query = query.eq("province", province);
       }
 
       if (q) {
