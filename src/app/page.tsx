@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Calendar, Compass, MapPin, Palette, Sparkles, Users } from "lucide-react";
 import { getFeaturedArticles } from "@/modules/culture/queries";
 import { getFeaturedEvents } from "@/modules/events/queries";
-import { getMapLocations } from "@/modules/map/queries";
+import { getMapLocations, getCreativePlaceMapLocations } from "@/modules/map/queries";
 import { getPublishedPlaces } from "@/modules/places/queries";
 import { ArticleGrid } from "@/modules/culture/components/article-grid";
 import { EventGrid } from "@/modules/events/components/event-grid";
@@ -11,12 +11,14 @@ import { MapContainer } from "@/modules/map/components/map-container";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [featuredArticles, featuredEvents, mapLocations, publishedPlaces] = await Promise.all([
+  const [featuredArticles, featuredEvents, eventLocations, placeLocations, publishedPlaces] = await Promise.all([
     getFeaturedArticles(3),
     getFeaturedEvents(3),
     getMapLocations(),
+    getCreativePlaceMapLocations(),
     getPublishedPlaces(3),
   ]);
+  const mapLocations = [...eventLocations, ...placeLocations];
 
   return (
     <div className="home-background-texture flex flex-col gap-14 py-4 sm:gap-20 sm:py-8">
