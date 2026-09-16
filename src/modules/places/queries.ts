@@ -2,7 +2,7 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import type { SupabaseServerClient } from "@/modules/dashboard/queries";
-import type { CreativePlace, CreativePlaceRow } from "./types";
+import type { CreativePlace, CreativePlaceRow, PublicPlace, PublicPlaceRow } from "./types";
 
 const BUCKET = "creative-places";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
@@ -44,6 +44,21 @@ function mapPlace(row: CreativePlaceRow, signed: Map<string, string>, includePat
   };
 }
 
+function mapPublicPlace(row: PublicPlaceRow, signed: Map<string, string>): PublicPlace {
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    description: row.description,
+    coverImageUrl: row.cover_image_url
+      ? isAbsoluteUrl(row.cover_image_url) ? row.cover_image_url : signed.get(row.cover_image_url) ?? null
+      : null,
+    type: row.type as CreativePlace["type"],
+    address: row.address,
+    province: row.province,
+  };
+}
+
 async function getPlaces(
   supabase: SupabaseServerClient,
   data: CreativePlaceRow[] | null,
@@ -78,7 +93,7 @@ export async function getCreativePlaceById(id: string, userId: string, isAdmin: 
 const PLACE_LIST_COLUMNS =
   "id, name, slug, description, cover_image_url, type, address, province";
 
-export async function getPublishedPlaces(limit = 3): Promise<CreativePlace[]> {
+export async function getPublishedPlaces(limit = 3): Promise<PublicPlace[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("creative_places")
@@ -89,9 +104,9 @@ export async function getPublishedPlaces(limit = 3): Promise<CreativePlace[]> {
 
   if (error) throw new Error(`ไม่สามารถโหลดพื้นที่สร้างสรรค์ได้: ${error.message}`);
 
-  const rows = data ?? [];
+  const rows = (data ?? []) as PublicPlaceRow[];
   const signed = await signPaths(supabase, rows.map((row) => row.cover_image_url).filter((path): path is string => Boolean(path)));
-  return rows.map((row) => mapPlace(row, signed));
+  return rows.map((row) => mapPublicPlace(row, signed));
 }
 
 export async function getPublishedPlaceBySlug(slug: string): Promise<CreativePlace | null> {

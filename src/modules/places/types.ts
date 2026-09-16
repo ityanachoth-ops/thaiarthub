@@ -36,3 +36,19 @@ export type CreativePlace = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type PublicPlace = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  coverImageUrl: string | null;
+  type: CreativePlaceType;
+  address: string | null;
+  province: string | null;
+};
+
+export type PublicPlaceRow = Pick<
+  CreativePlaceRow,
+  "id" | "name" | "slug" | "description" | "cover_image_url" | "type" | "address" | "province"
+>;
