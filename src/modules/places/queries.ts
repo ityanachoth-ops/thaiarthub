@@ -74,3 +74,37 @@ export async function getCreativePlaceById(id: string, userId: string, isAdmin: 
   const signed = await signPaths(supabase, data.cover_image_url ? [data.cover_image_url] : []);
   return mapPlace(data, signed, true);
 }
+
+const PLACE_LIST_COLUMNS =
+  "id, name, slug, description, cover_image_url, type, address, province";
+
+export async function getPublishedPlaces(limit = 3): Promise<CreativePlace[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("creative_places")
+    .select(PLACE_LIST_COLUMNS)
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(`ไม่สามารถโหลดพื้นที่สร้างสรรค์ได้: ${error.message}`);
+
+  const rows = data ?? [];
+  const signed = await signPaths(supabase, rows.map((row) => row.cover_image_url).filter((path): path is string => Boolean(path)));
+  return rows.map((row) => mapPlace(row, signed));
+}
+
+export async function getPublishedPlaceBySlug(slug: string): Promise<CreativePlace | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("creative_places")
+    .select(PLACE_COLUMNS)
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (error) throw new Error(`ไม่สามารถโหลด Creative Place ได้: ${error.message}`);
+  if (!data) return null;
+  const signed = await signPaths(supabase, data.cover_image_url ? [data.cover_image_url] : []);
+  return mapPlace(data, signed, true);
+}

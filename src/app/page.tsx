@@ -3,6 +3,7 @@ import { ArrowRight, Calendar, Compass, MapPin, Palette, Sparkles, Users } from 
 import { getFeaturedArticles } from "@/modules/culture/queries";
 import { getFeaturedEvents } from "@/modules/events/queries";
 import { getMapLocations } from "@/modules/map/queries";
+import { getPublishedPlaces } from "@/modules/places/queries";
 import { ArticleGrid } from "@/modules/culture/components/article-grid";
 import { EventGrid } from "@/modules/events/components/event-grid";
 import { MapContainer } from "@/modules/map/components/map-container";
@@ -10,10 +11,11 @@ import { MapContainer } from "@/modules/map/components/map-container";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [featuredArticles, featuredEvents, mapLocations] = await Promise.all([
+  const [featuredArticles, featuredEvents, mapLocations, publishedPlaces] = await Promise.all([
     getFeaturedArticles(3),
     getFeaturedEvents(3),
     getMapLocations(),
+    getPublishedPlaces(3),
   ]);
 
   return (
@@ -78,6 +80,49 @@ export default async function Home() {
         </div>
         <MapContainer initialLocations={mapLocations} />
       </section>
+
+      {publishedPlaces.length > 0 ? (
+        <section className="space-y-6">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="text-2xl font-bold font-display text-foreground">พื้นที่สร้างสรรค์</h2>
+            <Link href="/map" className="text-xs font-medium text-primary hover:underline">ดูบนแผนที่</Link>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {publishedPlaces.map((place) => (
+              <Link
+                key={place.id}
+                href={`/places/${place.slug}`}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xs transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
+              >
+                {place.coverImageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={place.coverImageUrl}
+                    alt={place.name}
+                    className="aspect-[16/10] w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex aspect-[16/10] w-full items-center justify-center bg-muted text-xs text-muted-foreground">
+                    ไม่มีภาพปก
+                  </div>
+                )}
+                <div className="flex flex-col gap-1.5 p-5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">{place.type}</span>
+                    {place.province ? (
+                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" />{place.province}</span>
+                    ) : null}
+                  </div>
+                  <h3 className="font-semibold font-display text-foreground group-hover:text-primary transition-colors">{place.name}</h3>
+                  {place.description ? (
+                    <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{place.description}</p>
+                  ) : null}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="space-y-6">
         <div className="flex flex-col gap-1">
