@@ -125,7 +125,9 @@ export function MapCanvas({
             isSelected ? "block" : "hidden group-hover:block"
           }"></div>
           <div class="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white shadow-md transition-all ${
-            loc.type === "event" ? "bg-primary text-white" : "bg-stone-900 text-white"
+            loc.type === "event"
+              ? "bg-primary text-white"
+              : "bg-stone-600 text-white"
           } ${isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : ""}">
             <div class="h-2 w-2 rounded-full bg-white"></div>
           </div>

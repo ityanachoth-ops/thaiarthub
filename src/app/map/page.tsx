@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getMapLocations } from "@/modules/map/queries";
+import { getCreativePlaceMapLocations } from "@/modules/map/queries";
 import { MapContainer } from "@/modules/map/components/map-container";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +11,11 @@ export const metadata: Metadata = {
 };
 
 export default async function MapPage() {
-  const locations = await getMapLocations();
+  const [events, places] = await Promise.all([
+    getMapLocations(),
+    getCreativePlaceMapLocations(),
+  ]);
+  const locations = [...events, ...places];
 
   return (
     <div className="flex flex-col gap-8">

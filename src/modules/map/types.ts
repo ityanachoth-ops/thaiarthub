@@ -1,4 +1,4 @@
-export type MapItemType = "event" | "artist";
+export type MapItemType = "event" | "place";
 
 export interface MapLocationItem {
   id: string;
@@ -14,4 +14,5 @@ export interface MapLocationItem {
   startAt?: string | null;
   endAt?: string | null;
   artistName?: string | null;
+  description?: string | null;
 }

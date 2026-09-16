@@ -18,12 +18,16 @@ interface MapContainerProps {
   initialLocations: MapLocationItem[];
 }
 
+const TYPE_LABELS: Record<MapItemType, string> = {
+  event: "กิจกรรม",
+  place: "พื้นที่สร้างสรรค์",
+};
+
 export function MapContainer({ initialLocations }: MapContainerProps) {
   const [selectedType, setSelectedType] = useState<"all" | MapItemType>("all");
   const [selectedLocation, setSelectedLocation] =
     useState<MapLocationItem | null>(null);
 
-  // Filter locations by type
   const filteredLocations = useMemo(() => {
     if (selectedType === "all") return initialLocations;
     return initialLocations.filter((loc) => loc.type === selectedType);
@@ -33,8 +37,8 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
     () => initialLocations.filter((l) => l.type === "event").length,
     [initialLocations]
   );
-  const artistCount = useMemo(
-    () => initialLocations.filter((l) => l.type === "artist").length,
+  const placeCount = useMemo(
+    () => initialLocations.filter((l) => l.type === "place").length,
     [initialLocations]
   );
 
@@ -76,16 +80,16 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
           <button
             type="button"
             onClick={() => {
-              setSelectedType("artist");
+              setSelectedType("place");
               setSelectedLocation(null);
             }}
             className={`rounded-xl px-3.5 py-1.5 text-xs font-medium transition-colors ${
-              selectedType === "artist"
+              selectedType === "place"
                 ? "bg-primary text-primary-foreground shadow-2xs"
                 : "border border-border/80 bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            ศิลปิน ({artistCount})
+            พื้นที่สร้างสรรค์ ({placeCount})
           </button>
         </div>
 
@@ -108,11 +112,11 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
           </div>
           <div className="max-w-md space-y-2">
             <h2 className="font-display text-xl font-semibold text-foreground">
-              ยังไม่มีพิกัดกิจกรรมหรือศิลปินที่เผยแพร่ในขณะนี้
+              ยังไม่มีพิกัดกิจกรรมหรือพื้นที่สร้างสรรค์ที่เผยแพร่ในขณะนี้
             </h2>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              กิจกรรมและศิลปินที่ระบุพิกัดสถานที่ในระบบจะปรากฏบนแผนที่นี้โดยอัตโนมัติ
-              คุณสามารถติดตามกิจกรรมที่น่าสนใจหรือค้นพบผลงานศิลปินได้จากช่องทางหลัก
+              กิจกรรมและพื้นที่สร้างสรรค์ที่ระบุพิกัดสถานที่ในระบบจะปรากฏบนแผนที่นี้โดยอัตโนมัติ
+              คุณสามารถติดตามกิจกรรมที่น่าสนใจหรือค้นพบพื้นที่สร้างสรรค์ได้จากช่องทางหลัก
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -122,12 +126,6 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
             >
               <span>ดูกิจกรรมทั้งหมด</span>
               <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-            <Link
-              href="/artists"
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-5 py-2.5 text-xs font-medium text-foreground transition hover:bg-muted"
-            >
-              <span>ดูศิลปินทั้งหมด</span>
             </Link>
           </div>
         </div>
@@ -158,7 +156,7 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
 
                 <div className="mb-3 flex items-center gap-2">
                   <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
-                    {selectedLocation.type === "event" ? "กิจกรรม" : "ศิลปิน"}
+                    {TYPE_LABELS[selectedLocation.type]}
                   </span>
                   {selectedLocation.province ? (
                     <span className="text-xs text-muted-foreground">
@@ -188,7 +186,13 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
                     {selectedLocation.title}
                   </h3>
 
-                  {selectedLocation.venueName ? (
+                  {selectedLocation.type === "place" && selectedLocation.description ? (
+                    <p className="text-xs leading-relaxed text-muted-foreground line-clamp-3">
+                      {selectedLocation.description}
+                    </p>
+                  ) : null}
+
+                  {selectedLocation.type === "event" && selectedLocation.venueName ? (
                     <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
                       <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                       <span>
@@ -219,23 +223,34 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
 
                 {/* Action Buttons */}
                 <div className="mt-5 flex flex-col gap-2 border-t border-border/50 pt-4">
-                  <Link
-                    href={`/events/${selectedLocation.slug}`}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-medium text-primary-foreground shadow-2xs transition hover:bg-primary/90"
-                  >
-                    <span>ดูรายละเอียดกิจกรรม</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                  >
-                    <span>เปิดใน Google Maps</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
+                  {selectedLocation.type === "event" ? (
+                    <>
+                      <Link
+                        href={`/events/${selectedLocation.slug}`}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-medium text-primary-foreground shadow-2xs transition hover:bg-primary/90"
+                      >
+                        <span>ดูรายละเอียดกิจกรรม</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                      >
+                        <span>เปิดใน Google Maps</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </>
+                  ) : (
+                    <Link
+                      href={`/places/${selectedLocation.slug}`}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-medium text-primary-foreground shadow-2xs transition hover:bg-primary/90"
+                    >
+                      <span>ดูรายละเอียดสถานที่</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  )}
                 </div>
               </div>
             ) : (
@@ -245,12 +260,12 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
                     <h3 className="font-display text-sm font-semibold text-foreground">
-                      สถานที่จัดงานศิลปะ
+                      สถานที่จัดงานศิลปะและพื้นที่สร้างสรรค์
                     </h3>
                   </div>
                   <p className="text-xs leading-relaxed text-muted-foreground">
                     คลิกเลือกหมุดบนแผนที่เพื่อดูข้อมูลสถานที่ นิทรรศการ
-                    และรายละเอียดของศิลปิน
+                    และรายละเอียดของพื้นที่สร้างสรรค์
                   </p>
 
                   <div className="mt-3 flex flex-col gap-2 overflow-y-auto max-h-[460px] pr-1">
@@ -265,7 +280,7 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
                           {item.title}
                         </span>
                         <span className="mt-0.5 text-[11px] text-muted-foreground line-clamp-1">
-                          {item.venueName || item.province || "ไม่ระบุสถานที่"}
+                          {item.province || "ไม่ระบุสถานที่"}
                         </span>
                       </button>
                     ))}
