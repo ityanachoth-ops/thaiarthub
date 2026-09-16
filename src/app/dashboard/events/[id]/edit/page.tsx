@@ -20,5 +20,5 @@ export default async function EditDashboardEventPage({ params }: { params: Promi
   if (profile.role !== "admin") return <AccessDenied profile={profile} />;
   const event = await getAdminEventById(id);
   if (!event) notFound();
-  return <div className="flex flex-col gap-6"><EventForm event={event} /><div className="mx-auto w-full max-w-3xl"><GalleryManager kind="event" parentId={event.id} ownerId={user.id} images={event.gallery} /></div></div>;
+  return <div className="flex flex-col gap-6"><EventForm profileId={profile.id} event={event} /><div className="mx-auto w-full max-w-3xl"><GalleryManager kind="event" parentId={event.id} ownerId={user.id} images={event.gallery} /></div></div>;
 }

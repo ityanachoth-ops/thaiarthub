@@ -44,7 +44,6 @@ export type EventRelatedArtist = {
 };
 
 export type EventDetail = EventListItem & {
-  coverImagePath?: string | null;
   description: string | null;
   address: string | null;
   latitude: number | null;
@@ -53,6 +52,11 @@ export type EventDetail = EventListItem & {
   status: EventStatus;
   artists: EventRelatedArtist[];
   gallery: GalleryImage[];
+};
+
+/** Storage paths are intentionally available only to authenticated admin views. */
+export type AdminEventDetail = EventDetail & {
+  coverImagePath: string | null;
 };
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
@@ -372,7 +376,7 @@ export async function getPublishedEventBySlug(
   };
 }
 
-export async function getAdminEvents(): Promise<EventDetail[]> {
+export async function getAdminEvents(): Promise<AdminEventDetail[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("events")
@@ -414,7 +418,7 @@ export async function getAdminEvents(): Promise<EventDetail[]> {
   }));
 }
 
-export async function getAdminEventById(id: string): Promise<EventDetail | null> {
+export async function getAdminEventById(id: string): Promise<AdminEventDetail | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("events")

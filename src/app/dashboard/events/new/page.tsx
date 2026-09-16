@@ -15,5 +15,5 @@ export default async function NewDashboardEventPage() {
   if (!user) redirect("/login?redirect=/dashboard/events/new");
   if (!profile) redirect("/onboarding");
   if (profile.role !== "admin") return <AccessDenied profile={profile} />;
-  return <EventForm />;
+  return <EventForm profileId={profile.id} />;
 }
