@@ -217,7 +217,6 @@ export async function getFeaturedEvents(limit = 3): Promise<EventListItem[]> {
     .select(EVENT_LIST_COLUMNS)
     .eq("status", "published")
     .eq("is_featured", true)
-    .gte("start_at", new Date().toISOString())
     .order("start_at", { ascending: true })
     .limit(limit);
 
