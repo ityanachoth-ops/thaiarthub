@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, MapPin } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { ArtworkGrid } from "@/modules/artworks/components/artwork-grid";
@@ -9,6 +10,7 @@ import { getPublishedArtworksByArtistId } from "@/modules/artworks/queries";
 import { EventGrid } from "@/modules/events/components/event-grid";
 import { getPublishedEventsByArtistId } from "@/modules/events/queries";
 import { getPublishedArtistBySlug } from "@/modules/artists/queries";
+import { ClaimSection } from "./components/claim-section";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +41,18 @@ export default async function ArtistProfilePage({
 	const artist = await getPublishedArtistBySlug(username);
 
 	if (!artist) notFound();
+
+	const supabase = await createClient();
+	const { data: { user } } = await supabase.auth.getUser();
+
+	const { data: artistRow } = await supabase
+		.from("artists")
+		.select("profile_id")
+		.eq("id", artist.id)
+		.maybeSingle();
+
+	const artistProfileId = artistRow?.profile_id ?? null;
+	const userProfileId = user?.id ?? null;
 
 	const [artworks, events] = await Promise.all([
 		getPublishedArtworksByArtistId(artist.id),
@@ -114,24 +128,31 @@ export default async function ArtistProfilePage({
 						</p>
 					) : null}
 
-					{externalLinks.length > 0 ? (
-						<div className="flex flex-wrap gap-2.5">
-							{externalLinks.map(([label, href]) => (
-								<a
-									key={label}
-									href={href}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground transition hover:border-primary/40 hover:text-primary"
-								>
-									{label}
-									<ExternalLink className="h-3.5 w-3.5" />
-								</a>
-							))}
-						</div>
-					) : null}
-				</div>
-			</header>
+                {externalLinks.length > 0 ? (
+                  <div className="flex flex-wrap gap-2.5">
+                    {externalLinks.map(([label, href]) => (
+                      <a
+                        key={label}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3.5 py-2 text-xs font-medium text-foreground transition hover:border-primary/40 hover:text-primary"
+                      >
+                        {label}
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
+
+                <ClaimSection
+                  artistId={artist.id}
+                  artistName={artist.name}
+                  artistProfileId={artistProfileId}
+                  userProfileId={userProfileId}
+                />
+              </div>
+            </header>
 
 			<section className="space-y-4">
 				<div className="flex items-baseline justify-between gap-4 border-b border-border/50 pb-2">

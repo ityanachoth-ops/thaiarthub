@@ -322,6 +322,35 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["creative_places"]["Insert"]>;
       };
+      claim_requests: {
+        Row: {
+          id: string;
+          artist_id: string;
+          requester_profile_id: string;
+          verification_url: string | null;
+          message: string | null;
+          status: string;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          admin_note: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          artist_id: string;
+          requester_profile_id: string;
+          verification_url?: string | null;
+          message?: string | null;
+          status?: string;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          admin_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["claim_requests"]["Insert"]>;
+      };
     };
     Views: Record<string, never>;
     Functions: {

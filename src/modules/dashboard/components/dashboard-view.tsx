@@ -11,6 +11,7 @@ import {
   User,
   Pencil,
   FileText,
+  Shield,
 } from "lucide-react";
 import type { CreatorDashboardData } from "../types";
 import { CreatorArtworkManager } from "@/modules/artworks/components/creator-artwork-manager";
@@ -265,6 +266,20 @@ export function DashboardView({ data }: DashboardViewProps) {
                   <Calendar className="h-4 w-4" />
                 </div>
                 <span className="text-xs font-medium text-foreground">จัดการกิจกรรม</span>
+              </div>
+            </Link>
+          ) : null}
+
+          {profile.role === "admin" ? (
+            <Link
+              href="/dashboard/claims"
+              className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition hover:border-primary/40 hover:bg-card/80"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Shield className="h-4 w-4" />
+                </div>
+                <span className="text-xs font-medium text-foreground">จัดการคำขอ Claim</span>
               </div>
             </Link>
           ) : null}
