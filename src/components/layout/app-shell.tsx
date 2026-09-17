@@ -9,12 +9,12 @@ import { AuthNavButton } from "@/modules/auth/components/auth-nav-button";
 
 const navigation = [
   { href: "/", label: "หน้าหลัก" },
-  { href: "/places", label: "Creative Places" },
   { href: "/artists", label: "ศิลปิน" },
   { href: "/artworks", label: "ผลงาน" },
   { href: "/events", label: "กิจกรรม" },
   { href: "/culture", label: "เรื่องราว" },
   { href: "/map", label: "แผนที่" },
+  { href: "/places", label: "Creative Places" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
