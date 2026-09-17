@@ -3,8 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type { Database } from "@/types/database.types";
-
-type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+import { getAuthenticatedProfile } from "@/modules/dashboard/queries";
 
 function mapClaim(row: Database["public"]["Tables"]["claim_requests"]["Row"]) {
   return {
@@ -24,15 +23,8 @@ function mapClaim(row: Database["public"]["Tables"]["claim_requests"]["Row"]) {
 
 export async function getAllClaimRequests() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { user, profile } = await getAuthenticatedProfile(supabase);
   if (!user) throw new Error("Unauthorized");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
   if (profile?.role !== "admin") throw new Error("Forbidden");
 
   const { data, error } = await supabase
@@ -61,15 +53,8 @@ export async function approveClaimAction(
   adminNote?: string
 ) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { user, profile } = await getAuthenticatedProfile(supabase);
   if (!user) throw new Error("Unauthorized");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
   if (profile?.role !== "admin") throw new Error("Forbidden");
 
   const { data, error } = await supabase
@@ -108,15 +93,8 @@ export async function rejectClaimAction(
   adminNote?: string
 ) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { user, profile } = await getAuthenticatedProfile(supabase);
   if (!user) throw new Error("Unauthorized");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-
   if (profile?.role !== "admin") throw new Error("Forbidden");
 
   const { data, error } = await supabase
