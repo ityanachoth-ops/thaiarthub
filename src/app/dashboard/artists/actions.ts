@@ -10,9 +10,9 @@ const optionalUrl = z
   .string()
   .trim()
   .optional()
-  .transform((value) => (value ? value : null))
-  .pipe(z.url().nullable().optional());
-
+  .transform((value) => value || null)
+  .pipe(z.url().nullable());
+  
 const createAdminArtistSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().trim().min(1, "กรุณากรอกชื่อศิลปิน"),
