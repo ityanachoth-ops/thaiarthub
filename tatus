@@ -1,0 +1,19 @@
+warning: in the working copy of 'src/actions/claims.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/auth/callback/route.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/login/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/onboarding/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/signup/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/modules/auth/components/auth-nav-button.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/modules/auth/components/login-form.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/modules/auth/components/onboarding-form.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/modules/auth/components/signup-form.tsx', LF will be replaced by CRLF the next time Git touches it
+ src/actions/claims.ts                           | 10 [32m++[m[31m-[m
+ src/app/auth/callback/route.ts                  | 63 [32m++++++++++++++[m[31m--[m
+ src/app/login/page.tsx                          |  4 [32m+[m[31m-[m
+ src/app/onboarding/page.tsx                     | 17 [32m+++[m[31m--[m
+ src/app/signup/page.tsx                         |  2 [32m+[m[31m-[m
+ src/modules/auth/components/auth-nav-button.tsx |  2 [32m+[m[31m-[m
+ src/modules/auth/components/login-form.tsx      | 46 [32m++++++++[m[31m----[m
+ src/modules/auth/components/onboarding-form.tsx | 13 [32m+++[m[31m-[m
+ src/modules/auth/components/signup-form.tsx     | 95 [32m++++++++++++++++++[m[31m-------[m
+ 9 files changed, 196 insertions(+), 56 deletions(-)

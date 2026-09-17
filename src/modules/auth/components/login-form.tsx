@@ -6,11 +6,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Sparkles, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { loginSchema } from "../types";
+import {
+  getSafeInternalPath,
+  isArtistClaimRedirect,
+  resolvePostAuthPath,
+  withRedirectParam,
+} from "../redirect";
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectPath = searchParams.get("redirect") || "/dashboard";
+  const redirectPath = getSafeInternalPath(searchParams.get("redirect"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,7 +56,6 @@ export function LoginForm() {
       }
 
       if (data.user) {
-        // Check if profile is already configured
         const { data: profile } = await supabase
           .from("profiles")
           .select("id, role")
@@ -58,9 +63,30 @@ export function LoginForm() {
           .maybeSingle();
 
         if (!profile) {
-          router.push("/onboarding");
+          router.push(
+            isArtistClaimRedirect(redirectPath) ? redirectPath : "/"
+          );
         } else {
-          router.push(redirectPath);
+          const destination = resolvePostAuthPath({
+            role: profile.role,
+            next: redirectPath,
+          });
+
+          if (
+            (profile.role === "creator" || profile.role === "admin") &&
+            !isArtistClaimRedirect(destination) &&
+            destination !== "/onboarding"
+          ) {
+            const { data: artist } = await supabase
+              .from("artists")
+              .select("id")
+              .eq("profile_id", data.user.id)
+              .maybeSingle();
+
+            router.push(artist ? destination : "/onboarding");
+          } else {
+            router.push(destination);
+          }
         }
         router.refresh();
       }
@@ -74,20 +100,18 @@ export function LoginForm() {
 
   return (
     <div className="mx-auto w-full max-w-md rounded-3xl border border-border/80 bg-card p-6 shadow-xs sm:p-8">
-      {/* Header */}
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-2xs">
           <Sparkles className="h-6 w-6" />
         </div>
         <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
-          เข้าสู่ระบบครีเอเตอร์
+          เข้าสู่ระบบ
         </h1>
         <p className="mt-1.5 text-xs text-muted-foreground">
-          เข้าสู่ระบบเพื่อจัดการโปรไฟล์ ผลงาน และกิจกรรมบน ThaiArtHub
+          เข้าสู่ระบบเพื่อใช้งาน ThaiArtHub ในฐานะผู้ใช้ทั่วไปหรือครีเอเตอร์
         </p>
       </div>
 
-      {/* Error Alert */}
       {errorMessage ? (
         <div className="mb-5 flex items-start gap-2.5 rounded-2xl border border-destructive/20 bg-destructive/10 p-3.5 text-xs text-destructive">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -95,7 +119,6 @@ export function LoginForm() {
         </div>
       ) : null}
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
           <label
@@ -111,7 +134,7 @@ export function LoginForm() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="creator@example.com"
+            placeholder="you@example.com"
             className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary transition"
           />
         </div>
@@ -156,11 +179,10 @@ export function LoginForm() {
         </button>
       </form>
 
-      {/* Footer link */}
       <div className="mt-6 border-t border-border/50 pt-4 text-center text-xs text-muted-foreground">
         ยังไม่มีบัญชี?{" "}
         <Link
-          href={redirectPath !== "/dashboard" ? `/signup?redirect=${encodeURIComponent(redirectPath)}` : "/signup"}
+          href={withRedirectParam("/signup", redirectPath)}
           className="font-medium text-primary hover:underline transition-colors"
         >
           สมัครสมาชิกที่นี่

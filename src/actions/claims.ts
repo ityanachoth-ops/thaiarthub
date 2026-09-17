@@ -77,7 +77,6 @@ export async function approveClaimAction(
   if (error) throw new Error(`ไม่สามารถอนุมัติคำขอ Claim ได้: ${error.message}`);
   if (!data) throw new Error("ไม่พบคำขอที่จะอนุมัติ");
 
-  // Update artist ownership
   const { error: updateError } = await supabase
     .from("artists")
     .update({ profile_id: data.requester_profile_id })
@@ -85,6 +84,15 @@ export async function approveClaimAction(
 
   if (updateError) {
     console.error("Failed to update artist ownership:", updateError.message);
+  }
+
+  const { error: roleError } = await supabase
+    .from("profiles")
+    .update({ role: "creator" })
+    .eq("id", data.requester_profile_id);
+
+  if (roleError) {
+    console.error("Failed to elevate claimant role to creator:", roleError.message);
   }
 
   revalidatePath("/dashboard/claims");

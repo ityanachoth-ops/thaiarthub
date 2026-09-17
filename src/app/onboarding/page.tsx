@@ -16,17 +16,19 @@ export default async function OnboardingPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect onboarding route: redirect to /login if unauthenticated
   if (!user) {
     redirect("/login?redirect=/onboarding");
   }
 
-  // Pre-fetch any existing profile or artist record for this user
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, username, bio, avatar_url")
+    .select("display_name, username, bio, avatar_url, role")
     .eq("id", user.id)
     .maybeSingle();
+
+  if (!profile || (profile.role !== "creator" && profile.role !== "admin")) {
+    redirect("/");
+  }
 
   const { data: artist } = await supabase
     .from("artists")
@@ -43,11 +45,12 @@ export default async function OnboardingPage() {
     <div className="flex min-h-[calc(100vh-220px)] items-center justify-center py-8">
       <OnboardingForm
         initialUserId={user.id}
-        initialDisplayName={profile?.display_name || userMeta.display_name || ""}
-        initialUsername={profile?.username || userMeta.username || ""}
-        initialBio={profile?.bio || ""}
+        initialRole={profile.role}
+        initialDisplayName={profile.display_name || userMeta.display_name || ""}
+        initialUsername={profile.username || userMeta.username || ""}
+        initialBio={profile.bio || ""}
         initialLocation={artist?.location || ""}
-        initialAvatarUrl={profile?.avatar_url || artist?.avatar_url || ""}
+        initialAvatarUrl={profile.avatar_url || artist?.avatar_url || ""}
       />
     </div>
   );

@@ -5,8 +5,8 @@ import { LoginForm } from "@/modules/auth/components/login-form";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "เข้าสู่ระบบครีเอเตอร์ | ThaiArtHub",
-  description: "เข้าสู่ระบบสำหรับศิลปินและครีเอเตอร์ ThaiArtHub",
+  title: "เข้าสู่ระบบ | ThaiArtHub",
+  description: "เข้าสู่ระบบ ThaiArtHub สำหรับผู้ใช้ทั่วไปและครีเอเตอร์",
 };
 
 export default function LoginPage() {

@@ -13,10 +13,12 @@ import {
   Loader2,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import type { ProfileRole } from "@/types/database.types";
 import { onboardingSchema, THAI_PROVINCES } from "../types";
 
 interface OnboardingFormProps {
   initialUserId: string;
+  initialRole: ProfileRole;
   initialDisplayName?: string | null;
   initialUsername?: string | null;
   initialBio?: string | null;
@@ -26,6 +28,7 @@ interface OnboardingFormProps {
 
 export function OnboardingForm({
   initialUserId,
+  initialRole,
   initialDisplayName = "",
   initialUsername = "",
   initialBio = "",
@@ -79,6 +82,11 @@ export function OnboardingForm({
       return;
     }
 
+    if (initialRole !== "creator" && initialRole !== "admin") {
+      setErrorMessage("บัญชีผู้ใช้ทั่วไปไม่สามารถสร้างโปรไฟล์ศิลปินผ่านหน้านี้ได้");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const supabase = createClient();
@@ -116,15 +124,14 @@ export function OnboardingForm({
         }
       }
 
-      // 1. Upsert public.profiles — role stays 'user'; elevation to 'creator' happens
-      // only when an admin approves a Claim request via the admin dashboard.
+      // Keep creator (or admin) — never demote back to user during onboarding.
       const { error: profileError } = await supabase.from("profiles").upsert({
         id: initialUserId,
         display_name: displayName.trim(),
         username: username.toLowerCase().trim(),
         bio: bio.trim() || null,
         avatar_url: finalAvatarUrl,
-        role: "user",
+        role: initialRole === "admin" ? "admin" : "creator",
       });
 
       if (profileError) {

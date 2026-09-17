@@ -3,16 +3,25 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Sparkles, ArrowRight, AlertCircle, CheckCircle2, Mail, Loader2 } from "lucide-react";
+import { Sparkles, ArrowRight, AlertCircle, CheckCircle2, Mail, Loader2, User, Palette } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { signupSchema } from "../types";
+import {
+  getSafeInternalPath,
+  isArtistClaimRedirect,
+  withRedirectParam,
+} from "../redirect";
+
+type SignupIntent = "user" | "creator";
 
 export function SignUpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Honour the same ?redirect= param used by LoginForm so the Claim Artist flow
-  // returns the user to the correct artist page after signup.
-  const redirectPath = searchParams.get("redirect") ?? "/";
+  const redirectPath = getSafeInternalPath(searchParams.get("redirect"));
+  const isClaimFlow = isArtistClaimRedirect(redirectPath);
+
+  const [intent, setIntent] = useState<SignupIntent>("user");
+  const effectiveIntent: SignupIntent = isClaimFlow ? "user" : intent;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +30,9 @@ export function SignUpForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSuccessConfirmation, setIsSuccessConfirmation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const afterAuthPath =
+    isClaimFlow ? redirectPath : effectiveIntent === "creator" ? "/onboarding" : redirectPath;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +54,6 @@ export function SignUpForm() {
     try {
       const supabase = createClient();
 
-      // Check if username is already taken in profiles
       const { data: existingUser } = await supabase
         .from("profiles")
         .select("username")
@@ -55,13 +66,17 @@ export function SignUpForm() {
         return;
       }
 
+      const emailRedirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(afterAuthPath)}`;
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo,
           data: {
             display_name: displayName,
             username: username.toLowerCase(),
+            intended_role: effectiveIntent,
           },
         },
       });
@@ -72,21 +87,17 @@ export function SignUpForm() {
         return;
       }
 
-      // If Supabase session is established immediately (e.g. email confirmation disabled)
       if (data.session && data.user) {
-        // Create initial profile record with role 'user'.
-        // Role elevation to 'creator' happens only when an admin approves a Claim request.
         await supabase.from("profiles").upsert({
           id: data.user.id,
           display_name: displayName,
           username: username.toLowerCase(),
-          role: "user",
+          role: effectiveIntent,
         });
 
-        router.push(redirectPath);
+        router.push(afterAuthPath);
         router.refresh();
       } else {
-        // Email confirmation is required by Supabase Auth server setting
         setIsSuccessConfirmation(true);
       }
     } catch (err) {
@@ -117,12 +128,12 @@ export function SignUpForm() {
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
           ระบบได้ส่งอีเมลยืนยันตัวตนไปยัง{" "}
           <strong className="text-foreground font-medium">{email}</strong>{" "}
-          เรียบร้อยแล้ว กรุณาเปิดอีเมลและคลิกลิงก์ยืนยัน เพื่อเปิดใช้งานบัญชีครีเอเตอร์ของคุณ
+          เรียบร้อยแล้ว กรุณาเปิดอีเมลและคลิกลิงก์ยืนยัน เพื่อเปิดใช้งานบัญชีของคุณ
         </p>
 
         <div className="mt-6 flex flex-col gap-2">
           <Link
-            href="/login"
+            href={withRedirectParam("/login", afterAuthPath)}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-medium text-primary-foreground shadow-2xs transition hover:bg-primary/90"
           >
             <span>ไปที่หน้าเข้าสู่ระบบ</span>
@@ -141,20 +152,56 @@ export function SignUpForm() {
 
   return (
     <div className="mx-auto w-full max-w-md rounded-3xl border border-border/80 bg-card p-6 shadow-xs sm:p-8">
-      {/* Header */}
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-2xs">
           <Sparkles className="h-6 w-6" />
         </div>
         <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
-          สมัครเป็นครีเอเตอร์
+          สมัครสมาชิก
         </h1>
         <p className="mt-1.5 text-xs text-muted-foreground">
-          สร้างโปรไฟล์ศิลปิน เผยแพร่ผลงาน และร่วมเป็นส่วนหนึ่งของ ThaiArtHub
+          {isClaimFlow
+            ? "สร้างบัญชีผู้ใช้ทั่วไปเพื่อส่งคำขอ Claim โปรไฟล์ศิลปิน"
+            : "เลือกประเภทบัญชี แล้วสร้างโปรไฟล์บน ThaiArtHub"}
         </p>
       </div>
 
-      {/* Error Alert */}
+      {isClaimFlow ? (
+        <div className="mb-5 rounded-2xl border border-amber-500/20 bg-amber-500/10 p-3.5 text-xs leading-relaxed text-amber-800">
+          คุณกำลังยืนยันโปรไฟล์ศิลปินที่มีอยู่แล้ว บัญชีจะถูกสร้างเป็นผู้ใช้ทั่วไป
+          และต้องรอการอนุมัติจากผู้ดูแลระบบ
+        </div>
+      ) : (
+        <div className="mb-5 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setIntent("user")}
+            className={`flex flex-col items-start gap-1 rounded-2xl border px-3.5 py-3 text-left transition ${
+              effectiveIntent === "user"
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border bg-background text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            <User className="h-4 w-4" />
+            <span className="text-xs font-semibold">ผู้ใช้ทั่วไป</span>
+            <span className="text-[11px] leading-relaxed">ชมศิลปิน ผลงาน และข่าววัฒนธรรม</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIntent("creator")}
+            className={`flex flex-col items-start gap-1 rounded-2xl border px-3.5 py-3 text-left transition ${
+              effectiveIntent === "creator"
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border bg-background text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            <Palette className="h-4 w-4" />
+            <span className="text-xs font-semibold">Creator</span>
+            <span className="text-[11px] leading-relaxed">สร้างโปรไฟล์ศิลปินและจัดการผลงาน</span>
+          </button>
+        </div>
+      )}
+
       {errorMessage ? (
         <div className="mb-5 flex items-start gap-2.5 rounded-2xl border border-destructive/20 bg-destructive/10 p-3.5 text-xs text-destructive">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -162,14 +209,13 @@ export function SignUpForm() {
         </div>
       ) : null}
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-1.5">
           <label
             htmlFor="displayName"
             className="block text-xs font-medium text-foreground"
           >
-            ชื่อศิลปิน / ครีเอเตอร์
+            {effectiveIntent === "creator" ? "ชื่อศิลปิน / ครีเอเตอร์" : "ชื่อที่แสดง"}
           </label>
           <input
             id="displayName"
@@ -177,7 +223,7 @@ export function SignUpForm() {
             required
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="เช่น นาวิน พงศ์ศิริ หรือ กลุ่มศิลปะร่วมสมัย"
+            placeholder={effectiveIntent === "creator" ? "เช่น นาวิน พงศ์ศิริ" : "เช่น สมชาย"}
             className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary transition"
           />
         </div>
@@ -187,7 +233,7 @@ export function SignUpForm() {
             htmlFor="username"
             className="block text-xs font-medium text-foreground"
           >
-            ชื่อผู้ใช้ / Username (สำหรับลิงก์โปรไฟล์)
+            ชื่อผู้ใช้ / Username
           </label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
@@ -222,7 +268,7 @@ export function SignUpForm() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="creator@example.com"
+            placeholder="you@example.com"
             className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary transition"
           />
         </div>
@@ -258,18 +304,17 @@ export function SignUpForm() {
             </>
           ) : (
             <>
-              <span>สมัครเป็นครีเอเตอร์</span>
+              <span>สมัครสมาชิก</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </>
           )}
         </button>
       </form>
 
-      {/* Footer link */}
       <div className="mt-6 border-t border-border/50 pt-4 text-center text-xs text-muted-foreground">
         มีบัญชีอยู่แล้ว?{" "}
         <Link
-          href={redirectPath !== "/" ? `/login?redirect=${encodeURIComponent(redirectPath)}` : "/login"}
+          href={withRedirectParam("/login", redirectPath)}
           className="font-medium text-primary hover:underline transition-colors"
         >
           เข้าสู่ระบบที่นี่

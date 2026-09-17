@@ -85,7 +85,7 @@ export function AuthNavButton() {
         href="/signup"
         className="hidden sm:inline-flex items-center gap-1 rounded-xl bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-2xs transition hover:bg-primary/90"
       >
-        <span>สมัครครีเอเตอร์</span>
+        <span>สมัครสมาชิก</span>
       </Link>
     </div>
   );
