@@ -1,10 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { Search, Sparkles } from "lucide-react";
 
 import { AuthNavButton } from "@/modules/auth/components/auth-nav-button";
 
 const navigation = [
+  { href: "/", label: "หน้าหลัก" },
+  { href: "/places", label: "Creative Places" },
   { href: "/artists", label: "ศิลปิน" },
   { href: "/artworks", label: "ผลงาน" },
   { href: "/events", label: "กิจกรรม" },
@@ -13,6 +18,8 @@ const navigation = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground selection:bg-primary/15 selection:text-primary">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md">
@@ -40,15 +47,26 @@ export function AppShell({ children }: { children: ReactNode }) {
               aria-label="เมนูหลัก"
               className="flex items-center gap-1 overflow-x-auto text-sm sm:gap-1.5"
             >
-              {navigation.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="rounded-lg px-3 py-1.5 font-medium text-stone-600 transition hover:bg-muted hover:text-primary whitespace-nowrap"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {navigation.map((item) => {
+                const isActive =
+                  item.href === "/"
+                    ? pathname === "/"
+                    : pathname === item.href || pathname.startsWith(item.href + "/");
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`rounded-lg px-3 py-1.5 font-medium transition whitespace-nowrap ${
+                      isActive
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "text-stone-600 hover:bg-muted hover:text-primary"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
 
