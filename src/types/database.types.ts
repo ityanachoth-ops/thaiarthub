@@ -366,6 +366,10 @@ export interface Database {
         Args: { target_artist_id: string };
         Returns: boolean;
       };
+      is_artist_claimed: {
+        Args: { p_artist_id: string };
+        Returns: boolean;
+      };
     };
     Enums: {
       profile_role: ProfileRole;

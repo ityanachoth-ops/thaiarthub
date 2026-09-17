@@ -272,6 +272,20 @@ export function DashboardView({ data }: DashboardViewProps) {
 
           {profile.role === "admin" ? (
             <Link
+              href="/dashboard/artists"
+              className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition hover:border-primary/40 hover:bg-card/80"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <User className="h-4 w-4" />
+                </div>
+                <span className="text-xs font-medium text-foreground">เพิ่ม Artist</span>
+              </div>
+            </Link>
+          ) : null}
+
+          {profile.role === "admin" ? (
+            <Link
               href="/dashboard/claims"
               className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition hover:border-primary/40 hover:bg-card/80"
             >

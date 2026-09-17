@@ -81,6 +81,7 @@ export function LoginForm() {
               .from("artists")
               .select("id")
               .eq("profile_id", data.user.id)
+              .limit(1)
               .maybeSingle();
 
             router.push(artist ? destination : "/onboarding");

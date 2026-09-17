@@ -70,9 +70,9 @@ export default async function ArtistProfilePage({
 		userProfileId !== null &&
 		artistProfileId === userProfileId;
 
-	// isClaimed: call the SECURITY DEFINER function which joins artists → profiles
-	// internally and returns a boolean. This bypasses RLS safely — no profile or
-	// claim data is exposed. Works for unauthenticated visitors and any user.
+	// isClaimed: true when the owner profile has role = 'creator'.
+	// Admin-owned artists stay claimable. The SECURITY DEFINER helper joins
+	// artists → profiles internally and returns only a boolean.
 	//
 	// isPendingForCurrentUser: query the current user's own claim_requests row.
 	// RLS scopes this to only their own rows, so it is safe and correct.

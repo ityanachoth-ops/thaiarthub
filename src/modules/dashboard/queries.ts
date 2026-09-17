@@ -81,11 +81,12 @@ export async function getCreatorDashboardData(
   supabase: SupabaseServerClient,
   profile: CreatorProfile
 ): Promise<CreatorDashboardData> {
-  // Query the creator-owned artist record (profile_id is unique on artists)
   const { data: artistRow } = await supabase
     .from("artists")
     .select("id, name, slug, status, cover_image_url, avatar_url")
     .eq("profile_id", profile.id)
+    .order("created_at", { ascending: true })
+    .limit(1)
     .maybeSingle();
 
   if (!artistRow) {
@@ -171,6 +172,8 @@ export async function getCreatorProfileEditData(
     .from("artists")
     .select("id, name, slug, bio, location, avatar_url, status")
     .eq("profile_id", userId)
+    .order("created_at", { ascending: true })
+    .limit(1)
     .maybeSingle();
 
   // Storage paths are persisted in the database, while the client receives a

@@ -190,3 +190,76 @@ export async function getPublishedArtistBySlug(slug: string): Promise<ArtistDeta
     contactUrl: row.contact_url,
   };
 }
+
+export interface AdminArtistListItem {
+  id: string;
+  name: string;
+  slug: string;
+  status: Database["public"]["Enums"]["content_status"];
+  ownerRole: Database["public"]["Enums"]["profile_role"] | null;
+  ownerName: string;
+  ownerUsername: string;
+}
+
+export interface CreatorOwnerOption {
+  id: string;
+  displayName: string;
+  username: string;
+}
+
+type AdminArtistQueryRow = {
+  id: string;
+  name: string;
+  slug: string;
+  status: Database["public"]["Enums"]["content_status"];
+  profiles: {
+    role: Database["public"]["Enums"]["profile_role"];
+    display_name: string;
+    username: string;
+  } | null;
+};
+
+export async function getAdminArtists(): Promise<AdminArtistListItem[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("artists")
+    .select("id, name, slug, status, profiles(role, display_name, username)")
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(`ไม่สามารถโหลดรายการศิลปินได้: ${error.message}`);
+
+  return ((data ?? []) as unknown as AdminArtistQueryRow[]).map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    status: row.status,
+    ownerRole: row.profiles?.role ?? null,
+    ownerName: row.profiles?.display_name ?? "",
+    ownerUsername: row.profiles?.username ?? "",
+  }));
+}
+
+export async function getCreatorOwnerOptions(): Promise<CreatorOwnerOption[]> {
+  const supabase = await createClient();
+  const [{ data: creators, error: creatorError }, { data: owned, error: ownedError }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, display_name, username")
+      .eq("role", "creator")
+      .order("display_name", { ascending: true }),
+    supabase.from("artists").select("profile_id"),
+  ]);
+
+  if (creatorError) throw new Error(`ไม่สามารถโหลดรายชื่อ Creator ได้: ${creatorError.message}`);
+  if (ownedError) throw new Error(`ไม่สามารถโหลดเจ้าของศิลปินได้: ${ownedError.message}`);
+
+  const ownedIds = new Set((owned ?? []).map((row) => row.profile_id));
+  return (creators ?? [])
+    .filter((creator) => !ownedIds.has(creator.id))
+    .map((creator) => ({
+      id: creator.id,
+      displayName: creator.display_name,
+      username: creator.username,
+    }));
+}
+

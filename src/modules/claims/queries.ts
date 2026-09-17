@@ -92,6 +92,15 @@ export async function createClaimRequest(
   profileId: string
 ): Promise<ClaimRequest> {
   const supabase = await createClient();
+
+  const { data: isClaimed, error: claimedError } = await supabase.rpc("is_artist_claimed", {
+    p_artist_id: data.artistId,
+  });
+  if (claimedError) throw new Error(`ไม่สามารถตรวจสอบสิทธิ์ Claim ได้: ${claimedError.message}`);
+  if (isClaimed === true) {
+    throw new Error("โปรไฟล์นี้มี Creator เป็นเจ้าของแล้ว ไม่สามารถส่งคำขอ Claim ได้");
+  }
+
   const { data: result, error } = await supabase
     .from("claim_requests")
     .insert({

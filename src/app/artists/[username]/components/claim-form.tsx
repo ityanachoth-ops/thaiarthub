@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { submitClaimAction } from "@/actions/claims";
 
 interface ClaimFormProps {
   artistId: string;
@@ -11,6 +12,7 @@ interface ClaimFormProps {
 }
 
 export function ClaimForm({ artistId, artistName, onSuccess }: ClaimFormProps) {
+  const router = useRouter();
   const [verificationUrl, setVerificationUrl] = useState("");
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -35,50 +37,17 @@ export function ClaimForm({ artistId, artistName, onSuccess }: ClaimFormProps) {
 
     setIsSubmitting(true);
     try {
-      const supabase = createClient();
-
-      // profiles.id = auth.users.id — no separate profiles lookup needed.
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        // Should not reach here: ClaimForm is only rendered for logged-in users.
-        setErrorMessage("กรุณาเข้าสู่ระบบก่อนส่งคำขอ");
-        return;
-      }
-
-      const { data: existing } = await supabase
-        .from("claim_requests")
-        .select("id, status")
-        .eq("artist_id", artistId)
-        .eq("requester_profile_id", user.id)
-        .maybeSingle();
-
-      if (existing) {
-        if (existing.status === "pending") {
-          setErrorMessage("คุณได้ส่งคำขอ Claim สำหรับโปรไฟล์นี้แล้ว กำลังอยู่ระหว่างตรวจสอบ");
-        } else if (existing.status === "approved") {
-          setSuccessMessage("คุณเป็นเจ้าของโปรไฟล์นี้แล้ว");
-        } else {
-          setErrorMessage("คำขอ Claim ก่อนหน้าถูกปฏิเสธแล้ว กรุณาติดต่อทีมงานเพื่อส่งคำขอใหม่");
-        }
-        return;
-      }
-
-      const { error } = await supabase
-        .from("claim_requests")
-        .insert({
-          artist_id: artistId,
-          requester_profile_id: user.id,
-          verification_url: verificationUrl.trim(),
-          message: message.trim(),
-          status: "pending",
-        });
-
-      if (error) throw new Error(error.message);
+      await submitClaimAction({
+        artistId,
+        verificationUrl: verificationUrl.trim(),
+        message: message.trim(),
+      });
 
       setSuccessMessage("ส่งคำขอ Claim แล้ว ทีมงานจะตรวจสอบและแจ้งผลให้ทราบ");
       setVerificationUrl("");
       setMessage("");
       onSuccess?.();
+      router.refresh();
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการส่งคำขอ"

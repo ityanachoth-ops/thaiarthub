@@ -15,9 +15,8 @@ interface ClaimSectionProps {
   /** True when the current user's profile_id matches the artist's profile_id. */
   isOwner: boolean;
   /**
-   * True when the artist's profile_id belongs to a non-admin profile (role
-   * 'creator' or 'user'), meaning a real owner already holds this profile.
-   * Derived server-side from profiles.role — no claim_requests data is exposed.
+   * True when the artist's owner profile has role = 'creator'.
+   * Admin-owned artists remain claimable. Derived via is_artist_claimed().
    */
   isClaimed: boolean;
   /** True when the current user has a pending claim_requests row for this artist. */

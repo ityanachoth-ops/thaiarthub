@@ -168,6 +168,7 @@ export function ProfileEditForm({
         .from("artists")
         .select("id")
         .eq("profile_id", userId)
+        .limit(1)
         .maybeSingle();
 
       if (existingArtist) {

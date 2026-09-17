@@ -34,6 +34,7 @@ export default async function OnboardingPage() {
     .from("artists")
     .select("location, avatar_url")
     .eq("profile_id", user.id)
+    .limit(1)
     .maybeSingle();
 
   const userMeta = (user.user_metadata || {}) as {

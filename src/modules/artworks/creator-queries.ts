@@ -36,6 +36,7 @@ export async function getCreatorArtistForWorks(
     .from("artists")
     .select("id")
     .eq("profile_id", profileId)
+    .limit(1)
     .maybeSingle();
 
   return data;
