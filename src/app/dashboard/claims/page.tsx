@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { getAllClaimRequests } from "@/actions/claims";
 import { AccessDenied } from "@/modules/dashboard/components/access-denied";
 import { getAuthenticatedProfile } from "@/modules/dashboard/queries";
 import { ClaimRequestsTable } from "./components/claim-requests-table";
-import type { ClaimRequestWithNames } from "@/modules/claims/types";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ export default async function DashboardClaimsPage() {
   if (!profile) redirect("/onboarding");
   if (profile.role !== "admin") return <AccessDenied profile={profile} />;
 
-  const claims = await getAllClaimRequests() as ClaimRequestWithNames[];
+  const claims = await getAllClaimRequests();
 
   return (
     <div className="flex flex-col gap-8">

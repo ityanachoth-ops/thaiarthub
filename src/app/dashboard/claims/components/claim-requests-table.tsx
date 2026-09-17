@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Loader2, CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react";
 import { approveClaimAction, rejectClaimAction } from "@/actions/claims";
-import type { ClaimRequestWithNames } from "../types";
+import type { ClaimRequestWithNames } from "@/modules/claims/types";
 
 interface ClaimRequestsTableProps {
   claims: ClaimRequestWithNames[];

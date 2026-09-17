@@ -13,7 +13,10 @@ interface ClaimSectionProps {
   userProfileId: string | null;
 }
 
-type ClaimRow = Database["public"]["Tables"]["claim_requests"]["Row"];
+type ClaimRow = Pick<
+  Database["public"]["Tables"]["claim_requests"]["Row"],
+  "id" | "status" | "verification_url" | "message"
+>;
 
 function mapClaim(row: ClaimRow) {
   return {
