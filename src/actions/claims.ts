@@ -29,7 +29,11 @@ export async function getAllClaimRequests() {
 
   const { data, error } = await supabase
     .from("claim_requests")
-    .select("*, artists(name, slug), profiles(display_name, username)")
+    .select(`
+      *,
+      artists(name, slug),
+      requester:profiles!claim_requests_requester_profile_id_fkey(display_name, username)
+    `)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(`ไม่สามารถโหลดคำขอ Claim ได้: ${error.message}`);
@@ -37,7 +41,7 @@ export async function getAllClaimRequests() {
   return (data ?? []).map((row) => {
     const base = mapClaim(row as Database["public"]["Tables"]["claim_requests"]["Row"]);
     const artist = (row as unknown as { artists: { name: string; slug: string } | null }).artists;
-    const requester = (row as unknown as { profiles: { display_name: string; username: string } | null }).profiles;
+    const requester = (row as unknown as { requester: { display_name: string; username: string } | null }).requester;
     return {
       ...base,
       artistName: artist?.name ?? "",
