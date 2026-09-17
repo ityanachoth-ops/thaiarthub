@@ -45,19 +45,53 @@ export default async function ArtistProfilePage({
 	const supabase = await createClient();
 	const { data: { user } } = await supabase.auth.getUser();
 
-	const { data: artistRow } = await supabase
-		.from("artists")
-		.select("profile_id")
-		.eq("id", artist.id)
-		.maybeSingle();
-
-	const artistProfileId = artistRow?.profile_id ?? null;
 	const userProfileId = user?.id ?? null;
 
-	const [artworks, events] = await Promise.all([
+	// Fetch the artist row for profile_id alongside artworks and events in parallel.
+	// artistRow.profile_id is NOT NULL — it always points to whoever owns the artist
+	// row (admin/seed until a claim is approved, then the claimant's profile).
+	const [artistRowResult, artworks, events] = await Promise.all([
+		supabase
+			.from("artists")
+			.select("profile_id")
+			.eq("id", artist.id)
+			.maybeSingle(),
 		getPublishedArtworksByArtistId(artist.id),
 		getPublishedEventsByArtistId(artist.id),
 	]);
+
+	const artistProfileId = artistRowResult.data?.profile_id ?? null;
+
+	// isOwner: current user's profile_id matches the artist's profile_id directly.
+	// This is true when the artist row was created by the current user, or after
+	// approveClaimAction reassigns artists.profile_id to the claimant's profile.
+	const isOwner =
+		artistProfileId !== null &&
+		userProfileId !== null &&
+		artistProfileId === userProfileId;
+
+	// isClaimed: call the SECURITY DEFINER function which joins artists → profiles
+	// internally and returns a boolean. This bypasses RLS safely — no profile or
+	// claim data is exposed. Works for unauthenticated visitors and any user.
+	//
+	// isPendingForCurrentUser: query the current user's own claim_requests row.
+	// RLS scopes this to only their own rows, so it is safe and correct.
+	// Skip the pending query for unauthenticated visitors.
+	const [isClaimedResult, pendingClaimResult] = await Promise.all([
+		supabase.rpc("is_artist_claimed", { p_artist_id: artist.id }),
+		userProfileId
+			? supabase
+					.from("claim_requests")
+					.select("id")
+					.eq("artist_id", artist.id)
+					.eq("requester_profile_id", userProfileId)
+					.eq("status", "pending")
+					.maybeSingle()
+			: Promise.resolve({ data: null, error: null }),
+	]);
+
+	const isClaimed = isClaimedResult.data === true;
+	const isPendingForCurrentUser = pendingClaimResult.data !== null;
 
 	const externalLinks = [
 		["เว็บไซต์", artist.websiteUrl],
@@ -148,8 +182,11 @@ export default async function ArtistProfilePage({
                 <ClaimSection
                   artistId={artist.id}
                   artistName={artist.name}
-                  artistProfileId={artistProfileId}
-                  userProfileId={userProfileId}
+                  artistSlug={artist.slug}
+                  isLoggedIn={userProfileId !== null}
+                  isOwner={isOwner}
+                  isClaimed={isClaimed}
+                  isPendingForCurrentUser={isPendingForCurrentUser}
                 />
               </div>
             </header>

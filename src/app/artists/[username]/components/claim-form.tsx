@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import type { Database } from "@/types/database.types";
 
 interface ClaimFormProps {
   artistId: string;
@@ -37,20 +36,12 @@ export function ClaimForm({ artistId, artistName, onSuccess }: ClaimFormProps) {
     setIsSubmitting(true);
     try {
       const supabase = createClient();
+
+      // profiles.id = auth.users.id — no separate profiles lookup needed.
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        // Should not reach here: ClaimForm is only rendered for logged-in users.
         setErrorMessage("กรุณาเข้าสู่ระบบก่อนส่งคำขอ");
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (!profile) {
-        setErrorMessage("ไม่พบโปรไฟล์ของคุณ");
         return;
       }
 
@@ -58,7 +49,7 @@ export function ClaimForm({ artistId, artistName, onSuccess }: ClaimFormProps) {
         .from("claim_requests")
         .select("id, status")
         .eq("artist_id", artistId)
-        .eq("requester_profile_id", profile.id)
+        .eq("requester_profile_id", user.id)
         .maybeSingle();
 
       if (existing) {
@@ -67,7 +58,7 @@ export function ClaimForm({ artistId, artistName, onSuccess }: ClaimFormProps) {
         } else if (existing.status === "approved") {
           setSuccessMessage("คุณเป็นเจ้าของโปรไฟล์นี้แล้ว");
         } else {
-          setErrorMessage("คำขอ Claim ก่อนหน้าถูกปฏิเสธแล้ว คุณสามารถส่งคำขอใหม่ได้");
+          setErrorMessage("คำขอ Claim ก่อนหน้าถูกปฏิเสธแล้ว กรุณาติดต่อทีมงานเพื่อส่งคำขอใหม่");
         }
         return;
       }
@@ -76,7 +67,7 @@ export function ClaimForm({ artistId, artistName, onSuccess }: ClaimFormProps) {
         .from("claim_requests")
         .insert({
           artist_id: artistId,
-          requester_profile_id: profile.id,
+          requester_profile_id: user.id,
           verification_url: verificationUrl.trim(),
           message: message.trim(),
           status: "pending",
@@ -84,7 +75,7 @@ export function ClaimForm({ artistId, artistName, onSuccess }: ClaimFormProps) {
 
       if (error) throw new Error(error.message);
 
-      setSuccessMessage("ส่งคำขอ Claim แล้ว");
+      setSuccessMessage("ส่งคำขอ Claim แล้ว ทีมงานจะตรวจสอบและแจ้งผลให้ทราบ");
       setVerificationUrl("");
       setMessage("");
       onSuccess?.();
