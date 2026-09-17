@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { getPublishedPlaceBySlug } from "@/modules/places/queries";
@@ -48,6 +48,10 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
   const hasCoordinates =
     typeof place.latitude === "number" && typeof place.longitude === "number";
 
+  const mapUrl = hasCoordinates
+    ? `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`
+    : null;
+
   return (
     <main className="container mx-auto px-4 py-10">
       <article className="mx-auto max-w-3xl space-y-8">
@@ -82,32 +86,37 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
           </section>
         ) : null}
 
-        {place.address || place.province ? (
+        {place.address || place.province || mapUrl ? (
           <section className="space-y-3">
             <h2 className="text-lg font-semibold">ที่ตั้ง</h2>
-            <dl className="space-y-2 text-sm">
-              {place.address ? (
-                <div className="flex gap-2">
-                  <dt className="w-24 shrink-0 text-muted-foreground">ที่อยู่</dt>
-                  <dd>{place.address}</dd>
-                </div>
-              ) : null}
-              {place.province ? (
-                <div className="flex gap-2">
-                  <dt className="w-24 shrink-0 text-muted-foreground">จังหวัด</dt>
-                  <dd>{place.province}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </section>
-        ) : null}
+            {place.address || place.province ? (
+              <dl className="space-y-2 text-sm">
+                {place.address ? (
+                  <div className="flex gap-2">
+                    <dt className="w-24 shrink-0 text-muted-foreground">ที่อยู่</dt>
+                    <dd className="whitespace-pre-line">{place.address}</dd>
+                  </div>
+                ) : null}
+                {place.province ? (
+                  <div className="flex gap-2">
+                    <dt className="w-24 shrink-0 text-muted-foreground">จังหวัด</dt>
+                    <dd>{place.province}</dd>
+                  </div>
+                ) : null}
+              </dl>
+            ) : null}
 
-        {hasCoordinates ? (
-          <section className="space-y-3">
-            <h2 className="text-lg font-semibold">พิกัด</h2>
-            <p className="text-sm text-muted-foreground">
-              ละติจูด: {place.latitude} · ลองจิจูด: {place.longitude}
-            </p>
+            {mapUrl ? (
+              <a
+                href={mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border px-4 text-sm font-medium transition-colors hover:bg-accent"
+              >
+                <MapPin className="h-4 w-4 text-primary" />
+                <span>เปิดใน Google Maps</span>
+              </a>
+            ) : null}
           </section>
         ) : null}
 
