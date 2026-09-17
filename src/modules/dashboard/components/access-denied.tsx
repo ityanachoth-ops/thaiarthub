@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ShieldAlert, Home, Compass, Sparkles } from "lucide-react";
+import { ShieldAlert, Home, Compass, Sparkles, Bookmark } from "lucide-react";
 import type { CreatorProfile } from "../types";
 import { BecomeCreatorButton } from "@/modules/auth/components/become-creator-button";
 
@@ -40,8 +40,18 @@ export function AccessDenied({ profile }: AccessDeniedProps) {
         </div>
       </div>
 
+      <div className="mt-4 w-full">
+        <Link
+          href="/dashboard/saved"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-xs font-medium text-foreground shadow-2xs transition hover:bg-muted"
+        >
+          <Bookmark className="h-4 w-4 text-primary fill-primary/20" />
+          <span>ดูรายการที่บันทึกไว้ของคุณ</span>
+        </Link>
+      </div>
+
       {profile?.role === "user" ? (
-        <div className="mt-6 w-full rounded-2xl border border-primary/30 bg-primary/5 p-5 text-left shadow-2xs">
+        <div className="mt-4 w-full rounded-2xl border border-primary/30 bg-primary/5 p-5 text-left shadow-2xs">
           <div className="flex items-center gap-2 text-primary font-semibold text-sm">
             <Sparkles className="h-4 w-4 shrink-0" />
             <span>สร้างโปรไฟล์ Creator</span>

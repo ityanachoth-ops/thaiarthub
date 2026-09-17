@@ -1,12 +1,14 @@
 import Link from "next/link";
 
 import type { ArtworkListItem } from "@/modules/artworks/queries";
+import { SaveButton } from "@/modules/bookmarks/components/save-button";
 
 interface ArtworkCardProps {
   artwork: ArtworkListItem;
+  isSaved?: boolean;
 }
 
-export function ArtworkCard({ artwork }: ArtworkCardProps) {
+export function ArtworkCard({ artwork, isSaved = false }: ArtworkCardProps) {
   const metadata = [artwork.artist?.name, artwork.type]
     .filter(Boolean)
     .join(" · ");
@@ -14,7 +16,7 @@ export function ArtworkCard({ artwork }: ArtworkCardProps) {
   return (
     <Link
       href={`/artworks/${artwork.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs"
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/60">
         {artwork.imageUrl ? (
@@ -29,6 +31,9 @@ export function ArtworkCard({ artwork }: ArtworkCardProps) {
             {artwork.title.charAt(0)}
           </div>
         )}
+        <div className="absolute right-3 top-3 z-10">
+          <SaveButton itemType="work" itemId={artwork.id} initialSaved={isSaved} />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col justify-between gap-1 p-4">

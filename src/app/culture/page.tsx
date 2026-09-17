@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ArticleGrid } from "@/modules/culture/components/article-grid";
 import { getPublishedArticles } from "@/modules/culture/queries";
+import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default async function CulturePage() {
-  const articles = await getPublishedArticles();
+  const [articles, savedIds] = await Promise.all([
+    getPublishedArticles(),
+    getUserSavedItemIds(),
+  ]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -26,7 +30,7 @@ export default async function CulturePage() {
       </header>
 
       {articles.length > 0 ? (
-        <ArticleGrid articles={articles} />
+        <ArticleGrid articles={articles} savedIds={savedIds} />
       ) : (
         <EmptyState
           title="ยังไม่มีเรื่องราวที่เผยแพร่"

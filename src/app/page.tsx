@@ -7,16 +7,19 @@ import { getPublishedPlaces } from "@/modules/places/queries";
 import { ArticleGrid } from "@/modules/culture/components/article-grid";
 import { EventGrid } from "@/modules/events/components/event-grid";
 import { MapContainer } from "@/modules/map/components/map-container";
+import { PlaceCard } from "@/modules/places/components/place-card";
+import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [featuredArticles, featuredEvents, eventLocations, placeLocations, publishedPlaces] = await Promise.all([
+  const [featuredArticles, featuredEvents, eventLocations, placeLocations, publishedPlaces, savedIds] = await Promise.all([
     getFeaturedArticles(3),
     getFeaturedEvents(3),
     getMapLocations(),
     getCreativePlaceMapLocations(),
     getPublishedPlaces(3),
+    getUserSavedItemIds(),
   ]);
   const mapLocations = [...eventLocations, ...placeLocations];
 
@@ -58,7 +61,7 @@ export default async function Home() {
             <h2 className="text-2xl font-bold font-display text-foreground">เรื่องเด่น</h2>
             <Link href="/culture" className="text-xs font-medium text-primary hover:underline">ดูทั้งหมด</Link>
           </div>
-          <ArticleGrid articles={featuredArticles} />
+          <ArticleGrid articles={featuredArticles} savedIds={savedIds} />
         </section>
       ) : null}
 
@@ -68,7 +71,7 @@ export default async function Home() {
             <h2 className="text-2xl font-bold font-display text-foreground">กิจกรรมเด่น</h2>
             <Link href="/events" className="text-xs font-medium text-primary hover:underline">ดูกิจกรรมทั้งหมด</Link>
           </div>
-          <EventGrid events={featuredEvents} />
+          <EventGrid events={featuredEvents} savedIds={savedIds} />
         </section>
       ) : null}
 
@@ -91,36 +94,7 @@ export default async function Home() {
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {publishedPlaces.map((place) => (
-              <Link
-                key={place.id}
-                href={`/places/${place.slug}`}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xs transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
-              >
-                {place.coverImageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={place.coverImageUrl}
-                    alt={place.name}
-                    className="aspect-[16/10] w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex aspect-[16/10] w-full items-center justify-center bg-muted text-xs text-muted-foreground">
-                    ไม่มีภาพปก
-                  </div>
-                )}
-                <div className="flex flex-col gap-1.5 p-5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">{place.type}</span>
-                    {place.province ? (
-                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" />{place.province}</span>
-                    ) : null}
-                  </div>
-                  <h3 className="font-semibold font-display text-foreground group-hover:text-primary transition-colors">{place.name}</h3>
-                  {place.description ? (
-                    <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{place.description}</p>
-                  ) : null}
-                </div>
-              </Link>
+              <PlaceCard key={place.id} place={place} isSaved={savedIds.has(place.id)} />
             ))}
           </div>
         </section>

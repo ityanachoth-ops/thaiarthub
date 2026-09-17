@@ -1,18 +1,20 @@
 import Link from "next/link";
 
 import type { ArtistListItem } from "@/modules/artists/queries";
+import { SaveButton } from "@/modules/bookmarks/components/save-button";
 
 interface ArtistCardProps {
   artist: ArtistListItem;
+  isSaved?: boolean;
 }
 
-export function ArtistCard({ artist }: ArtistCardProps) {
+export function ArtistCard({ artist, isSaved = false }: ArtistCardProps) {
   const categoryList = artist.categories.map((c) => c.name).join(" · ");
 
   return (
     <Link
       href={`/artists/${artist.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs"
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/60">
         {artist.coverUrl ? (
@@ -27,6 +29,9 @@ export function ArtistCard({ artist }: ArtistCardProps) {
             {artist.name.charAt(0)}
           </div>
         )}
+        <div className="absolute right-3 top-3 z-10">
+          <SaveButton itemType="artist" itemId={artist.id} initialSaved={isSaved} />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col justify-between gap-1 p-4">

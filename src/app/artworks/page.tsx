@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ArtworkGrid } from "@/modules/artworks/components/artwork-grid";
 import { getPublishedArtworks } from "@/modules/artworks/queries";
+import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
 
 export const metadata: Metadata = {
   title: "ผลงาน | Thaiarthub",
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ArtworksPage() {
-  const artworks = await getPublishedArtworks();
+  const [artworks, savedIds] = await Promise.all([
+    getPublishedArtworks(),
+    getUserSavedItemIds(),
+  ]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -27,7 +31,7 @@ export default async function ArtworksPage() {
           description="กลับมาดูใหม่อีกครั้ง ศิลปินกำลังทยอยเผยแพร่ผลงาน"
         />
       ) : (
-        <ArtworkGrid artworks={artworks} />
+        <ArtworkGrid artworks={artworks} savedIds={savedIds} />
       )}
     </div>
   );

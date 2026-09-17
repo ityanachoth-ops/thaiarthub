@@ -5,12 +5,14 @@ import {
   formatEventDateRange,
   toDateAttribute,
 } from "@/modules/events/format";
+import { SaveButton } from "@/modules/bookmarks/components/save-button";
 
 type EventCardProps = {
   event: EventListItem;
+  isSaved?: boolean;
 };
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, isSaved = false }: EventCardProps) {
   const location = [event.venueName, event.province]
     .filter((part): part is string => Boolean(part && part.trim()))
     .join(" · ");
@@ -18,7 +20,7 @@ export function EventCard({ event }: EventCardProps) {
   return (
     <Link
       href={`/events/${event.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted/60">
         {event.coverImageUrl ? (
@@ -36,6 +38,9 @@ export function EventCard({ event }: EventCardProps) {
             ไม่มีภาพกิจกรรม
           </div>
         )}
+        <div className="absolute right-3 top-3 z-10">
+          <SaveButton itemType="event" itemId={event.id} initialSaved={isSaved} />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col justify-between gap-2.5 p-4">

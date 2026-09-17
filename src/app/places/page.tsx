@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { MapPin } from "lucide-react";
 
 import { getPublishedPlaces } from "@/modules/places/queries";
+import { PlaceCard } from "@/modules/places/components/place-card";
+import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -11,22 +11,11 @@ export const metadata: Metadata = {
   description: "ค้นพบพื้นที่สร้างสรรค์ แกลเลอรี สตูดิโอ และอาตส์สเปซทั่วประเทศไทย",
 };
 
-const typeLabels: Record<string, string> = {
-  gallery: "Gallery",
-  "art-space": "Art Space",
-  studio: "Studio",
-  livehouse: "Livehouse",
-  "creative-cafe": "Creative Cafe",
-  "local-brand": "Local Brand",
-  skate: "Skate",
-  craft: "Craft",
-  vintage: "Vintage",
-  zine: "Zine",
-  other: "Other",
-};
-
 export default async function PlacesPage() {
-  const places = await getPublishedPlaces(50);
+  const [places, savedIds] = await Promise.all([
+    getPublishedPlaces(50),
+    getUserSavedItemIds(),
+  ]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -46,47 +35,7 @@ export default async function PlacesPage() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {places.map((place) => (
-            <Link
-              key={place.id}
-              href={`/places/${place.slug}`}
-              className="group overflow-hidden rounded-2xl border border-border/80 bg-card transition hover:border-primary/40 hover:shadow-xs"
-            >
-              <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
-                {place.coverImageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={place.coverImageUrl}
-                    alt={place.name}
-                    className="h-full w-full object-cover transition group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <MapPin className="h-8 w-8 text-muted-foreground/40" />
-                  </div>
-                )}
-              </div>
-              <div className="p-5 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-                    {typeLabels[place.type] ?? place.type}
-                  </span>
-                  {place.province ? (
-                    <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                      <MapPin className="h-3 w-3 text-primary" />
-                      {place.province}
-                    </span>
-                  ) : null}
-                </div>
-                <h2 className="font-display font-semibold text-base text-foreground group-hover:text-primary transition-colors">
-                  {place.name}
-                </h2>
-                {place.description ? (
-                  <p className="line-clamp-2 text-xs text-muted-foreground leading-relaxed">
-                    {place.description}
-                  </p>
-                ) : null}
-              </div>
-            </Link>
+            <PlaceCard key={place.id} place={place} isSaved={savedIds.has(place.id)} />
           ))}
         </div>
       )}

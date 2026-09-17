@@ -3,9 +3,10 @@ import type { EventListItem } from "@/modules/events/queries";
 
 type EventGridProps = {
   events: EventListItem[];
+  savedIds?: Set<string>;
 };
 
-export function EventGrid({ events }: EventGridProps) {
+export function EventGrid({ events, savedIds }: EventGridProps) {
   if (events.length === 0) {
     return (
       <div className="rounded-xl border border-dashed p-10 text-center">
@@ -19,7 +20,7 @@ export function EventGrid({ events }: EventGridProps) {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {events.map((event) => (
-        <EventCard key={event.id} event={event} />
+        <EventCard key={event.id} event={event} isSaved={savedIds?.has(event.id)} />
       ))}
     </div>
   );

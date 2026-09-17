@@ -1,12 +1,18 @@
 import Link from "next/link";
 
 import { getArticleCategoryLabel, type Article } from "../types";
+import { SaveButton } from "@/modules/bookmarks/components/save-button";
 
-export function ArticleCard({ article }: { article: Article }) {
+interface ArticleCardProps {
+  article: Article;
+  isSaved?: boolean;
+}
+
+export function ArticleCard({ article, isSaved = false }: ArticleCardProps) {
   return (
     <Link
       href={`/culture/${article.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs"
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs"
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted/60">
         {article.coverImageUrl ? (
@@ -21,6 +27,9 @@ export function ArticleCard({ article }: { article: Article }) {
             {article.title.charAt(0)}
           </div>
         )}
+        <div className="absolute right-3 top-3 z-10">
+          <SaveButton itemType="article" itemId={article.id} initialSaved={isSaved} />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { EventGrid } from "@/modules/events/components/event-grid";
 import { getPublishedEvents } from "@/modules/events/queries";
+import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
 
 // Signed URLs are short-lived and the session is cookie-scoped.
 export const dynamic = "force-dynamic";
@@ -12,7 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default async function EventsPage() {
-  const events = await getPublishedEvents();
+  const [events, savedIds] = await Promise.all([
+    getPublishedEvents(),
+    getUserSavedItemIds(),
+  ]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -25,7 +29,7 @@ export default async function EventsPage() {
         </p>
       </header>
 
-      <EventGrid events={events} />
+      <EventGrid events={events} savedIds={savedIds} />
     </div>
   );
 }

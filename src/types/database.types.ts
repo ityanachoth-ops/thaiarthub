@@ -18,6 +18,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type ProfileRole = "user" | "creator" | "admin";
 export type ContentStatus = "draft" | "published";
 export type EventStatus = "draft" | "published" | "cancelled";
+export type SavedItemType = "artist" | "work" | "event" | "place" | "article";
 
 export interface Database {
   public: {
@@ -351,6 +352,23 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["claim_requests"]["Insert"]>;
       };
+      user_saved_items: {
+        Row: {
+          id: string;
+          profile_id: string;
+          item_type: SavedItemType;
+          item_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          profile_id: string;
+          item_type: SavedItemType;
+          item_id: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["user_saved_items"]["Insert"]>;
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -375,6 +393,7 @@ export interface Database {
       profile_role: ProfileRole;
       content_status: ContentStatus;
       event_status: EventStatus;
+      saved_item_type: SavedItemType;
     };
     CompositeTypes: Record<string, never>;
   };
