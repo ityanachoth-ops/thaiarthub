@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ShieldAlert, Home, Compass } from "lucide-react";
+import { ShieldAlert, Home, Compass, Sparkles } from "lucide-react";
 import type { CreatorProfile } from "../types";
+import { BecomeCreatorButton } from "@/modules/auth/components/become-creator-button";
 
 interface AccessDeniedProps {
   profile: CreatorProfile | null;
@@ -39,10 +40,25 @@ export function AccessDenied({ profile }: AccessDeniedProps) {
         </div>
       </div>
 
+      {profile?.role === "user" ? (
+        <div className="mt-6 w-full rounded-2xl border border-primary/30 bg-primary/5 p-5 text-left shadow-2xs">
+          <div className="flex items-center gap-2 text-primary font-semibold text-sm">
+            <Sparkles className="h-4 w-4 shrink-0" />
+            <span>สร้างโปรไฟล์ Creator</span>
+          </div>
+          <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+            สร้างหน้าโปรไฟล์ศิลปินและผลงานของคุณบน ThaiArtHub
+          </p>
+          <div className="mt-4">
+            <BecomeCreatorButton className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-medium text-primary-foreground shadow-2xs transition hover:bg-primary/90 disabled:opacity-50" />
+          </div>
+        </div>
+      ) : null}
+
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link
           href="/"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-medium text-primary-foreground shadow-2xs transition hover:bg-primary/90"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-xs font-medium text-foreground transition hover:bg-muted"
         >
           <Home className="h-4 w-4" />
           <span>กลับสู่หน้าหลัก</span>

@@ -28,7 +28,7 @@ async function assertArtistIsClaimable(
 ) {
   const { data: artist, error: artistError } = await supabase
     .from("artists")
-    .select("id, profile_id")
+    .select("id, profile_id, profiles!artists_profile_id_fkey(role)")
     .eq("id", artistId)
     .maybeSingle();
 
@@ -36,6 +36,11 @@ async function assertArtistIsClaimable(
   if (!artist) throw new Error("ไม่พบโปรไฟล์ศิลปิน");
   if (artist.profile_id === requesterProfileId) {
     throw new Error("คุณเป็นเจ้าของโปรไฟล์นี้แล้ว");
+  }
+
+  const ownerRole = (artist.profiles as unknown as { role: string } | null)?.role;
+  if (ownerRole !== "admin") {
+    throw new Error("โปรไฟล์นี้มี Creator เป็นเจ้าของแล้ว ไม่สามารถส่งคำขอ Claim ได้");
   }
 
   const { data: isClaimed, error: claimedError } = await supabase.rpc("is_artist_claimed", {
