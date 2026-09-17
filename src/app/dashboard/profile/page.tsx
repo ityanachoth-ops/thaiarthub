@@ -39,6 +39,7 @@ export default async function DashboardProfilePage() {
     profile: fullProfile,
     artist,
     avatarPreviewUrl,
+    coverPreviewUrl,
   } = await getCreatorProfileEditData(
     supabase,
     user.id
@@ -53,6 +54,8 @@ export default async function DashboardProfilePage() {
       initialLocation={artist?.location || ""}
       initialAvatarPath={fullProfile?.avatar_url || artist?.avatar_url || ""}
       initialAvatarPreviewUrl={avatarPreviewUrl}
+      initialCoverPath={artist?.cover_image_url || ""}
+      initialCoverPreviewUrl={coverPreviewUrl}
     />
   );
 }

@@ -11,6 +11,7 @@ import {
   MapPin,
   FileText,
   Loader2,
+  ImageIcon,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { ProfileRole } from "@/types/database.types";
@@ -24,6 +25,7 @@ interface OnboardingFormProps {
   initialBio?: string | null;
   initialLocation?: string | null;
   initialAvatarUrl?: string | null;
+  initialCoverUrl?: string | null;
 }
 
 export function OnboardingForm({
@@ -34,9 +36,11 @@ export function OnboardingForm({
   initialBio = "",
   initialLocation = "",
   initialAvatarUrl = "",
+  initialCoverUrl = "",
 }: OnboardingFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
 
   const [displayName, setDisplayName] = useState(initialDisplayName || "");
   const [username, setUsername] = useState(initialUsername || "");
@@ -48,6 +52,12 @@ export function OnboardingForm({
     initialAvatarUrl || null
   );
 
+  const [coverUrl, setCoverUrl] = useState(initialCoverUrl || "");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(
+    initialCoverUrl || null
+  );
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -56,13 +66,27 @@ export function OnboardingForm({
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage("ขนาดรูปภาพต้องไม่เกิน 5 MB");
+      setErrorMessage("ขนาดรูปภาพโปรไฟล์ต้องไม่เกิน 5 MB");
       return;
     }
 
     setAvatarFile(file);
     const objectUrl = URL.createObjectURL(file);
     setAvatarPreview(objectUrl);
+  };
+
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setErrorMessage("ขนาดรูปภาพปกต้องไม่เกิน 10 MB");
+      return;
+    }
+
+    setCoverFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setCoverPreview(objectUrl);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -117,14 +141,40 @@ export function OnboardingForm({
           .upload(filePath, avatarFile, { upsert: true });
 
         if (!uploadError) {
-          // Store relative storage path or signed URL
           finalAvatarUrl = filePath;
         } else {
           console.warn("Avatar upload notice:", uploadError.message);
         }
       }
 
-      // Keep creator (or admin) — never demote back to user during onboarding.
+      // Check for existing artist or generate a target ID for storage path
+      const { data: existingArtist } = await supabase
+        .from("artists")
+        .select("id")
+        .eq("profile_id", initialUserId)
+        .maybeSingle();
+
+      const targetArtistId = existingArtist?.id ?? crypto.randomUUID();
+
+      let finalCoverUrl: string | null = coverUrl.trim() || null;
+
+      // Handle cover image upload if a file was selected
+      if (coverFile) {
+        const coverExt = coverFile.name.split(".").pop() || "png";
+        const coverPath = `${initialUserId}/${targetArtistId}/cover/${Date.now()}.${coverExt}`;
+
+        const { error: coverUploadError } = await supabase.storage
+          .from("artist-covers")
+          .upload(coverPath, coverFile, { upsert: true });
+
+        if (!coverUploadError) {
+          finalCoverUrl = coverPath;
+        } else {
+          console.warn("Cover image upload notice:", coverUploadError.message);
+        }
+      }
+
+      // 1. Keep creator (or admin) — never demote back to user during onboarding.
       const { error: profileError } = await supabase.from("profiles").upsert({
         id: initialUserId,
         display_name: displayName.trim(),
@@ -141,12 +191,6 @@ export function OnboardingForm({
       }
 
       // 2. Create or update public.artists
-      const { data: existingArtist } = await supabase
-        .from("artists")
-        .select("id")
-        .eq("profile_id", initialUserId)
-        .maybeSingle();
-
       if (existingArtist) {
         const { error: updateArtistError } = await supabase
           .from("artists")
@@ -156,6 +200,7 @@ export function OnboardingForm({
             bio: bio.trim() || null,
             location: location.trim() || null,
             avatar_url: finalAvatarUrl,
+            cover_image_url: finalCoverUrl,
             status: "published",
           })
           .eq("id", existingArtist.id);
@@ -167,12 +212,14 @@ export function OnboardingForm({
         }
       } else {
         const { error: insertArtistError } = await supabase.from("artists").insert({
+          id: targetArtistId,
           profile_id: initialUserId,
           name: displayName.trim(),
           slug: username.toLowerCase().trim(),
           bio: bio.trim() || null,
           location: location.trim() || null,
           avatar_url: finalAvatarUrl,
+          cover_image_url: finalCoverUrl,
           status: "published",
         });
 
@@ -223,6 +270,51 @@ export function OnboardingForm({
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Cover Image Section */}
+        <div className="space-y-2">
+          <label className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+            <ImageIcon className="h-3.5 w-3.5 text-primary" />
+            <span>รูปภาพปกศิลปิน (Cover Image)</span>
+          </label>
+          <div className="relative flex h-36 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted/30 shadow-xs transition hover:bg-muted/50">
+            {coverPreview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={coverPreview}
+                alt="Cover preview"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-1.5 p-4 text-center">
+                <ImageIcon className="h-8 w-8 text-muted-foreground/40" />
+                <span className="text-xs font-medium text-muted-foreground">
+                  ยังไม่ได้เลือกรูปภาพปก
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              ref={coverFileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleCoverChange}
+            />
+            <button
+              type="button"
+              onClick={() => coverFileInputRef.current?.click()}
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground transition hover:bg-muted"
+            >
+              <Upload className="h-3.5 w-3.5" />
+              <span>{coverPreview ? "เปลี่ยนรูปภาพปก" : "เลือกรูปภาพปก"}</span>
+            </button>
+            <span className="text-[11px] text-muted-foreground">
+              รองรับ PNG, JPG, WebP ขนาดไม่เกิน 10 MB
+            </span>
+          </div>
+        </div>
+
         {/* Avatar Section */}
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
           <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted/40 shadow-xs">

@@ -26,6 +26,8 @@ interface ProfileEditFormProps {
   initialLocation?: string | null;
   initialAvatarPath?: string | null;
   initialAvatarPreviewUrl?: string | null;
+  initialCoverPath?: string | null;
+  initialCoverPreviewUrl?: string | null;
 }
 
 function isExternalUrl(value: string) {
@@ -40,10 +42,14 @@ export function ProfileEditForm({
   initialLocation = "",
   initialAvatarPath = "",
   initialAvatarPreviewUrl = "",
+  initialCoverPath = "",
+  initialCoverPreviewUrl = "",
 }: ProfileEditFormProps) {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const avatarFileInputRef = useRef<HTMLInputElement>(null);
+  const coverFileInputRef = useRef<HTMLInputElement>(null);
   const avatarPath = initialAvatarPath ?? "";
+  const coverPath = initialCoverPath ?? "";
 
   const [displayName, setDisplayName] = useState(initialDisplayName || "");
   const [username, setUsername] = useState(initialUsername || "");
@@ -59,22 +65,44 @@ export function ProfileEditForm({
     initialAvatarPreviewUrl || avatarPath || null
   );
 
+  const [coverUrl, setCoverUrl] = useState(
+    isExternalUrl(coverPath) ? coverPath : ""
+  );
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(
+    initialCoverPreviewUrl || coverPath || null
+  );
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setErrorMessage("ขนาดรูปภาพต้องไม่เกิน 5 MB");
+      setErrorMessage("ขนาดรูปโปรไฟล์ต้องไม่เกิน 5 MB");
       return;
     }
 
     setAvatarFile(file);
     const objectUrl = URL.createObjectURL(file);
     setAvatarPreview(objectUrl);
+  };
+
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage("ขนาดภาพปกต้องไม่เกิน 5 MB");
+      return;
+    }
+
+    setCoverFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setCoverPreview(objectUrl);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -163,7 +191,7 @@ export function ProfileEditForm({
         return;
       }
 
-      // 2. Update or insert public.artists (Scoped to profile_id = userId)
+      // 2. Fetch existing artist to get exact artist.id or generate new artist.id
       const { data: existingArtist } = await supabase
         .from("artists")
         .select("id")
@@ -171,6 +199,31 @@ export function ProfileEditForm({
         .limit(1)
         .maybeSingle();
 
+      const artistId = existingArtist?.id ?? crypto.randomUUID();
+
+      let finalCoverUrl: string | null = coverUrl.trim() || (
+        isExternalUrl(coverPath) ? null : coverPath || null
+      );
+
+      // Handle cover file upload to artist-covers bucket if a new cover file was chosen
+      if (coverFile) {
+        const fileExt = coverFile.name.split(".").pop() || "png";
+        const coverUploadPath = `${userId}/${artistId}/cover/${Date.now()}.${fileExt}`;
+
+        const { error: coverUploadError } = await supabase.storage
+          .from("artist-covers")
+          .upload(coverUploadPath, coverFile, { upsert: true });
+
+        if (coverUploadError) {
+          setErrorMessage(`อัปโหลดภาพปกไม่สำเร็จ: ${coverUploadError.message}`);
+          setIsLoading(false);
+          return;
+        }
+
+        finalCoverUrl = coverUploadPath;
+      }
+
+      // 3. Update or insert public.artists (Scoped to profile_id = userId)
       if (existingArtist) {
         const { error: artistError } = await supabase
           .from("artists")
@@ -180,6 +233,7 @@ export function ProfileEditForm({
             bio: bio.trim() || null,
             location: location.trim() || null,
             avatar_url: finalAvatarUrl,
+            cover_image_url: finalCoverUrl,
           })
           .eq("id", existingArtist.id);
 
@@ -192,12 +246,14 @@ export function ProfileEditForm({
         const { error: artistInsertError } = await supabase
           .from("artists")
           .insert({
+            id: artistId,
             profile_id: userId,
             name: displayName.trim(),
             slug: username.toLowerCase().trim(),
             bio: bio.trim() || null,
             location: location.trim() || null,
             avatar_url: finalAvatarUrl,
+            cover_image_url: finalCoverUrl,
             status: "published",
           });
 
@@ -286,15 +342,15 @@ export function ProfileEditForm({
 
             <div className="flex flex-col items-center sm:items-start gap-1.5">
               <input
-                ref={fileInputRef}
+                ref={avatarFileInputRef}
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={handleFileChange}
+                onChange={handleAvatarChange}
               />
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => avatarFileInputRef.current?.click()}
                 className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground transition hover:bg-muted"
               >
                 <Upload className="h-3.5 w-3.5" />
@@ -319,6 +375,63 @@ export function ProfileEditForm({
                 />
               </div>
             </div>
+          </div>
+
+          {/* Cover Image Section */}
+          <div className="space-y-2 rounded-2xl border border-border/60 bg-muted/20 p-4">
+            <label className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+              <span>ภาพปกโปรไฟล์ศิลปิน (Cover Image)</span>
+            </label>
+            <div className="relative aspect-[3/1] min-h-36 w-full overflow-hidden rounded-xl border border-dashed border-border bg-muted/40 shadow-xs">
+              {coverPreview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={coverPreview}
+                  alt="Cover preview"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-xs text-muted-foreground/60">
+                  ยังไม่ได้เลือกภาพปก
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <input
+                  ref={coverFileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={handleCoverChange}
+                />
+                <button
+                  type="button"
+                  onClick={() => coverFileInputRef.current?.click()}
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium text-foreground transition hover:bg-muted"
+                >
+                  <Upload className="h-3.5 w-3.5" />
+                  <span>{coverPreview ? "เปลี่ยนภาพปก" : "เลือกภาพปก (Cover)"}</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                รองรับ PNG, JPG, WebP ขนาดไม่เกิน 5 MB
+              </p>
+            </div>
+            <input
+              type="url"
+              value={coverUrl}
+              onChange={(e) => {
+                setCoverUrl(e.target.value);
+                if (e.target.value) {
+                  setCoverPreview(e.target.value);
+                  setCoverFile(null);
+                }
+              }}
+              placeholder="หรือระบุ URL รูปภาพปก (เช่น https://...)"
+              className="w-full rounded-lg border border-border/80 bg-background px-3 py-1.5 text-[11px] text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden"
+            />
           </div>
 
           {/* Display Name */}

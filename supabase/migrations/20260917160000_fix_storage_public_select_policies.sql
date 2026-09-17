@@ -1,11 +1,6 @@
 -- Fix public read access on storage.objects for published content.
--- Permits both anonymous visitors and authenticated users (to anon, authenticated)
--- to read objects and generate signed URLs for:
---   1. Published artist covers (artist-covers bucket)
---   2. Published artist avatars (avatars bucket)
---   3. Published work cover images (works bucket)
---   4. Published event cover images (events bucket)
---
+-- Drops legacy policies targeting 'to anon' only, and replaces them with unified policies
+-- targeting 'to anon, authenticated' for published content media.
 -- Draft content and non-artist user avatars remain strictly protected.
 
 -- 1. Artist Covers

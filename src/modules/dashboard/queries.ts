@@ -154,6 +154,21 @@ export async function getCreatorDashboardData(
   };
 }
 
+async function resolveCoverUrl(
+  supabase: SupabaseServerClient,
+  coverPath: string | null
+): Promise<string | null> {
+  if (!coverPath) return null;
+  if (coverPath.startsWith("http://") || coverPath.startsWith("https://")) {
+    return coverPath;
+  }
+  const { data: signed } = await supabase.storage
+    .from("artist-covers")
+    .createSignedUrl(coverPath, 3600);
+
+  return signed?.signedUrl ?? null;
+}
+
 /**
  * Loads profile and artist records for the profile edit page.
  * Scoped to the authenticated user's ID.
@@ -170,16 +185,19 @@ export async function getCreatorProfileEditData(
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("id, name, slug, bio, location, avatar_url, status")
+    .select("id, name, slug, bio, location, avatar_url, cover_image_url, status")
     .eq("profile_id", userId)
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
 
   // Storage paths are persisted in the database, while the client receives a
-  // time-limited signed URL only for previewing a private avatar.
+  // time-limited signed URL only for previewing a private avatar or cover.
   const avatarPath = profile?.avatar_url ?? artist?.avatar_url ?? null;
   const avatarPreviewUrl = await resolveAvatarUrl(supabase, avatarPath);
 
-  return { profile, artist, avatarPreviewUrl };
+  const coverPath = artist?.cover_image_url ?? null;
+  const coverPreviewUrl = await resolveCoverUrl(supabase, coverPath);
+
+  return { profile, artist, avatarPreviewUrl, coverPreviewUrl };
 }

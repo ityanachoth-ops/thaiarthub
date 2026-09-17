@@ -32,7 +32,7 @@ export default async function OnboardingPage() {
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("location, avatar_url")
+    .select("id, location, avatar_url, cover_image_url")
     .eq("profile_id", user.id)
     .limit(1)
     .maybeSingle();
@@ -52,6 +52,7 @@ export default async function OnboardingPage() {
         initialBio={profile.bio || ""}
         initialLocation={artist?.location || ""}
         initialAvatarUrl={profile.avatar_url || artist?.avatar_url || ""}
+        initialCoverUrl={artist?.cover_image_url || ""}
       />
     </div>
   );
