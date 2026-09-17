@@ -100,13 +100,21 @@ async function resolveCoverUrl(
   return data.signedUrl;
 }
 
-/**
- * Deliberately not resolved -- see the bucket-ambiguity note above. Returns
- * null so callers render the initials fallback until the avatar bucket is
- * confirmed. Do not change this to guess a bucket.
- */
-function resolveAvatarUrl(_path: string | null): null {
-  return null;
+const AVATARS_BUCKET = "avatars";
+
+async function resolveAvatarUrl(
+  supabase: SupabaseServerClient,
+  path: string | null,
+): Promise<string | null> {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+
+  const { data, error } = await supabase.storage
+    .from(AVATARS_BUCKET)
+    .createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
+
+  if (error || !data) return null;
+  return data.signedUrl;
 }
 
 function mapCategories(rows: ArtistCategoryJoinRow[]): ArtistCategorySummary[] {
@@ -120,7 +128,7 @@ async function toListItem(
   supabase: SupabaseServerClient,
   row: ArtistQueryRow,
 ): Promise<ArtistListItem> {
-  const avatarUrl = resolveAvatarUrl(row.avatar_url);
+  const avatarUrl = await resolveAvatarUrl(supabase, row.avatar_url);
   const coverUrl = await resolveCoverUrl(supabase, row.cover_image_url);
 
   return {
