@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Sparkles, ArrowRight, AlertCircle, CheckCircle2, Mail, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { signupSchema } from "../types";
 
 export function SignUpForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Honour the same ?redirect= param used by LoginForm so the Claim Artist flow
+  // returns the user to the correct artist page after signup.
+  const redirectPath = searchParams.get("redirect") ?? "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -70,15 +74,16 @@ export function SignUpForm() {
 
       // If Supabase session is established immediately (e.g. email confirmation disabled)
       if (data.session && data.user) {
-        // Create initial profile record
+        // Create initial profile record with role 'user'.
+        // Role elevation to 'creator' happens only when an admin approves a Claim request.
         await supabase.from("profiles").upsert({
           id: data.user.id,
           display_name: displayName,
           username: username.toLowerCase(),
-          role: "creator",
+          role: "user",
         });
 
-        router.push("/onboarding");
+        router.push(redirectPath);
         router.refresh();
       } else {
         // Email confirmation is required by Supabase Auth server setting
@@ -262,9 +267,9 @@ export function SignUpForm() {
 
       {/* Footer link */}
       <div className="mt-6 border-t border-border/50 pt-4 text-center text-xs text-muted-foreground">
-        มีบัญชีครีเอเตอร์อยู่แล้ว?{" "}
+        มีบัญชีอยู่แล้ว?{" "}
         <Link
-          href="/login"
+          href={redirectPath !== "/" ? `/login?redirect=${encodeURIComponent(redirectPath)}` : "/login"}
           className="font-medium text-primary hover:underline transition-colors"
         >
           เข้าสู่ระบบที่นี่

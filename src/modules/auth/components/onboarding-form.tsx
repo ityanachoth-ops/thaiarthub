@@ -116,14 +116,15 @@ export function OnboardingForm({
         }
       }
 
-      // 1. Upsert public.profiles
+      // 1. Upsert public.profiles — role stays 'user'; elevation to 'creator' happens
+      // only when an admin approves a Claim request via the admin dashboard.
       const { error: profileError } = await supabase.from("profiles").upsert({
         id: initialUserId,
         display_name: displayName.trim(),
         username: username.toLowerCase().trim(),
         bio: bio.trim() || null,
         avatar_url: finalAvatarUrl,
-        role: "creator",
+        role: "user",
       });
 
       if (profileError) {

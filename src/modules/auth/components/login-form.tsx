@@ -158,12 +158,12 @@ export function LoginForm() {
 
       {/* Footer link */}
       <div className="mt-6 border-t border-border/50 pt-4 text-center text-xs text-muted-foreground">
-        ยังไม่มีบัญชีครีเอเตอร์?{" "}
+        ยังไม่มีบัญชี?{" "}
         <Link
-          href="/signup"
+          href={redirectPath !== "/dashboard" ? `/signup?redirect=${encodeURIComponent(redirectPath)}` : "/signup"}
           className="font-medium text-primary hover:underline transition-colors"
         >
-          สมัครเป็นครีเอเตอร์ที่นี่
+          สมัครสมาชิกที่นี่
         </Link>
       </div>
     </div>
