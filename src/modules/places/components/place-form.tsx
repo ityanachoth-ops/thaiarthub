@@ -157,4 +157,3 @@ export function PlaceForm({ userId, isAdmin, place }: PlaceFormProps) {
     </div>
   );
 }
-}
