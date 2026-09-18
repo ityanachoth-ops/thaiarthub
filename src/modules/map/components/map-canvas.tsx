@@ -139,13 +139,26 @@ export function MapCanvas({
         }
       } else {
         // Event Pin
-        pinContentHtml = `
-          <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-md transition-all ${
-            isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : ""
-          }">
-            <div class="h-2.5 w-2.5 rounded-full bg-white"></div>
-          </div>
-        `;
+        if (loc.coverImageUrl) {
+          // Event Custom Image Pin (Rounded Square / Poster Style with Primary Accent Border)
+          pinContentHtml = `
+            <div class="relative h-9 w-9 sm:h-11 sm:w-11 overflow-hidden rounded-xl border-2 border-primary bg-card shadow-md transition-all ${
+              isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : ""
+            }">
+              <img src="${loc.coverImageUrl}" alt="${loc.title}" class="h-full w-full object-cover" />
+              <div class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-primary border border-background"></div>
+            </div>
+          `;
+        } else {
+          // Event Fallback Pin (Icon badge when no poster image exists)
+          pinContentHtml = `
+            <div class="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border-2 border-background bg-primary text-primary-foreground shadow-md transition-all ${
+              isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : ""
+            }">
+              <svg class="h-4.5 w-4.5 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+            </div>
+          `;
+        }
       }
 
       el.innerHTML = `
