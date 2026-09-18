@@ -15,11 +15,11 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const [featuredArticles, featuredEvents, eventLocations, placeLocations, publishedPlaces, savedIds] = await Promise.all([
-    getFeaturedArticles(3),
-    getFeaturedEvents(3),
+    getFeaturedArticles(6),
+    getFeaturedEvents(6),
     getMapLocations(),
     getCreativePlaceMapLocations(),
-    getPublishedPlaces(3),
+    getPublishedPlaces(6),
     getUserSavedItemIds(),
   ]);
   const mapLocations = [...eventLocations, ...placeLocations];
