@@ -41,17 +41,16 @@ export function SaveButton({
         setIsSaved(previousSaved);
 
         if (res.error === "unauthenticated") {
-          showToast(res.message ? `UNAUTH: ${res.message}` : "เข้าสู่ระบบเพื่อบันทึกรายการนี้");
+          showToast("เข้าสู่ระบบเพื่อบันทึกรายการนี้");
         } else {
-          showToast(res.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+          showToast("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
         }
       } else {
         setIsSaved(res.saved);
       }
-    } catch (err: unknown) {
+    } catch {
       setIsSaved(previousSaved);
-      const msg = err instanceof Error ? err.message : String(err);
-      showToast(`ACTION EXCEPTION: ${msg}`);
+      showToast("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
     } finally {
       setIsSubmitting(false);
     }
@@ -61,7 +60,7 @@ export function SaveButton({
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
-    }, 15000);
+    }, 3000);
   };
 
   return (
@@ -83,9 +82,9 @@ export function SaveButton({
         />
       </button>
 
-      {/* Detailed Toast Notification */}
+      {/* Guest or Error Toast Notification */}
       {toastMessage ? (
-        <div className="absolute right-0 top-11 z-50 min-w-[280px] max-w-sm rounded-xl border border-destructive/50 bg-background/95 p-3 text-xs font-mono text-destructive shadow-lg backdrop-blur-md animate-in fade-in slide-in-from-top-1 break-words">
+        <div className="absolute right-0 top-11 z-50 whitespace-nowrap rounded-xl border border-border bg-popover px-3 py-1.5 text-xs font-medium text-popover-foreground shadow-md animate-in fade-in slide-in-from-top-1">
           {toastMessage}
         </div>
       ) : null}

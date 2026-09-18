@@ -2,11 +2,14 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import type { SupabaseServerClient } from "@/modules/dashboard/queries";
+import type { GalleryImage } from "@/modules/culture/types";
+import type { Database } from "@/types/database.types";
 import type { CreativePlace, CreativePlaceRow, PublicPlace, PublicPlaceRow } from "./types";
 
 const BUCKET = "creative-places";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 const PLACE_COLUMNS = "id, name, slug, description, cover_image_url, type, address, province, latitude, longitude, external_url, status, created_by, created_at, updated_at";
+type PlaceGalleryRow = Database["public"]["Tables"]["creative_place_images"]["Row"];
 
 function isAbsoluteUrl(value: string) {
   return /^https?:\/\//i.test(value);
@@ -21,7 +24,39 @@ async function signPaths(supabase: SupabaseServerClient, paths: string[]) {
   return resolved;
 }
 
-function mapPlace(row: CreativePlaceRow, signed: Map<string, string>, includePath = false): CreativePlace {
+async function getPlaceGallery(
+  supabase: SupabaseServerClient,
+  placeId: string,
+  includeStoragePaths = false,
+): Promise<GalleryImage[]> {
+  const { data, error } = await supabase
+    .from("creative_place_images")
+    .select("id, place_id, image_url, sort_order, caption")
+    .eq("place_id", placeId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) return [];
+
+  const rows = (data ?? []) as PlaceGalleryRow[];
+  const paths = rows.map((row) => row.image_url).filter((path) => !isAbsoluteUrl(path));
+  const signed = await signPaths(supabase, paths);
+
+  return rows.map((row) => ({
+    id: row.id,
+    ...(includeStoragePaths ? { imagePath: row.image_url } : {}),
+    imageUrl: isAbsoluteUrl(row.image_url) ? row.image_url : signed.get(row.image_url) ?? null,
+    sortOrder: row.sort_order,
+    caption: row.caption,
+  }));
+}
+
+function mapPlace(
+  row: CreativePlaceRow,
+  signed: Map<string, string>,
+  gallery: GalleryImage[] = [],
+  includePath = false
+): CreativePlace {
   return {
     id: row.id,
     name: row.name,
@@ -41,6 +76,7 @@ function mapPlace(row: CreativePlaceRow, signed: Map<string, string>, includePat
     createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    gallery,
   };
 }
 
@@ -68,7 +104,7 @@ async function getPlaces(
   if (error) throw new Error(`ไม่สามารถโหลด Creative Places ได้: ${error.message}`);
   const rows = (data ?? []) as CreativePlaceRow[];
   const signed = await signPaths(supabase, rows.map((row) => row.cover_image_url).filter((path): path is string => Boolean(path)));
-  return rows.map((row) => mapPlace(row, signed, includePath));
+  return rows.map((row) => mapPlace(row, signed, [], includePath));
 }
 
 export async function getCreativePlaces(userId: string, isAdmin: boolean) {
@@ -86,8 +122,10 @@ export async function getCreativePlaceById(id: string, userId: string, isAdmin: 
   const { data, error } = await query.maybeSingle();
   if (error) throw new Error(`ไม่สามารถโหลด Creative Place ได้: ${error.message}`);
   if (!data) return null;
-  const signed = await signPaths(supabase, data.cover_image_url ? [data.cover_image_url] : []);
-  return mapPlace(data, signed, true);
+  const gallery = await getPlaceGallery(supabase, data.id, true);
+  const galleryPaths = gallery.map((g) => g.imagePath).filter((p): p is string => Boolean(p));
+  const signed = await signPaths(supabase, [data.cover_image_url, ...galleryPaths].filter((p): p is string => Boolean(p)));
+  return mapPlace(data, signed, gallery, true);
 }
 
 const PLACE_LIST_COLUMNS =
@@ -120,6 +158,8 @@ export async function getPublishedPlaceBySlug(slug: string): Promise<CreativePla
 
   if (error) throw new Error(`ไม่สามารถโหลด Creative Place ได้: ${error.message}`);
   if (!data) return null;
-  const signed = await signPaths(supabase, data.cover_image_url ? [data.cover_image_url] : []);
-  return mapPlace(data, signed, true);
+  const gallery = await getPlaceGallery(supabase, data.id, false);
+  const galleryPaths = gallery.map((g) => g.imageUrl).filter((p): p is string => Boolean(p));
+  const signed = await signPaths(supabase, [data.cover_image_url, ...galleryPaths].filter((p): p is string => Boolean(p)));
+  return mapPlace(data, signed, gallery, true);
 }

@@ -369,6 +369,25 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["user_saved_items"]["Insert"]>;
       };
+      creative_place_images: {
+        Row: {
+          id: string;
+          place_id: string;
+          image_url: string;
+          sort_order: number;
+          caption: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          place_id: string;
+          image_url: string;
+          sort_order?: number;
+          caption?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["creative_place_images"]["Insert"]>;
+      };
     };
     Views: Record<string, never>;
     Functions: {

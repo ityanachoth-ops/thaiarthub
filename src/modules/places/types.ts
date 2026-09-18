@@ -1,4 +1,5 @@
 import type { Database } from "@/types/database.types";
+import type { GalleryImage } from "@/modules/culture/types";
 
 export const CREATIVE_PLACE_TYPES = [
   "gallery",
@@ -35,6 +36,7 @@ export type CreativePlace = {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  gallery: GalleryImage[];
 };
 
 export type PublicPlace = {

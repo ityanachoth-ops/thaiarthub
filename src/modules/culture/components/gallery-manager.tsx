@@ -6,7 +6,7 @@ import { ImagePlus, Loader2, Save, Trash2, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { GalleryImage } from "../types";
 
-type GalleryKind = "article" | "event";
+type GalleryKind = "article" | "event" | "place";
 
 type GalleryManagerProps = {
   kind: GalleryKind;
@@ -32,13 +32,13 @@ export function GalleryManager({ kind, parentId, ownerId, images: initialImages 
     setNotice(null);
     try {
       const supabase = createClient();
-      const bucket = kind === "article" ? "articles" : "events";
+      const bucket = kind === "article" ? "articles" : kind === "event" ? "events" : "creative-places";
       const uploaded: GalleryImage[] = [];
 
       for (const [index, file] of files.entries()) {
         if (!file.type.startsWith("image/") || file.size > 5 * 1024 * 1024) continue;
         const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-        const path = kind === "article"
+        const path = kind === "article" || kind === "place"
           ? `${ownerId}/${parentId}/gallery/${Date.now()}-${index}.${extension}`
           : `${parentId}/gallery/${Date.now()}-${index}.${extension}`;
         const { error: uploadError } = await supabase.storage.from(bucket).upload(path, file, { upsert: false });
@@ -47,7 +47,9 @@ export function GalleryManager({ kind, parentId, ownerId, images: initialImages 
         const sortOrder = images.length + uploaded.length;
         const row = kind === "article"
           ? await supabase.from("article_images").insert({ article_id: parentId, image_url: path, sort_order: sortOrder, caption: caption.trim() || null }).select("id, image_url, sort_order, caption").single()
-          : await supabase.from("event_images").insert({ event_id: parentId, image_url: path, sort_order: sortOrder, caption: caption.trim() || null }).select("id, image_url, sort_order, caption").single();
+          : kind === "event"
+          ? await supabase.from("event_images").insert({ event_id: parentId, image_url: path, sort_order: sortOrder, caption: caption.trim() || null }).select("id, image_url, sort_order, caption").single()
+          : await supabase.from("creative_place_images").insert({ place_id: parentId, image_url: path, sort_order: sortOrder, caption: caption.trim() || null }).select("id, image_url, sort_order, caption").single();
         if (row.error) throw row.error;
         uploaded.push({ id: row.data.id, imagePath: row.data.image_url, imageUrl: URL.createObjectURL(file), sortOrder: row.data.sort_order, caption: row.data.caption });
       }
@@ -69,7 +71,9 @@ export function GalleryManager({ kind, parentId, ownerId, images: initialImages 
     const supabase = createClient();
     const result = kind === "article"
       ? await supabase.from("article_images").update({ caption: changes.caption, sort_order: changes.sortOrder }).eq("id", image.id)
-      : await supabase.from("event_images").update({ caption: changes.caption, sort_order: changes.sortOrder }).eq("id", image.id);
+      : kind === "event"
+      ? await supabase.from("event_images").update({ caption: changes.caption, sort_order: changes.sortOrder }).eq("id", image.id)
+      : await supabase.from("creative_place_images").update({ caption: changes.caption, sort_order: changes.sortOrder }).eq("id", image.id);
     if (result.error) setErrorMessage(result.error.message);
     else setImages((current) => current.map((item) => item.id === image.id ? { ...item, ...changes } : item));
     setSavingId(null);
@@ -84,17 +88,21 @@ export function GalleryManager({ kind, parentId, ownerId, images: initialImages 
     const supabase = createClient();
     const result = await Promise.all(next.map((image, itemIndex) => kind === "article"
       ? supabase.from("article_images").update({ sort_order: itemIndex }).eq("id", image.id)
-      : supabase.from("event_images").update({ sort_order: itemIndex }).eq("id", image.id)));
+      : kind === "event"
+      ? supabase.from("event_images").update({ sort_order: itemIndex }).eq("id", image.id)
+      : supabase.from("creative_place_images").update({ sort_order: itemIndex }).eq("id", image.id)));
     if (result.some((item) => item.error)) setErrorMessage("จัดลำดับภาพไม่สำเร็จ");
   };
 
   const deleteImage = async (image: GalleryImage) => {
     if (!window.confirm("ลบภาพนี้ออกจากแกลเลอรีใช่หรือไม่?")) return;
     const supabase = createClient();
-    const bucket = kind === "article" ? "articles" : "events";
+    const bucket = kind === "article" ? "articles" : kind === "event" ? "events" : "creative-places";
     const result = kind === "article"
       ? await supabase.from("article_images").delete().eq("id", image.id)
-      : await supabase.from("event_images").delete().eq("id", image.id);
+      : kind === "event"
+      ? await supabase.from("event_images").delete().eq("id", image.id)
+      : await supabase.from("creative_place_images").delete().eq("id", image.id);
     if (result.error) {
       setErrorMessage(result.error.message);
       return;

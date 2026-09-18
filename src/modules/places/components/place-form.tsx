@@ -6,6 +6,7 @@ import { ArrowLeft, ImagePlus, Loader2, Save } from "lucide-react";
 import { useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
+import { GalleryManager } from "@/modules/culture/components/gallery-manager";
 import type { CreativePlace, CreativePlaceStatus, CreativePlaceType } from "../types";
 import { CREATIVE_PLACE_TYPES } from "../types";
 
@@ -135,8 +136,8 @@ export function PlaceForm({ userId, isAdmin, place }: PlaceFormProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
-      <Link href="/dashboard/places" className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" />กลับสู่ Creative Places</Link>
+    <div className="mx-auto w-full max-w-3xl space-y-8">
+      <Link href="/dashboard/places" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" />กลับสู่ Creative Places</Link>
       <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl border border-border/80 bg-card p-6 shadow-xs sm:p-10">
         <header><h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{isEditing ? "แก้ไข Creative Place" : "เพิ่ม Creative Place"}</h1><p className="mt-1.5 text-sm text-muted-foreground">เพิ่มพื้นที่สร้างสรรค์สำหรับการจัดการในอนาคต</p></header>
         {errorMessage ? <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{errorMessage}</p> : null}
@@ -149,6 +150,11 @@ export function PlaceForm({ userId, isAdmin, place }: PlaceFormProps) {
         <div className="space-y-1.5"><label htmlFor="place-url" className="block text-sm font-medium">URL เพิ่มเติม</label><input id="place-url" type="url" value={externalUrl} onChange={(event) => setExternalUrl(event.target.value)} className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm" /></div>
         <div className="flex justify-end gap-3 border-t border-border/60 pt-5"><Link href="/dashboard/places" className="rounded-xl border border-border px-5 py-2.5 text-sm text-muted-foreground">ยกเลิก</Link><button type="submit" disabled={isSaving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-60">{isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}{isSaving ? "กำลังบันทึก..." : "บันทึก Creative Place"}</button></div>
       </form>
+
+      {isEditing && place ? (
+        <GalleryManager kind="place" parentId={place.id} ownerId={userId} images={place.gallery ?? []} />
+      ) : null}
     </div>
   );
+}
 }

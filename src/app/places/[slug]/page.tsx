@@ -4,6 +4,7 @@ import { ExternalLink, MapPin } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { getPublishedPlaceBySlug } from "@/modules/places/queries";
+import { GalleryGrid } from "@/modules/culture/components/gallery-grid";
 
 const typeLabels: Record<string, string> = {
   gallery: "Gallery",
@@ -85,6 +86,8 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
             </p>
           </section>
         ) : null}
+
+        <GalleryGrid images={place.gallery} />
 
         {place.address || place.province || mapUrl ? (
           <section className="space-y-3">
