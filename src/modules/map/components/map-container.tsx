@@ -23,6 +23,20 @@ const TYPE_LABELS: Record<MapItemType, string> = {
   place: "พื้นที่สร้างสรรค์",
 };
 
+const PLACE_TYPE_LABELS: Record<string, string> = {
+  gallery: "Gallery",
+  "art-space": "Art Space",
+  studio: "Studio",
+  livehouse: "Livehouse",
+  "creative-cafe": "Creative Cafe",
+  "local-brand": "Local Brand",
+  skate: "Skate",
+  craft: "Craft",
+  vintage: "Vintage",
+  zine: "Zine",
+  other: "Other",
+};
+
 export function MapContainer({ initialLocations }: MapContainerProps) {
   const [selectedType, setSelectedType] = useState<"all" | MapItemType>("all");
   const [selectedLocation, setSelectedLocation] =
@@ -156,7 +170,9 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
 
                 <div className="mb-3 flex items-center gap-2">
                   <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
-                    {TYPE_LABELS[selectedLocation.type]}
+                    {selectedLocation.type === "place" && selectedLocation.placeType
+                      ? (PLACE_TYPE_LABELS[selectedLocation.placeType] ?? selectedLocation.placeType)
+                      : TYPE_LABELS[selectedLocation.type]}
                   </span>
                   {selectedLocation.province ? (
                     <span className="text-xs text-muted-foreground">
@@ -185,6 +201,13 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
                   <h3 className="font-display text-base font-semibold leading-snug text-foreground">
                     {selectedLocation.title}
                   </h3>
+
+                  {selectedLocation.type === "place" && selectedLocation.address ? (
+                    <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                      <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                      <span>{selectedLocation.address}</span>
+                    </p>
+                  ) : null}
 
                   {selectedLocation.type === "place" && selectedLocation.description ? (
                     <p className="text-xs leading-relaxed text-muted-foreground line-clamp-3">

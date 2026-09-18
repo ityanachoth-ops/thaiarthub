@@ -116,23 +116,45 @@ export function MapCanvas({
       el.className = "thaiarthub-marker group relative cursor-pointer select-none";
       el.setAttribute("data-id", loc.id);
 
-      // Render marker pin with contemporary gallery styling
-      el.innerHTML = `
-        <div class="relative flex items-center justify-center transition-transform duration-200 ${
-          isSelected ? "scale-125 z-30" : "hover:scale-115 z-10"
-        }">
-          <div class="absolute -inset-2 rounded-full bg-primary/20 animate-ping opacity-75 ${
-            isSelected ? "block" : "hidden group-hover:block"
-          }"></div>
-          <div class="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white shadow-md transition-all ${
-            loc.type === "event"
-              ? "bg-primary text-white"
-              : "bg-stone-600 text-white"
-          } ${isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : ""}">
-            <div class="h-2 w-2 rounded-full bg-white"></div>
+      let pinContentHtml = "";
+      if (loc.type === "place") {
+        if (loc.coverImageUrl) {
+          // Custom Image Pin (Image from coverImageUrl)
+          pinContentHtml = `
+            <div class="h-9 w-9 sm:h-11 sm:w-11 overflow-hidden rounded-full border-2 border-background shadow-md bg-card transition-all ${
+              isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : ""
+            }">
+              <img src="${loc.coverImageUrl}" alt="${loc.title}" class="h-full w-full object-cover" />
+            </div>
+          `;
+        } else {
+          // Fallback Pin (Icon badge when no cover image exists)
+          pinContentHtml = `
+            <div class="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border-2 border-background bg-stone-800 text-white shadow-md transition-all ${
+              isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : ""
+            }">
+              <svg class="h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+          `;
+        }
+      } else {
+        // Event Pin
+        pinContentHtml = `
+          <div class="flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-md transition-all ${
+            isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : ""
+          }">
+            <div class="h-2.5 w-2.5 rounded-full bg-white"></div>
           </div>
+        `;
+      }
+
+      el.innerHTML = `
+        <div class="thaiarthub-marker-inner relative flex items-center justify-center transition-transform duration-200 ${
+          isSelected ? "scale-115 z-30" : "hover:scale-110 z-10"
+        }">
+          ${pinContentHtml}
           <!-- Tooltip on hover -->
-          <div class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-stone-900/90 px-2 py-1 text-[11px] font-medium text-white opacity-0 shadow-sm backdrop-blur-xs transition-opacity duration-150 group-hover:opacity-100 ${
+          <div class="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-stone-900/90 px-2.5 py-1 text-[11px] font-medium text-white opacity-0 shadow-sm backdrop-blur-xs transition-opacity duration-150 group-hover:opacity-100 ${
             isSelected ? "opacity-100" : ""
           }">
             ${loc.title}
@@ -183,14 +205,14 @@ export function MapCanvas({
 
     markersRef.current.forEach(({ element }, id) => {
       const isSelected = selectedLocation?.id === id;
-      const inner = element.querySelector("div");
+      const inner = element.querySelector(".thaiarthub-marker-inner");
       if (inner) {
         if (isSelected) {
-          inner.classList.add("scale-125", "z-30");
-          inner.classList.remove("hover:scale-115", "z-10");
+          inner.classList.add("scale-115", "z-30");
+          inner.classList.remove("hover:scale-110", "z-10");
         } else {
-          inner.classList.remove("scale-125", "z-30");
-          inner.classList.add("hover:scale-115", "z-10");
+          inner.classList.remove("scale-115", "z-30");
+          inner.classList.add("hover:scale-110", "z-10");
         }
       }
     });

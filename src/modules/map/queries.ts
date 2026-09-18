@@ -155,6 +155,7 @@ export async function getCreativePlaceMapLocations(): Promise<MapLocationItem[]>
       address: row.address,
       province: row.province,
       description: row.description,
+      placeType: row.type,
     }));
   } catch (error) {
     console.error("Failed to load creative place locations:", error);

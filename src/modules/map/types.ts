@@ -15,4 +15,5 @@ export interface MapLocationItem {
   endAt?: string | null;
   artistName?: string | null;
   description?: string | null;
+  placeType?: string | null;
 }
