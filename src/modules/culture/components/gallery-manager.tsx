@@ -139,7 +139,7 @@ export function GalleryManager({ kind, parentId, ownerId, images: initialImages 
         <div className="grid gap-4 sm:grid-cols-2">
           {images.map((image, index) => (
             <div key={image.id} className="overflow-hidden rounded-xl border border-border bg-card">
-              {image.imageUrl ? <img src={image.imageUrl} alt={image.caption ?? "ภาพแกลเลอรี"} className="aspect-[4/3] w-full object-cover" /> : <div className="aspect-[4/3] bg-muted" />}
+              {image.imageUrl ? <img src={image.imageUrl} alt={image.caption ?? "ภาพแกลเลอรี"} className="w-full object-contain bg-muted/30" /> : <div className="aspect-[4/3] bg-muted" />}
               <div className="space-y-2 p-3">
                 <input value={image.caption ?? ""} onChange={(event) => setImages((current) => current.map((item) => item.id === image.id ? { ...item, caption: event.target.value } : item))} placeholder="คำบรรยายภาพ" className="w-full rounded-lg border border-border bg-background px-2.5 py-2 text-xs focus:border-primary focus:outline-hidden" />
                 <div className="flex items-center gap-1.5">

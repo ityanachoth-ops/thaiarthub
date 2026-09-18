@@ -16,6 +16,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import type { ProfileRole } from "@/types/database.types";
 import { onboardingSchema, THAI_PROVINCES } from "../types";
+import { CoverImagePreview } from "@/components/shared/cover-image-preview";
 
 interface OnboardingFormProps {
   initialUserId: string;
@@ -278,12 +279,7 @@ export function OnboardingForm({
           </label>
           <div className="relative flex h-36 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted/30 shadow-xs transition hover:bg-muted/50">
             {coverPreview ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={coverPreview}
-                alt="Cover preview"
-                className="h-full w-full object-cover"
-              />
+              <CoverImagePreview src={coverPreview} alt="Cover preview" className="h-full w-full" />
             ) : (
               <div className="flex flex-col items-center justify-center gap-1.5 p-4 text-center">
                 <ImageIcon className="h-8 w-8 text-muted-foreground/40" />

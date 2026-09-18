@@ -7,6 +7,7 @@ import { ArrowLeft, Save } from "lucide-react";
 import { createAdminArtistAction } from "@/app/dashboard/artists/actions";
 import type { CreatorOwnerOption } from "../queries";
 import { deleteAdminArtistImage, revokeObjectUrl, uploadAdminArtistImage, validateArtistImageFile } from "../media";
+import { CoverImagePreview } from "@/components/shared/cover-image-preview";
 
 export function AdminArtistForm({
   adminProfileId,
@@ -360,8 +361,7 @@ function ImagePicker({
       <label className="block text-sm font-medium">{label}</label>
       <div className="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40">
         {preview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={preview} alt={`ตัวอย่าง${label}`} className="h-full w-full object-cover" />
+          <CoverImagePreview src={preview} alt={`ตัวอย่าง${label}`} className="h-full w-full" />
         ) : (
           <span className="text-xs text-muted-foreground">ยังไม่ได้เลือกภาพ</span>
         )}

@@ -19,6 +19,7 @@ import type {
   CreatorArtwork,
   CreatorArtworkGalleryImage,
 } from "@/modules/artworks/creator-queries";
+import { CoverImagePreview } from "@/components/shared/cover-image-preview";
 
 const CATEGORIES = [
   ["visual-art", "ทัศนศิลป์"],
@@ -359,8 +360,7 @@ export function ArtworkForm({
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="flex h-32 w-full items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40 sm:w-48">
                 {imagePreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={imagePreview} alt="ตัวอย่างภาพผลงาน" className="h-full w-full object-cover" />
+                  <CoverImagePreview src={imagePreview} alt="ตัวอย่างภาพผลงาน" className="h-full w-full" />
                 ) : (
                   <ImagePlus className="h-8 w-8 text-muted-foreground/50" />
                 )}
@@ -383,10 +383,10 @@ export function ArtworkForm({
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {gallery.map((image) => (
-                <div key={image.id} className="relative aspect-square overflow-hidden rounded-xl border border-border bg-muted/40">
+                <div key={image.id} className="relative aspect-square overflow-hidden rounded-xl border border-border bg-muted/30">
                   {image.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={image.imageUrl} alt="ภาพเพิ่มเติมของผลงาน" className="h-full w-full object-cover" />
+                    <img src={image.imageUrl} alt="ภาพเพิ่มเติมของผลงาน" className="h-full w-full object-contain" />
                   ) : <div className="flex h-full items-center justify-center text-xs text-muted-foreground">โหลดภาพไม่สำเร็จ</div>}
                   <button type="button" onClick={() => removeGalleryImage(image)} className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/65 text-white transition hover:bg-destructive" aria-label="ลบภาพเพิ่มเติม">
                     <Trash2 className="h-3.5 w-3.5" />
@@ -394,9 +394,9 @@ export function ArtworkForm({
                 </div>
               ))}
               {newGalleryPreviews.map((preview, index) => (
-                <div key={preview} className="relative aspect-square overflow-hidden rounded-xl border border-primary/40 bg-muted/40">
+                <div key={preview} className="relative aspect-square overflow-hidden rounded-xl border border-primary/40 bg-muted/30">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={preview} alt="ตัวอย่างภาพเพิ่มเติม" className="h-full w-full object-cover" />
+                  <img src={preview} alt="ตัวอย่างภาพเพิ่มเติม" className="h-full w-full object-contain" />
                   <button type="button" onClick={() => removeNewGalleryFile(index)} className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/65 text-white transition hover:bg-destructive" aria-label="นำภาพเพิ่มเติมออก">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>

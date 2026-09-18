@@ -6,11 +6,11 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       {images.map((image) => (
-        <figure key={image.id} className="overflow-hidden rounded-2xl border border-border/80 bg-card">
+        <figure key={image.id} className="overflow-hidden rounded-2xl border border-border/80 bg-muted/20">
           {image.imageUrl ? (
             <a href={image.imageUrl} target="_blank" rel="noopener noreferrer">
               {/* eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL */}
-              <img src={image.imageUrl} alt={image.caption ?? "ภาพประกอบ"} className="aspect-[4/3] w-full object-cover transition hover:opacity-90" />
+              <img src={image.imageUrl} alt={image.caption ?? "ภาพประกอบ"} className="w-full object-contain transition hover:opacity-90" />
             </a>
           ) : (
             <div className="aspect-[4/3] bg-muted" />

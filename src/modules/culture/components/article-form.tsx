@@ -6,6 +6,7 @@ import { AlertCircle, ArrowLeft, ImagePlus, Save } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import { ARTICLE_CATEGORIES, type Article } from "../types";
+import { CoverImagePreview } from "@/components/shared/cover-image-preview";
 
 function slugFromTitle(title: string) {
   return title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -139,8 +140,7 @@ export function ArticleForm({ userId, article }: { userId: string; article?: Art
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40 sm:w-56">
               {imagePreview ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={imagePreview} alt="ตัวอย่างภาพปก" className="h-full w-full object-cover" />
+                <CoverImagePreview src={imagePreview} alt="ตัวอย่างภาพปก" className="h-full w-full" />
               ) : <ImagePlus className="h-8 w-8 text-muted-foreground/50" />}
             </div>
             <div>

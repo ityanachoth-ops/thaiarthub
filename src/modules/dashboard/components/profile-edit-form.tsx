@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { onboardingSchema, THAI_PROVINCES } from "@/modules/auth/types";
+import { CoverImagePreview } from "@/components/shared/cover-image-preview";
 
 interface ProfileEditFormProps {
   userId: string;
@@ -384,12 +385,7 @@ export function ProfileEditForm({
             </label>
             <div className="relative aspect-[3/1] min-h-36 w-full overflow-hidden rounded-xl border border-dashed border-border bg-muted/40 shadow-xs">
               {coverPreview ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={coverPreview}
-                  alt="Cover preview"
-                  className="h-full w-full object-cover"
-                />
+                <CoverImagePreview src={coverPreview} alt="Cover preview" className="h-full w-full" />
               ) : (
                 <div className="flex h-full items-center justify-center text-xs text-muted-foreground/60">
                   ยังไม่ได้เลือกภาพปก
