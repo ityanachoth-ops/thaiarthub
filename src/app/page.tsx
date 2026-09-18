@@ -167,6 +167,63 @@ export default async function Home() {
           <Link href="/artists" className="shrink-0 text-xs font-medium text-primary hover:underline underline-offset-4">ร่วมค้นพบผลงานไทย →</Link>
         </div>
       </section>
+
+      {/* About Section */}
+      <section className="flex flex-col gap-10 border-t border-border/50 pt-14 sm:pt-20">
+        {/* Manifesto */}
+        <div className="flex flex-col gap-6 sm:max-w-2xl">
+          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-primary">
+            About ThaiArtHub
+          </p>
+          <h2 className="font-display text-2xl font-bold leading-snug tracking-tight text-foreground sm:text-3xl">
+            พื้นที่สำหรับค้นพบ Creative Scene ในประเทศไทย
+          </h2>
+          <div className="flex flex-col gap-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            <p>
+              ThaiArtHub คือพื้นที่สำหรับค้นพบศิลปิน ผลงาน กิจกรรม สถานที่ และเรื่องราวของ Creative Scene ในประเทศไทย โดยเริ่มต้นจากอีสาน
+            </p>
+            <p>
+              เราอยากให้สิ่งที่เกิดขึ้นในพื้นที่เล็ก ๆ ถูกค้นพบได้ง่ายขึ้น ไม่ว่าจะเป็นศิลปินหน้าใหม่ งานดนตรี งานศิลปะ ร้านเล็ก ๆ Creative Space หรือเรื่องราวที่อาจไม่มีพื้นที่บนแพลตฟอร์มใหญ่
+            </p>
+          </div>
+          <p className="text-sm font-medium text-foreground sm:text-base">
+            ค้นพบ → เชื่อมต่อ → สนับสนุน Creative Scene ในพื้นที่
+          </p>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px w-full bg-border/50" />
+
+        {/* CTA Block */}
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="flex flex-col gap-2 sm:max-w-lg">
+            <h3 className="font-display text-lg font-semibold text-foreground sm:text-xl">
+              มีอะไรอยากให้คนค้นพบ?
+            </h3>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              หากคุณมีผลงาน เป็นศิลปิน จัดกิจกรรม หรือรู้จัก Creative Place ที่น่าสนใจ สามารถเข้ามาสร้างโปรไฟล์ เพิ่มผลงาน ประกาศกิจกรรม หรือแนะนำสถานที่บน ThaiArtHub ได้
+            </p>
+            <p className="text-sm font-medium text-foreground">
+              ไม่จำเป็นต้องมีชื่อเสียง แค่มีสิ่งที่อยากให้คนค้นพบ
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-3">
+            <Link
+              href="/login?redirect=/dashboard"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-xs transition hover:bg-primary/90 hover:shadow-md"
+            >
+              ฝากผลงาน / เพิ่มข้อมูล
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/artists"
+              className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:border-primary/40 hover:bg-muted/50"
+            >
+              สำรวจ ThaiArtHub
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
