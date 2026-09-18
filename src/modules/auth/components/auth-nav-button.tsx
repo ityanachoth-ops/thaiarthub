@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, LogOut, LayoutDashboard, Bookmark } from "lucide-react";
+import { User, LogOut, LayoutDashboard } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export function AuthNavButton() {
@@ -49,16 +49,6 @@ export function AuthNavButton() {
   if (user) {
     return (
       <div className="flex items-center gap-1 sm:gap-2">
-        <Link
-          href="/dashboard/saved"
-          className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-muted"
-          aria-label="รายการที่บันทึก"
-          title="รายการที่บันทึก"
-        >
-          <Bookmark className="h-3.5 w-3.5 text-primary fill-primary/20" />
-          <span className="hidden sm:inline">รายการที่บันทึก</span>
-        </Link>
-
         <Link
           href="/dashboard"
           className="flex items-center gap-1.5 rounded-xl border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/15"
