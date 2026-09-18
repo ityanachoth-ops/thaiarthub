@@ -20,16 +20,17 @@ const EVENTS_BUCKET = "events";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
 const EVENT_LIST_COLUMNS =
-  "id, title, slug, cover_image_url, venue_name, province, start_at, end_at, is_featured";
+  "id, title, slug, cover_image_url, cover_position, venue_name, province, start_at, end_at, is_featured";
 
 const EVENT_DETAIL_COLUMNS =
-  "id, title, slug, description, cover_image_url, venue_name, address, province, latitude, longitude, start_at, end_at, external_url, status, is_featured";
+  "id, title, slug, description, cover_image_url, cover_position, venue_name, address, province, latitude, longitude, start_at, end_at, external_url, status, is_featured";
 
 export type EventListItem = {
   id: string;
   title: string;
   slug: string;
   coverImageUrl: string | null;
+  coverPosition: string;
   venueName: string | null;
   province: string | null;
   startAt: string;
@@ -202,6 +203,7 @@ export async function getPublishedEvents(): Promise<EventListItem[]> {
         ? row.cover_image_url
         : (signedUrls.get(row.cover_image_url) ?? null)
       : null,
+    coverPosition: (row as { cover_position?: string }).cover_position ?? "50% 50%",
     venueName: row.venue_name,
     province: row.province,
     startAt: row.start_at,
@@ -237,6 +239,7 @@ export async function getFeaturedEvents(limit = 3): Promise<EventListItem[]> {
         ? row.cover_image_url
         : signedUrls.get(row.cover_image_url) ?? null
       : null,
+    coverPosition: (row as { cover_position?: string }).cover_position ?? "50% 50%",
     venueName: row.venue_name,
     province: row.province,
     startAt: row.start_at,
@@ -290,6 +293,7 @@ export async function getPublishedEventsByArtistId(
         ? row.cover_image_url
         : (signedUrls.get(row.cover_image_url) ?? null)
       : null,
+    coverPosition: (row as { cover_position?: string }).cover_position ?? "50% 50%",
     venueName: row.venue_name,
     province: row.province,
     startAt: row.start_at,
@@ -360,6 +364,7 @@ export async function getPublishedEventBySlug(
     slug: data.slug,
     description: data.description,
     coverImageUrl,
+    coverPosition: (data as { cover_position?: string }).cover_position ?? "50% 50%",
     venueName: data.venue_name,
     address: data.address,
     province: data.province,
@@ -401,6 +406,7 @@ export async function getAdminEvents(): Promise<AdminEventDetail[]> {
         ? row.cover_image_url
         : signedUrls.get(row.cover_image_url) ?? null
       : null,
+    coverPosition: (row as { cover_position?: string }).cover_position ?? "50% 50%",
     venueName: row.venue_name,
     province: row.province,
     startAt: row.start_at,
@@ -434,6 +440,7 @@ export async function getAdminEventById(id: string): Promise<AdminEventDetail | 
     slug: data.slug,
     coverImagePath: data.cover_image_url,
     coverImageUrl: await signCoverUrl(supabase, data.cover_image_url),
+    coverPosition: (data as { cover_position?: string }).cover_position ?? "50% 50%",
     venueName: data.venue_name,
     province: data.province,
     startAt: data.start_at,

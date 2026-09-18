@@ -32,6 +32,7 @@ export function EventForm({ profileId, event }: { profileId: string; event?: Adm
   const [externalUrl, setExternalUrl] = useState(event?.externalUrl ?? "");
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(event?.coverImageUrl ?? null);
+  const [coverPosition, setCoverPosition] = useState<string>(event?.coverPosition ?? "50% 50%");
   const [status, setStatus] = useState<"draft" | "published" | "cancelled">(event?.status ?? "draft");
   const [isFeatured, setIsFeatured] = useState(event?.isFeatured ?? false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -51,6 +52,7 @@ export function EventForm({ profileId, event }: { profileId: string; event?: Adm
     setErrorMessage(null);
     setCoverImageFile(file);
     setCoverImagePreview(URL.createObjectURL(file));
+    setCoverPosition("50% 50%"); // reset for new image
   };
 
   const handleSubmit = async (submitEvent: React.FormEvent) => {
@@ -91,6 +93,7 @@ export function EventForm({ profileId, event }: { profileId: string; event?: Adm
         longitude: longitude.trim() ? Number(longitude) : null,
         start_at: new Date(startAt).toISOString(), end_at: endAt ? new Date(endAt).toISOString() : null,
         external_url: externalUrl.trim() || null, status, is_featured: isFeatured,
+        cover_position: coverPosition,
       };
       const result = isEditing
         ? await supabase.from("events").update(values).eq("id", eventId)
@@ -119,7 +122,7 @@ export function EventForm({ profileId, event }: { profileId: string; event?: Adm
       {errorMessage ? <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{errorMessage}</p> : null}
       <Field label="ชื่อกิจกรรม *" id="event-title" value={title} onChange={setTitle} required />
       <Field label="รหัส URL *" id="event-slug" value={slug} onChange={(value) => setSlug(value.toLowerCase())} required />
-      <section className="space-y-3"><label className="block text-sm font-medium">ภาพปก</label><div className="flex flex-col gap-4 sm:flex-row sm:items-center"><div className="flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40 sm:w-56">{coverImagePreview ? <CoverImagePreview src={coverImagePreview} alt="ตัวอย่างภาพปก" className="h-full w-full" /> : <span className="text-xs text-muted-foreground">ยังไม่ได้เลือกภาพ</span>}</div><div><input ref={coverInputRef} id="event-cover" type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleCoverChange} /><button type="button" onClick={() => coverInputRef.current?.click()} className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm font-medium text-foreground hover:bg-muted">{coverImagePreview ? "เปลี่ยนภาพปก" : "เลือกรูปภาพ"}</button><p className="mt-2 text-xs text-muted-foreground">PNG, JPG หรือ WebP ขนาดไม่เกิน 5 MB</p></div></div></section>
+      <section className="space-y-3"><label className="block text-sm font-medium">ภาพปก</label><div className="flex flex-col gap-4 sm:flex-row sm:items-center"><div className="flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40 sm:w-56">{coverImagePreview ? <CoverImagePreview src={coverImagePreview} alt="ตัวอย่างภาพปก" className="h-full w-full" initialPosition={coverPosition} onPositionChange={setCoverPosition} /> : <span className="text-xs text-muted-foreground">ยังไม่ได้เลือกภาพ</span>}</div><div><input ref={coverInputRef} id="event-cover" type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleCoverChange} /><button type="button" onClick={() => coverInputRef.current?.click()} className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm font-medium text-foreground hover:bg-muted">{coverImagePreview ? "เปลี่ยนภาพปก" : "เลือกรูปภาพ"}</button><p className="mt-2 text-xs text-muted-foreground">PNG, JPG หรือ WebP ขนาดไม่เกิน 5 MB</p></div></div></section>
       <div className="grid gap-5 sm:grid-cols-2"><Select label="สถานะ" id="event-status" value={status} onChange={(value) => setStatus(value as typeof status)} options={[{ value: "draft", label: "ฉบับร่าง" }, { value: "published", label: "เผยแพร่" }, { value: "cancelled", label: "ยกเลิก" }]} /><Field label="จังหวัด" id="event-province" value={province} onChange={setProvince} /></div>
       <div className="grid gap-5 sm:grid-cols-2"><Field label="เริ่มต้น *" id="event-start" value={startAt} onChange={setStartAt} type="datetime-local" required /><Field label="สิ้นสุด" id="event-end" value={endAt} onChange={setEndAt} type="datetime-local" /></div>
       <div className="grid gap-5 sm:grid-cols-2"><Field label="สถานที่" id="event-venue" value={venueName} onChange={setVenueName} /><Field label="ที่อยู่" id="event-address" value={address} onChange={setAddress} /></div>

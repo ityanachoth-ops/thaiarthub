@@ -48,6 +48,7 @@ type ArtistQueryRow = Pick<
   | "location"
   | "avatar_url"
   | "cover_image_url"
+  | "cover_position"
   | "website_url"
   | "instagram_url"
   | "facebook_url"
@@ -70,6 +71,7 @@ export interface ArtistListItem {
   location: string | null;
   avatarUrl: string | null;
   coverUrl: string | null;
+  coverPosition: string;
   categories: ArtistCategorySummary[];
 }
 
@@ -83,7 +85,7 @@ export interface ArtistDetail extends ArtistListItem {
 }
 
 const ARTIST_SELECT = `
-  id, slug, name, bio, location, avatar_url, cover_image_url,
+  id, slug, name, bio, location, avatar_url, cover_image_url, cover_position,
   website_url, instagram_url, facebook_url, tiktok_url, contact_url,
   artist_categories ( category:categories ( id, name, slug ) )
 `;
@@ -138,6 +140,7 @@ async function toListItem(
     location: row.location,
     avatarUrl,
     coverUrl,
+    coverPosition: row.cover_position ?? "50% 50%",
     categories: mapCategories(row.artist_categories),
   };
 }

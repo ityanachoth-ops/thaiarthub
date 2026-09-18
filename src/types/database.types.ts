@@ -54,6 +54,7 @@ export interface Database {
           slug: string;
           bio: string | null;
           cover_image_url: string | null;
+          cover_position: string;
           avatar_url: string | null;
           location: string | null;
           website_url: string | null;
@@ -72,6 +73,7 @@ export interface Database {
           slug: string;
           bio?: string | null;
           cover_image_url?: string | null;
+          cover_position?: string;
           avatar_url?: string | null;
           location?: string | null;
           website_url?: string | null;
@@ -123,6 +125,7 @@ export interface Database {
           slug: string;
           description: string | null;
           image_url: string | null;
+          cover_position: string;
           external_url: string | null;
           type: string;
           year: number | null;
@@ -137,6 +140,7 @@ export interface Database {
           slug: string;
           description?: string | null;
           image_url?: string | null;
+          cover_position?: string;
           external_url?: string | null;
           type: string;
           year?: number | null;
@@ -170,6 +174,7 @@ export interface Database {
           slug: string;
           description: string | null;
           cover_image_url: string | null;
+          cover_position: string;
           venue_name: string | null;
           address: string | null;
           province: string | null;
@@ -189,6 +194,7 @@ export interface Database {
           slug: string;
           description?: string | null;
           cover_image_url?: string | null;
+          cover_position?: string;
           venue_name?: string | null;
           address?: string | null;
           province?: string | null;
@@ -262,6 +268,7 @@ export interface Database {
           excerpt: string | null;
           content: string;
           cover_image_url: string | null;
+          cover_position: string;
           category: string;
           status: ContentStatus;
           is_featured: boolean;
@@ -277,6 +284,7 @@ export interface Database {
           excerpt?: string | null;
           content: string;
           cover_image_url?: string | null;
+          cover_position?: string;
           category: string;
           status?: ContentStatus;
           is_featured?: boolean;
@@ -293,6 +301,7 @@ export interface Database {
           slug: string;
           description: string | null;
           cover_image_url: string | null;
+          cover_position: string;
           type: string;
           address: string | null;
           province: string | null;
@@ -310,6 +319,7 @@ export interface Database {
           slug: string;
           description?: string | null;
           cover_image_url?: string | null;
+          cover_position?: string;
           type: string;
           address?: string | null;
           province?: string | null;

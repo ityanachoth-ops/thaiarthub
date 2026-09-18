@@ -26,6 +26,7 @@ export type CreativePlace = {
   description: string | null;
   coverImageUrl: string | null;
   coverImagePath?: string | null;
+  coverPosition: string;
   type: CreativePlaceType;
   address: string | null;
   province: string | null;
@@ -45,6 +46,7 @@ export type PublicPlace = {
   slug: string;
   description: string | null;
   coverImageUrl: string | null;
+  coverPosition: string;
   type: CreativePlaceType;
   address: string | null;
   province: string | null;
@@ -52,5 +54,5 @@ export type PublicPlace = {
 
 export type PublicPlaceRow = Pick<
   CreativePlaceRow,
-  "id" | "name" | "slug" | "description" | "cover_image_url" | "type" | "address" | "province"
+  "id" | "name" | "slug" | "description" | "cover_image_url" | "cover_position" | "type" | "address" | "province"
 >;

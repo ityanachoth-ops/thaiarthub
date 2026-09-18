@@ -13,6 +13,7 @@ export type CreatorArtwork = Pick<
   | "slug"
   | "description"
   | "image_url"
+  | "cover_position"
   | "external_url"
   | "type"
   | "year"
@@ -50,7 +51,7 @@ export async function getCreatorArtworkById(
 ): Promise<CreatorArtwork | null> {
   const { data } = await supabase
     .from("works")
-    .select("id, title, slug, description, image_url, external_url, type, year, status")
+    .select("id, title, slug, description, image_url, cover_position, external_url, type, year, status")
     .eq("id", artworkId)
     .eq("artist_id", artistId)
     .maybeSingle();

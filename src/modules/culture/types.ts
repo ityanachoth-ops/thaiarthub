@@ -20,6 +20,7 @@ export type Article = {
   content: string;
   coverImagePath?: string | null;
   coverImageUrl: string | null;
+  coverPosition: string;
   category: ArticleCategory;
   status: ContentStatus;
   isFeatured: boolean;

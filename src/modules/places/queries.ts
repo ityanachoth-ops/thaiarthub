@@ -8,7 +8,7 @@ import type { CreativePlace, CreativePlaceRow, PublicPlace, PublicPlaceRow } fro
 
 const BUCKET = "creative-places";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
-const PLACE_COLUMNS = "id, name, slug, description, cover_image_url, type, address, province, latitude, longitude, external_url, status, created_by, created_at, updated_at";
+const PLACE_COLUMNS = "id, name, slug, description, cover_image_url, cover_position, type, address, province, latitude, longitude, external_url, status, created_by, created_at, updated_at";
 type PlaceGalleryRow = Database["public"]["Tables"]["creative_place_images"]["Row"];
 
 function isAbsoluteUrl(value: string) {
@@ -66,6 +66,7 @@ function mapPlace(
     coverImageUrl: row.cover_image_url
       ? isAbsoluteUrl(row.cover_image_url) ? row.cover_image_url : signed.get(row.cover_image_url) ?? null
       : null,
+    coverPosition: (row as { cover_position?: string }).cover_position ?? "50% 50%",
     type: row.type as CreativePlace["type"],
     address: row.address,
     province: row.province,
@@ -89,6 +90,7 @@ function mapPublicPlace(row: PublicPlaceRow, signed: Map<string, string>): Publi
     coverImageUrl: row.cover_image_url
       ? isAbsoluteUrl(row.cover_image_url) ? row.cover_image_url : signed.get(row.cover_image_url) ?? null
       : null,
+    coverPosition: (row as { cover_position?: string }).cover_position ?? "50% 50%",
     type: row.type as CreativePlace["type"],
     address: row.address,
     province: row.province,
@@ -129,7 +131,7 @@ export async function getCreativePlaceById(id: string, userId: string, isAdmin: 
 }
 
 const PLACE_LIST_COLUMNS =
-  "id, name, slug, description, cover_image_url, type, address, province";
+  "id, name, slug, description, cover_image_url, cover_position, type, address, province";
 
 export async function getPublishedPlaces(limit = 3): Promise<PublicPlace[]> {
   const supabase = await createClient();

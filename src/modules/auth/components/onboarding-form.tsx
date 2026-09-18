@@ -58,6 +58,7 @@ export function OnboardingForm({
   const [coverPreview, setCoverPreview] = useState<string | null>(
     initialCoverUrl || null
   );
+  const [coverPosition, setCoverPosition] = useState<string>("50% 50%");
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -88,6 +89,7 @@ export function OnboardingForm({
     setCoverFile(file);
     const objectUrl = URL.createObjectURL(file);
     setCoverPreview(objectUrl);
+    setCoverPosition("50% 50%"); // reset for new image
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -202,6 +204,7 @@ export function OnboardingForm({
             location: location.trim() || null,
             avatar_url: finalAvatarUrl,
             cover_image_url: finalCoverUrl,
+            cover_position: coverPosition,
             status: "published",
           })
           .eq("id", existingArtist.id);
@@ -221,6 +224,7 @@ export function OnboardingForm({
           location: location.trim() || null,
           avatar_url: finalAvatarUrl,
           cover_image_url: finalCoverUrl,
+          cover_position: coverPosition,
           status: "published",
         });
 
@@ -279,7 +283,13 @@ export function OnboardingForm({
           </label>
           <div className="relative flex h-36 w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted/30 shadow-xs transition hover:bg-muted/50">
             {coverPreview ? (
-              <CoverImagePreview src={coverPreview} alt="Cover preview" className="h-full w-full" />
+              <CoverImagePreview
+                src={coverPreview}
+                alt="Cover preview"
+                className="h-full w-full"
+                initialPosition={coverPosition}
+                onPositionChange={setCoverPosition}
+              />
             ) : (
               <div className="flex flex-col items-center justify-center gap-1.5 p-4 text-center">
                 <ImageIcon className="h-8 w-8 text-muted-foreground/40" />

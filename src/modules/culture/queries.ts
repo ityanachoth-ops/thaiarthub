@@ -10,7 +10,7 @@ const ARTICLES_BUCKET = "articles";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
 const ARTICLE_COLUMNS =
-  "id, author_id, title, slug, excerpt, content, cover_image_url, category, status, is_featured, published_at, created_at, updated_at";
+  "id, author_id, title, slug, excerpt, content, cover_image_url, cover_position, category, status, is_featured, published_at, created_at, updated_at";
 
 const articleSlugSchema = z.string().regex(/^[a-z0-9][a-z0-9-]{2,159}$/);
 
@@ -81,6 +81,7 @@ async function mapArticle(
     content: row.content,
     ...(includeStoragePaths ? { coverImagePath: row.cover_image_url } : {}),
     coverImageUrl: await resolveCoverUrl(supabase, row.cover_image_url),
+    coverPosition: (row as { cover_position?: string }).cover_position ?? "50% 50%",
     category: row.category as Article["category"],
     status: row.status,
     isFeatured: row.is_featured,

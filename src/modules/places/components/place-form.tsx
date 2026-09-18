@@ -49,6 +49,7 @@ export function PlaceForm({ userId, isAdmin, place }: PlaceFormProps) {
   const [status, setStatus] = useState<CreativePlaceStatus>(place?.status ?? "draft");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState(place?.coverImageUrl ?? null);
+  const [coverPosition, setCoverPosition] = useState<string>(place?.coverPosition ?? "50% 50%");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -66,6 +67,7 @@ export function PlaceForm({ userId, isAdmin, place }: PlaceFormProps) {
     setErrorMessage(null);
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
+    setCoverPosition("50% 50%"); // reset for new image
     event.target.value = "";
   };
 
@@ -110,7 +112,7 @@ export function PlaceForm({ userId, isAdmin, place }: PlaceFormProps) {
         if (error) throw new Error(`อัปโหลดภาพปกไม่สำเร็จ: ${error.message}`);
       }
 
-      const record = { ...values, ...(uploadedPath ? { cover_image_url: uploadedPath } : {}) };
+      const record = { ...values, ...(uploadedPath ? { cover_image_url: uploadedPath } : {}), cover_position: coverPosition };
       const result = isEditing
         ? isAdmin
           ? await supabase.from("creative_places").update(record).eq("id", placeId)
@@ -142,7 +144,7 @@ export function PlaceForm({ userId, isAdmin, place }: PlaceFormProps) {
       <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl border border-border/80 bg-card p-6 shadow-xs sm:p-10">
         <header><h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{isEditing ? "แก้ไข Creative Place" : "เพิ่ม Creative Place"}</h1><p className="mt-1.5 text-sm text-muted-foreground">เพิ่มพื้นที่สร้างสรรค์สำหรับการจัดการในอนาคต</p></header>
         {errorMessage ? <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{errorMessage}</p> : null}
-        <section className="space-y-3"><label className="block text-sm font-medium">ภาพปก</label><div className="flex flex-col gap-4 sm:flex-row sm:items-center"><div className="flex h-40 w-full items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40 sm:w-64">{coverPreview ? <CoverImagePreview src={coverPreview} alt="ตัวอย่างภาพปก" className="h-full w-full" /> : <ImagePlus className="h-8 w-8 text-muted-foreground/50" />}</div><div><label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium hover:bg-muted"><ImagePlus className="h-3.5 w-3.5" />{coverPreview ? "เปลี่ยนภาพปก" : "เลือกรูปภาพ"}<input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleCoverChange} /></label><p className="mt-2 text-[11px] text-muted-foreground">PNG, JPG หรือ WebP ขนาดไม่เกิน 5 MB</p></div></div></section>
+        <section className="space-y-3"><label className="block text-sm font-medium">ภาพปก</label><div className="flex flex-col gap-4 sm:flex-row sm:items-center"><div className="flex h-40 w-full items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40 sm:w-64">{coverPreview ? <CoverImagePreview src={coverPreview} alt="ตัวอย่างภาพปก" className="h-full w-full" initialPosition={coverPosition} onPositionChange={setCoverPosition} /> : <ImagePlus className="h-8 w-8 text-muted-foreground/50" />}</div><div><label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-medium hover:bg-muted"><ImagePlus className="h-3.5 w-3.5" />{coverPreview ? "เปลี่ยนภาพปก" : "เลือกรูปภาพ"}<input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleCoverChange} /></label><p className="mt-2 text-[11px] text-muted-foreground">PNG, JPG หรือ WebP ขนาดไม่เกิน 5 MB</p></div></div></section>
         <div className="grid gap-5 sm:grid-cols-2"><div className="space-y-1.5"><label htmlFor="place-name" className="block text-sm font-medium">ชื่อ *</label><input id="place-name" required value={name} onChange={(event) => setName(event.target.value)} className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm" /></div><div className="space-y-1.5"><label htmlFor="place-slug" className="block text-sm font-medium">Slug *</label><input id="place-slug" required value={slug} onChange={(event) => setSlug(event.target.value.toLowerCase())} className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm" /></div></div>
         <div className="grid gap-5 sm:grid-cols-2"><div className="space-y-1.5"><label htmlFor="place-type" className="block text-sm font-medium">ประเภท *</label><select id="place-type" value={type} onChange={(event) => setType(event.target.value as CreativePlaceType)} className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm">{CREATIVE_PLACE_TYPES.map((item) => <option key={item} value={item}>{typeLabels[item]}</option>)}</select></div><div className="space-y-1.5"><label htmlFor="place-status" className="block text-sm font-medium">สถานะ</label><select id="place-status" value={status} onChange={(event) => setStatus(event.target.value as CreativePlaceStatus)} className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm"><option value="draft">ฉบับร่าง</option><option value="published">เผยแพร่</option><option value="archived">เก็บถาวร</option></select></div></div>
         <div className="space-y-1.5"><label htmlFor="place-description" className="block text-sm font-medium">รายละเอียด</label><textarea id="place-description" rows={5} value={description} onChange={(event) => setDescription(event.target.value)} className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm leading-relaxed" /></div>

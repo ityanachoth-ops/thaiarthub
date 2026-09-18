@@ -29,6 +29,7 @@ interface ProfileEditFormProps {
   initialAvatarPreviewUrl?: string | null;
   initialCoverPath?: string | null;
   initialCoverPreviewUrl?: string | null;
+  initialCoverPosition?: string | null;
 }
 
 function isExternalUrl(value: string) {

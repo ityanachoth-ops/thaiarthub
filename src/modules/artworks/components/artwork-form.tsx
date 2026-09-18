@@ -96,6 +96,7 @@ export function ArtworkForm({
   );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(imagePreviewUrl);
+  const [coverPosition, setCoverPosition] = useState<string>(artwork?.cover_position ?? "50% 50%");
   const [gallery, setGallery] = useState(initialGallery);
   const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
   const [newGalleryPreviews, setNewGalleryPreviews] = useState<string[]>([]);
@@ -120,6 +121,7 @@ export function ArtworkForm({
     setErrorMessage(null);
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
+    setCoverPosition("50% 50%"); // reset position for new image
   };
 
   const handleGalleryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,6 +237,7 @@ export function ArtworkForm({
         year: values.year ?? null,
         external_url: values.externalUrl || null,
         image_url: imagePath,
+        cover_position: coverPosition,
         status: values.status,
       };
 
@@ -360,7 +363,13 @@ export function ArtworkForm({
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="flex h-32 w-full items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40 sm:w-48">
                 {imagePreview ? (
-                  <CoverImagePreview src={imagePreview} alt="ตัวอย่างภาพผลงาน" className="h-full w-full" />
+                  <CoverImagePreview
+                    src={imagePreview}
+                    alt="ตัวอย่างภาพผลงาน"
+                    className="h-full w-full"
+                    initialPosition={coverPosition}
+                    onPositionChange={setCoverPosition}
+                  />
                 ) : (
                   <ImagePlus className="h-8 w-8 text-muted-foreground/50" />
                 )}

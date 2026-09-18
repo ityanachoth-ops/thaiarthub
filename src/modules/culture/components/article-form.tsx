@@ -25,6 +25,7 @@ export function ArticleForm({ userId, article }: { userId: string; article?: Art
   const [isFeatured, setIsFeatured] = useState(article?.isFeatured ?? false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(article?.coverImageUrl ?? null);
+  const [coverPosition, setCoverPosition] = useState<string>(article?.coverPosition ?? "50% 50%");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -42,6 +43,7 @@ export function ArticleForm({ userId, article }: { userId: string; article?: Art
     setErrorMessage(null);
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
+    setCoverPosition("50% 50%"); // reset for new image
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -85,6 +87,7 @@ export function ArticleForm({ userId, article }: { userId: string; article?: Art
         excerpt: excerpt.trim() || null,
         content: content.trim(),
         cover_image_url: coverPath,
+        cover_position: coverPosition,
         category,
         status,
         is_featured: isFeatured,
@@ -140,7 +143,13 @@ export function ArticleForm({ userId, article }: { userId: string; article?: Art
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40 sm:w-56">
               {imagePreview ? (
-                <CoverImagePreview src={imagePreview} alt="ตัวอย่างภาพปก" className="h-full w-full" />
+                <CoverImagePreview
+                  src={imagePreview}
+                  alt="ตัวอย่างภาพปก"
+                  className="h-full w-full"
+                  initialPosition={coverPosition}
+                  onPositionChange={setCoverPosition}
+                />
               ) : <ImagePlus className="h-8 w-8 text-muted-foreground/50" />}
             </div>
             <div>

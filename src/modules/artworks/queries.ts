@@ -28,7 +28,7 @@ type ArtistJoinRow = Pick<Database["public"]["Tables"]["artists"]["Row"], "slug"
 
 type WorkQueryRow = Pick<
   Database["public"]["Tables"]["works"]["Row"],
-  "id" | "slug" | "title" | "description" | "image_url" | "external_url" | "type"
+  "id" | "slug" | "title" | "description" | "image_url" | "cover_position" | "external_url" | "type"
 > & {
   artist: ArtistJoinRow;
 };
@@ -44,13 +44,7 @@ export interface ArtworkListItem {
   title: string;
   type: string;
   imageUrl: string | null;
-  /**
-   * Null when the owning artist row isn't visible to the current caller
-   * (e.g. a published work whose artist has since gone back to draft --
-   * RLS on `artists` hides that row for anon regardless of the work's own
-   * status). Callers must handle this, not assume an artist is always
-   * present.
-   */
+  coverPosition: string;
   artist: ArtworkArtistSummary | null;
 }
 
@@ -68,7 +62,7 @@ export interface ArtworkDetail extends ArtworkListItem {
 }
 
 const ARTWORK_SELECT = `
-  id, slug, title, description, image_url, external_url, type,
+  id, slug, title, description, image_url, cover_position, external_url, type,
   artist:artists ( slug, name )
 `;
 
@@ -134,6 +128,7 @@ async function toListItem(
     title: row.title,
     type: row.type,
     imageUrl,
+    coverPosition: row.cover_position ?? "50% 50%",
     artist: row.artist ? { slug: row.artist.slug, name: row.artist.name } : null,
   };
 }
