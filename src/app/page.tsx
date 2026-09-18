@@ -9,6 +9,7 @@ import { EventGrid } from "@/modules/events/components/event-grid";
 import { MapContainer } from "@/modules/map/components/map-container";
 import { PlaceCard } from "@/modules/places/components/place-card";
 import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +23,44 @@ export default async function Home() {
     getUserSavedItemIds(),
   ]);
   const mapLocations = [...eventLocations, ...placeLocations];
+  const siteOrigin = getSiteUrl().origin;
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "ThaiArtHub",
+      url: siteOrigin,
+      description: "แพลตฟอร์มศูนย์รวมและค้นพบศิลปินไทย ผลงานศิลปะ กิจกรรม และพื้นที่สร้างสรรค์ทั่วประเทศไทย",
+      inLanguage: "th",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${siteOrigin}/search?q={search_term_string}`,
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "ThaiArtHub",
+      url: siteOrigin,
+      description: "แพลตฟอร์มศูนย์รวมและค้นพบศิลปินไทย ผลงานศิลปะ กิจกรรม และพื้นที่สร้างสรรค์ทั่วประเทศไทย",
+      sameAs: [
+        "https://www.instagram.com/thaiarthub",
+        "https://www.facebook.com/thaiarthub",
+      ],
+    },
+  ];
 
   return (
     <div className="home-background-texture flex flex-col gap-14 py-4 sm:gap-20 sm:py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-b from-card to-background p-6 shadow-xs sm:p-12 lg:p-16">
         <div className="relative z-10 max-w-3xl space-y-6">

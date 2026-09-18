@@ -15,6 +15,8 @@ type EventDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
 
+import { getSiteUrl } from "@/lib/site-url";
+
 export async function generateMetadata({
   params,
 }: EventDetailPageProps): Promise<Metadata> {
@@ -25,9 +27,32 @@ export async function generateMetadata({
     return { title: "ไม่พบกิจกรรม | ThaiArtHub" };
   }
 
+  const baseUrl = getSiteUrl().origin;
+  const url = `${baseUrl}/events/${event.slug}`;
+  const title = `${event.title} | Events | ThaiArtHub`;
+  const description = event.description?.slice(0, 160) ?? `กิจกรรม ${event.title} บน ThaiArtHub`;
+  const images = event.coverImageUrl ? [event.coverImageUrl] : [];
+
   return {
-    title: `${event.title} | ThaiArtHub`,
-    description: event.description ?? undefined,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "ThaiArtHub",
+      type: "website",
+      images: images.map((img) => ({ url: img })),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images,
+    },
   };
 }
 
@@ -48,8 +73,52 @@ export default async function EventDetailPage({
     ? `https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}`
     : null;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    url: `${getSiteUrl().origin}/events/${event.slug}`,
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    startDate: event.startAt,
+    ...(event.endAt ? { endDate: event.endAt } : {}),
+    ...(event.description ? { description: event.description } : {}),
+    ...(event.coverImageUrl ? { image: event.coverImageUrl } : {}),
+    location: {
+      "@type": "Place",
+      ...(event.venueName ? { name: event.venueName } : {}),
+      address: {
+        "@type": "PostalAddress",
+        ...(event.address ? { streetAddress: event.address } : {}),
+        ...(event.province ? { addressRegion: event.province } : {}),
+      },
+      ...(hasCoordinates
+        ? {
+            geo: {
+              "@type": "GeoCoordinates",
+              latitude: event.latitude,
+              longitude: event.longitude,
+            },
+          }
+        : {}),
+    },
+    ...(event.artists.length > 0
+      ? {
+          performer: event.artists.map((artist) => ({
+            "@type": "Person",
+            name: artist.name,
+            url: `${getSiteUrl().origin}/artists/${artist.slug}`,
+          })),
+        }
+      : {}),
+  };
+
   return (
     <main className="container mx-auto px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <article className="mx-auto max-w-3xl space-y-8">
         <div className="overflow-hidden rounded-xl border bg-muted">
           {event.coverImageUrl ? (

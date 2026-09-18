@@ -18,6 +18,8 @@ type ArtistProfilePageProps = {
 	params: Promise<{ username: string }>;
 };
 
+import { getSiteUrl } from "@/lib/site-url";
+
 export async function generateMetadata({
 	params,
 }: ArtistProfilePageProps): Promise<Metadata> {
@@ -28,9 +30,31 @@ export async function generateMetadata({
 		return { title: "ไม่พบศิลปิน | ThaiArtHub" };
 	}
 
+	const baseUrl = getSiteUrl().origin;
+	const url = `${baseUrl}/artists/${artist.slug}`;
+	const description = artist.bio?.slice(0, 160) ?? `โปรไฟล์ศิลปิน ${artist.name} บน ThaiArtHub`;
+	const images = artist.coverUrl ? [artist.coverUrl] : artist.avatarUrl ? [artist.avatarUrl] : [];
+
 	return {
 		title: `${artist.name} | ThaiArtHub`,
-		description: artist.bio?.slice(0, 160) ?? `โปรไฟล์ศิลปิน ${artist.name} บน ThaiArtHub`,
+		description,
+		alternates: {
+			canonical: url,
+		},
+		openGraph: {
+			title: `${artist.name} | ThaiArtHub`,
+			description,
+			url,
+			siteName: "ThaiArtHub",
+			type: "profile",
+			images: images.map((img) => ({ url: img })),
+		},
+		twitter: {
+			card: "summary_large_image",
+			title: `${artist.name} | ThaiArtHub`,
+			description,
+			images,
+		},
 	};
 }
 
@@ -101,8 +125,28 @@ export default async function ArtistProfilePage({
 		["ติดต่อศิลปิน", artist.contactUrl],
 	].filter((link): link is [string, string] => Boolean(link[1]));
 
+	const jsonLd = {
+		"@context": "https://schema.org",
+		"@type": "Person",
+		name: artist.name,
+		url: `${getSiteUrl().origin}/artists/${artist.slug}`,
+		...(artist.bio ? { description: artist.bio } : {}),
+		...(artist.avatarUrl || artist.coverUrl ? { image: artist.avatarUrl || artist.coverUrl } : {}),
+		...(artist.location ? { address: { "@type": "PostalAddress", addressLocality: artist.location } } : {}),
+		sameAs: [
+			artist.websiteUrl,
+			artist.instagramUrl,
+			artist.facebookUrl,
+			artist.tiktokUrl,
+		].filter((url): url is string => Boolean(url)),
+	};
+
 	return (
 		<div className="flex flex-col gap-10">
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+			/>
 			<Link
 				href="/artists"
 				className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground transition hover:text-primary"

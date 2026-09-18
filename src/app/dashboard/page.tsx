@@ -14,6 +14,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "แดชบอร์ดครีเอเตอร์ | ThaiArtHub",
   description: "พื้นที่แดชบอร์ดสำหรับครีเอเตอร์และผู้ดูแลระบบ ThaiArtHub",
+  robots: { index: false, follow: false },
 };
 
 export default async function DashboardPage() {

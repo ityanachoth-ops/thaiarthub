@@ -20,6 +20,8 @@ const typeLabels: Record<string, string> = {
   other: "Other",
 };
 
+import { getSiteUrl } from "@/lib/site-url";
+
 interface PlaceDetailPageProps {
   params: Promise<{ slug: string }>;
 }
@@ -32,9 +34,32 @@ export async function generateMetadata({ params }: PlaceDetailPageProps): Promis
     return { title: "ไม่พบพื้นที่สร้างสรรค์ | ThaiArtHub" };
   }
 
+  const baseUrl = getSiteUrl().origin;
+  const url = `${baseUrl}/places/${place.slug}`;
+  const title = `${place.name} | Creative Places | ThaiArtHub`;
+  const description = place.description?.slice(0, 160) ?? `พื้นที่สร้างสรรค์ ${place.name} บน ThaiArtHub`;
+  const images = place.coverImageUrl ? [place.coverImageUrl] : [];
+
   return {
-    title: `${place.name} | ThaiArtHub`,
-    description: place.description ?? undefined,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "ThaiArtHub",
+      type: "website",
+      images: images.map((img) => ({ url: img })),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images,
+    },
   };
 }
 
@@ -53,8 +78,39 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
     ? `https://www.google.com/maps/search/?api=1&query=${place.latitude},${place.longitude}`
     : null;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Place",
+    name: place.name,
+    url: `${getSiteUrl().origin}/places/${place.slug}`,
+    ...(place.description ? { description: place.description } : {}),
+    ...(place.coverImageUrl ? { image: place.coverImageUrl } : {}),
+    ...(place.address || place.province
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            ...(place.address ? { streetAddress: place.address } : {}),
+            ...(place.province ? { addressRegion: place.province } : {}),
+          },
+        }
+      : {}),
+    ...(hasCoordinates
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: place.latitude,
+            longitude: place.longitude,
+          },
+        }
+      : {}),
+  };
+
   return (
     <main className="container mx-auto px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <article className="mx-auto max-w-3xl space-y-8">
         <div className="overflow-hidden rounded-xl border bg-muted">
           {place.coverImageUrl ? (

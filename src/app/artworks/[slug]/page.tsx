@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { getSiteUrl } from "@/lib/site-url";
 import { getPublishedArtworkBySlug } from "@/modules/artworks/queries";
 
 interface ArtworkDetailPageProps {
@@ -13,14 +14,38 @@ export async function generateMetadata({ params }: ArtworkDetailPageProps): Prom
   const artwork = await getPublishedArtworkBySlug(slug);
 
   if (!artwork) {
-    return { title: "ไม่พบผลงาน | Thaiarthub" };
+    return { title: "ไม่พบผลงาน | ThaiArtHub" };
   }
 
+  const baseUrl = getSiteUrl().origin;
+  const url = `${baseUrl}/artworks/${artwork.slug}`;
+  const artistName = artwork.artist?.name;
+  const title = artistName ? `${artwork.title} — ${artistName} | ThaiArtHub` : `${artwork.title} | ThaiArtHub`;
+  const description =
+    artwork.description?.slice(0, 160) ??
+    `ผลงาน ${artwork.title}${artistName ? ` โดย ${artistName}` : ""} บน ThaiArtHub`;
+  const images = artwork.imageUrl ? [artwork.imageUrl] : [];
+
   return {
-    title: `${artwork.title} | Thaiarthub`,
-    description:
-      artwork.description?.slice(0, 160) ??
-      `ผลงาน ${artwork.title}${artwork.artist ? ` โดย ${artwork.artist.name}` : ""} บน Thaiarthub`,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "ThaiArtHub",
+      type: "website",
+      images: images.map((img) => ({ url: img })),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images,
+    },
   };
 }
 
@@ -32,8 +57,31 @@ export default async function ArtworkDetailPage({ params }: ArtworkDetailPagePro
     notFound();
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "VisualArtwork",
+    name: artwork.title,
+    url: `${getSiteUrl().origin}/artworks/${artwork.slug}`,
+    ...(artwork.description ? { description: artwork.description } : {}),
+    ...(artwork.imageUrl ? { image: artwork.imageUrl } : {}),
+    artForm: artwork.type,
+    ...(artwork.artist
+      ? {
+          creator: {
+            "@type": "Person",
+            name: artwork.artist.name,
+            url: `${getSiteUrl().origin}/artists/${artwork.artist.slug}`,
+          },
+        }
+      : {}),
+  };
+
   return (
     <article className="flex flex-col gap-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 sm:aspect-[16/9]">
         {artwork.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL

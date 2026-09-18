@@ -13,6 +13,8 @@ type CultureArticlePageProps = {
   params: Promise<{ slug: string }>;
 };
 
+import { getSiteUrl } from "@/lib/site-url";
+
 export async function generateMetadata({
   params,
 }: CultureArticlePageProps): Promise<Metadata> {
@@ -21,13 +23,32 @@ export async function generateMetadata({
 
   if (!article) return { title: "ไม่พบเรื่องราว | ThaiArtHub" };
 
+  const baseUrl = getSiteUrl().origin;
+  const url = `${baseUrl}/culture/${article.slug}`;
+  const title = `${article.title} | ThaiArtHub`;
+  const description = article.excerpt ?? article.content.slice(0, 160);
+  const images = article.coverImageUrl ? [article.coverImageUrl] : [];
+
   return {
-    title: `${article.title} | ThaiArtHub`,
-    description: article.excerpt ?? article.content.slice(0, 160),
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
-      title: article.title,
-      description: article.excerpt ?? article.content.slice(0, 160),
-      images: article.coverImageUrl ? [article.coverImageUrl] : undefined,
+      title,
+      description,
+      url,
+      siteName: "ThaiArtHub",
+      type: "article",
+      publishedTime: article.publishedAt ?? article.createdAt,
+      images: images.map((img) => ({ url: img })),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images,
     },
   };
 }
@@ -40,8 +61,33 @@ export default async function CultureArticlePage({
 
   if (!article) notFound();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    url: `${getSiteUrl().origin}/culture/${article.slug}`,
+    ...(article.excerpt || article.content ? { description: article.excerpt ?? article.content.slice(0, 160) } : {}),
+    ...(article.coverImageUrl ? { image: article.coverImageUrl } : {}),
+    datePublished: article.publishedAt ?? article.createdAt,
+    dateModified: article.publishedAt ?? article.createdAt,
+    author: {
+      "@type": "Organization",
+      name: "ThaiArtHub",
+      url: getSiteUrl().origin,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "ThaiArtHub",
+      url: getSiteUrl().origin,
+    },
+  };
+
   return (
     <article className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Link
         href="/culture"
         className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground transition hover:text-primary"

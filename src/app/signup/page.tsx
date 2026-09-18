@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "สมัครสมาชิก | ThaiArtHub",
   description: "สมัครสมาชิก ThaiArtHub ในฐานะผู้ใช้ทั่วไปหรือครีเอเตอร์",
+  robots: { index: false, follow: false },
 };
 
 export default function SignUpPage() {

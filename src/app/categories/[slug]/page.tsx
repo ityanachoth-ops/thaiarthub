@@ -7,6 +7,7 @@ import { ArtistGrid } from "@/modules/artists/components/artist-grid";
 import { ArtworkGrid } from "@/modules/artworks/components/artwork-grid";
 import { getCategoryPageData } from "@/modules/categories/queries";
 import { EmptyState } from "@/components/shared/empty-state";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +25,31 @@ export async function generateMetadata({
     return { title: "ไม่พบหมวดหมู่ | ThaiArtHub" };
   }
 
+  const baseUrl = getSiteUrl().origin;
+  const url = `${baseUrl}/categories/${data.category.slug}`;
+  const title = `${data.category.name} | ThaiArtHub`;
+  const description =
+    data.category.description ??
+    `ศิลปินและผลงานในหมวดหมู่ ${data.category.name} บน ThaiArtHub`;
+
   return {
-    title: `${data.category.name} | ThaiArtHub`,
-    description: data.category.description ?? undefined,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "ThaiArtHub",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
   };
 }
 

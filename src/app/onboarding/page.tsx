@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "สร้างโปรไฟล์ศิลปิน | ThaiArtHub",
   description: "เริ่มต้นสร้างโปรไฟล์ครีเอเตอร์และศิลปินบน ThaiArtHub",
+  robots: { index: false, follow: false },
 };
 
 export default async function OnboardingPage() {
