@@ -68,3 +68,18 @@ export function toDateAttribute(value: string | null): string | undefined {
   const date = toDate(value);
   return date ? date.toISOString() : undefined;
 }
+
+/** Get today's date in Bangkok timezone, normalized to start of day */
+export function getTodayInBangkok(): Date {
+  const now = new Date();
+  const bangkokTime = new Date(now.toLocaleString("en-US", { timeZone: BANGKOK_TIME_ZONE }));
+  // Set to start of day (00:00:00)
+  bangkokTime.setHours(0, 0, 0, 0);
+  return bangkokTime;
+}
+
+/** Check if event is upcoming (end_date >= today or start_date >= today if no end_date) */
+export function isEventUpcoming(event: { startAt: string; endAt: string | null }, today: Date): boolean {
+  const endDate = event.endAt ? new Date(event.endAt) : new Date(event.startAt);
+  return endDate >= today;
+}
