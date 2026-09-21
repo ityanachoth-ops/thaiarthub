@@ -18,5 +18,5 @@ export default async function NewDashboardArtistPage() {
   if (!profile) redirect("/onboarding");
   if (profile.role !== "admin") return <AccessDenied profile={profile} />;
 
-  return <AdminArtistForm adminProfileId={profile.id} creators={await getCreatorOwnerOptions()} />;
+  return <AdminArtistForm adminProfileId={profile.id} creators={await getCreatorOwnerOptions(supabase)} />;
 }

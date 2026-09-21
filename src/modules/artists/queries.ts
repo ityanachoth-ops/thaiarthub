@@ -250,15 +250,17 @@ export async function getAdminArtists(): Promise<AdminArtistListItem[]> {
   }));
 }
 
-export async function getCreatorOwnerOptions(): Promise<CreatorOwnerOption[]> {
-  const supabase = await createClient();
+export async function getCreatorOwnerOptions(supabase?: Awaited<ReturnType<typeof createClient>>): Promise<CreatorOwnerOption[]> {
+  // Use provided Supabase client or create a new one
+  const client = supabase ?? await createClient();
+  
   const [{ data: creators, error: creatorError }, { data: owned, error: ownedError }] = await Promise.all([
-    supabase
+    client
       .from("profiles")
       .select("id, display_name, username")
       .eq("role", "creator")
       .order("display_name", { ascending: true }),
-    supabase.from("artists").select("profile_id"),
+    client.from("artists").select("profile_id"),
   ]);
 
   if (creatorError) throw new Error(`ไม่สามารถโหลดรายชื่อ Creator ได้: ${creatorError.message}`);
