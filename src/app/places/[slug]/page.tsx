@@ -119,6 +119,7 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
               src={place.coverImageUrl}
               alt={place.name}
               className="aspect-[16/9] w-full object-cover"
+              style={{ objectPosition: place.coverPosition }}
             />
           ) : (
             <div className="flex aspect-[16/9] w-full items-center justify-center text-sm text-muted-foreground">

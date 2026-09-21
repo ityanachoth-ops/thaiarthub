@@ -102,6 +102,7 @@ export function OnboardingForm({
       bio: bio || undefined,
       location: location || undefined,
       avatarUrl: avatarUrl || undefined,
+      coverPosition,
     });
 
     if (!validation.success) {

@@ -102,7 +102,7 @@ export async function getCreatorDashboardData(
   // Load all creator-owned works so drafts can be managed from the dashboard.
   const { data: workRows } = await supabase
     .from("works")
-    .select("id, title, slug, description, image_url, external_url, type, year, status")
+    .select("id, title, slug, description, image_url, cover_position, external_url, type, year, status")
     .eq("artist_id", artistRow.id)
     .order("created_at", { ascending: false });
 
@@ -116,6 +116,7 @@ export async function getCreatorDashboardData(
       year: work.year,
       imagePath: work.image_url,
       imageUrl: await resolveWorkImageUrl(supabase, work.image_url),
+      coverPosition: work.cover_position ?? "50% 50%",
       externalUrl: work.external_url,
       status: work.status,
     }))

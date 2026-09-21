@@ -46,6 +46,7 @@ export function ProfileEditForm({
   initialAvatarPreviewUrl = "",
   initialCoverPath = "",
   initialCoverPreviewUrl = "",
+  initialCoverPosition = "50% 50%",
 }: ProfileEditFormProps) {
   const router = useRouter();
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
@@ -74,6 +75,7 @@ export function ProfileEditForm({
   const [coverPreview, setCoverPreview] = useState<string | null>(
     initialCoverPreviewUrl || coverPath || null
   );
+  const [coverPosition, setCoverPosition] = useState<string>(initialCoverPosition || "50% 50%");
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -118,6 +120,7 @@ export function ProfileEditForm({
       bio: bio || undefined,
       location: location || undefined,
       avatarUrl: avatarUrl || undefined,
+      coverPosition,
     });
 
     if (!validation.success) {
@@ -236,6 +239,7 @@ export function ProfileEditForm({
             location: location.trim() || null,
             avatar_url: finalAvatarUrl,
             cover_image_url: finalCoverUrl,
+            cover_position: coverPosition,
           })
           .eq("id", existingArtist.id);
 
@@ -256,6 +260,7 @@ export function ProfileEditForm({
             location: location.trim() || null,
             avatar_url: finalAvatarUrl,
             cover_image_url: finalCoverUrl,
+            cover_position: coverPosition,
             status: "published",
           });
 
@@ -386,7 +391,13 @@ export function ProfileEditForm({
             </label>
             <div className="relative aspect-[3/1] min-h-36 w-full overflow-hidden rounded-xl border border-dashed border-border bg-muted/40 shadow-xs">
               {coverPreview ? (
-                <CoverImagePreview src={coverPreview} alt="Cover preview" className="h-full w-full" />
+                <CoverImagePreview 
+                  src={coverPreview} 
+                  alt="Cover preview" 
+                  className="h-full w-full" 
+                  initialPosition={coverPosition}
+                  onPositionChange={setCoverPosition}
+                />
               ) : (
                 <div className="flex h-full items-center justify-center text-xs text-muted-foreground/60">
                   ยังไม่ได้เลือกภาพปก

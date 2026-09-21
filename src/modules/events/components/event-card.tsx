@@ -32,6 +32,7 @@ export function EventCard({ event, isSaved = false }: EventCardProps) {
             alt={event.title}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            style={{ objectPosition: event.coverPosition }}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs font-medium text-muted-foreground/50">

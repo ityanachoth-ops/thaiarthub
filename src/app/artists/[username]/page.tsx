@@ -159,7 +159,12 @@ export default async function ArtistProfilePage({
 				<div className="relative aspect-[3/1] min-h-44 w-full overflow-hidden bg-muted/60 sm:min-h-56">
 					{artist.coverUrl ? (
 						// eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL
-						<img src={artist.coverUrl} alt={`ภาพปกของ ${artist.name}`} className="h-full w-full object-cover" />
+						<img 
+						  src={artist.coverUrl} 
+						  alt={`ภาพปกของ ${artist.name}`} 
+						  className="h-full w-full object-cover"
+						  style={{ objectPosition: artist.coverPosition }}
+						/>
 					) : (
 						<div className="flex h-full items-center justify-center text-5xl font-display font-semibold text-muted-foreground/30">
 							{artist.name.charAt(0)}

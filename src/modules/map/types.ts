@@ -8,6 +8,7 @@ export interface MapLocationItem {
   latitude: number;
   longitude: number;
   coverImageUrl: string | null;
+  coverPosition: string;
   venueName: string | null;
   province: string | null;
   address?: string | null;

@@ -127,6 +127,7 @@ export default async function EventDetailPage({
               src={event.coverImageUrl}
               alt={event.title}
               className="aspect-[16/9] w-full object-cover"
+              style={{ objectPosition: event.coverPosition }}
             />
           ) : (
             <div className="flex aspect-[16/9] w-full items-center justify-center text-sm text-muted-foreground">

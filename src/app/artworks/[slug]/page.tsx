@@ -85,7 +85,12 @@ export default async function ArtworkDetailPage({ params }: ArtworkDetailPagePro
       <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 sm:aspect-[16/9]">
         {artwork.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL
-          <img src={artwork.imageUrl} alt={artwork.title} className="h-full w-full object-cover" />
+          <img 
+            src={artwork.imageUrl} 
+            alt={artwork.title} 
+            className="h-full w-full object-cover"
+            style={{ objectPosition: artwork.coverPosition }}
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-4xl font-semibold text-stone-300">
             {artwork.title.charAt(0)}
@@ -101,7 +106,7 @@ export default async function ArtworkDetailPage({ params }: ArtworkDetailPagePro
               <a key={image.id} href={image.imageUrl ?? undefined} target="_blank" rel="noreferrer noopener" className="aspect-square overflow-hidden rounded-xl border border-stone-200 bg-stone-100 transition hover:border-orange-300">
                 {image.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL
-                  <img src={image.imageUrl} alt={`${artwork.title} ภาพเพิ่มเติม`} className="h-full w-full object-cover" loading="lazy" />
+                  <img src={image.imageUrl} alt={`${artwork.title} ภาพเพิ่มเติม`} className="h-full w-full object-contain" loading="lazy" />
                 ) : (
                   <div className="flex h-full items-center justify-center text-xs text-stone-400">โหลดภาพไม่สำเร็จ</div>
                 )}

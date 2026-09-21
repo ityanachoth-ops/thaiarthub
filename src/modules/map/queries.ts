@@ -21,7 +21,7 @@ export async function getMapLocations(): Promise<MapLocationItem[]> {
     const { data: eventRows, error: eventError } = await supabase
       .from("events")
       .select(
-        "id, title, slug, cover_image_url, venue_name, address, province, latitude, longitude, start_at, end_at"
+        "id, title, slug, cover_image_url, cover_position, venue_name, address, province, latitude, longitude, start_at, end_at"
       )
       .eq("status", "published")
       .not("latitude", "is", null)
@@ -74,6 +74,7 @@ export async function getMapLocations(): Promise<MapLocationItem[]> {
           ? row.cover_image_url
           : (signedUrls.get(row.cover_image_url) ?? null)
         : null,
+      coverPosition: row.cover_position ?? "50% 50%",
       venueName: row.venue_name,
       address: row.address,
       province: row.province,
@@ -99,7 +100,7 @@ export async function getCreativePlaceMapLocations(): Promise<MapLocationItem[]>
     const { data: placeRows, error: placeError } = await supabase
       .from("creative_places")
       .select(
-        "id, name, slug, description, cover_image_url, type, address, province, latitude, longitude"
+        "id, name, slug, description, cover_image_url, cover_position, type, address, province, latitude, longitude"
       )
       .eq("status", "published")
       .not("latitude", "is", null)
@@ -151,6 +152,7 @@ export async function getCreativePlaceMapLocations(): Promise<MapLocationItem[]>
           ? row.cover_image_url
           : (signedUrls.get(row.cover_image_url) ?? null)
         : null,
+      coverPosition: row.cover_position ?? "50% 50%",
       venueName: null,
       address: row.address,
       province: row.province,

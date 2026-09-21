@@ -27,6 +27,7 @@ export interface CreatorArtworkSummary {
   year: number | null;
   imagePath: string | null;
   imageUrl: string | null;
+  coverPosition: string;
   externalUrl: string | null;
   status: ContentStatus;
 }

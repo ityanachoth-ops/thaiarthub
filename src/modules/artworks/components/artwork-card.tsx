@@ -25,6 +25,7 @@ export function ArtworkCard({ artwork, isSaved = false }: ArtworkCardProps) {
             src={artwork.imageUrl}
             alt={artwork.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            style={{ objectPosition: artwork.coverPosition }}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-3xl font-display font-medium text-muted-foreground/35">

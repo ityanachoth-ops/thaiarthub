@@ -95,7 +95,7 @@ export function CreatorArtworkManager({ artworks, artistId }: CreatorArtworkMana
               <div className="relative aspect-[4/3] bg-muted/50">
                 {artwork.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={artwork.imageUrl} alt={artwork.title} className="h-full w-full object-cover" />
+                  <img src={artwork.imageUrl} alt={artwork.title} className="h-full w-full object-cover" style={{ objectPosition: artwork.coverPosition }} />
                 ) : <div className="flex h-full items-center justify-center text-2xl font-display text-muted-foreground/40">{artwork.title.charAt(0)}</div>}
                 <span className={`absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-medium ${artwork.status === "published" ? "bg-emerald-500/90 text-white" : "bg-background/90 text-muted-foreground"}`}>{artwork.status === "published" ? "เผยแพร่" : "ฉบับร่าง"}</span>
               </div>

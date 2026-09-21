@@ -124,7 +124,7 @@ export function MapCanvas({
             <div class="h-9 w-9 sm:h-11 sm:w-11 overflow-hidden rounded-full border-2 border-background shadow-md bg-card transition-all ${
               isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : ""
             }">
-              <img src="${loc.coverImageUrl}" alt="${loc.title}" class="h-full w-full object-cover" />
+              <img src="${loc.coverImageUrl}" alt="${loc.title}" class="h-full w-full object-cover" style="object-position: ${loc.coverPosition};" />
             </div>
           `;
         } else {
@@ -145,7 +145,7 @@ export function MapCanvas({
             <div class="relative h-9 w-9 sm:h-11 sm:w-11 overflow-hidden rounded-xl border-2 border-primary bg-card shadow-md transition-all ${
               isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" : ""
             }">
-              <img src="${loc.coverImageUrl}" alt="${loc.title}" class="h-full w-full object-cover" />
+              <img src="${loc.coverImageUrl}" alt="${loc.title}" class="h-full w-full object-cover" style="object-position: ${loc.coverPosition};" />
               <div class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-primary border border-background"></div>
             </div>
           `;

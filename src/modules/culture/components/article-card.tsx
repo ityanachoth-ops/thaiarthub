@@ -21,6 +21,7 @@ export function ArticleCard({ article, isSaved = false }: ArticleCardProps) {
             src={article.coverImageUrl}
             alt={article.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            style={{ objectPosition: article.coverPosition }}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-3xl font-display font-medium text-muted-foreground/35">

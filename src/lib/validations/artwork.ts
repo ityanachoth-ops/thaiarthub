@@ -12,6 +12,7 @@ export const artworkSchema = z.object({
   type: creativeDisciplineSchema,
   year: z.number().int().min(1000).max(9999).nullable().optional(),
   externalUrl: z.union([z.string().trim().url("รูปแบบลิงก์ไม่ถูกต้อง"), z.literal("")]).optional(),
+  cover_position: z.string().default("50% 50%"),
   status: z.enum(["draft", "published"]),
 });
 export type ArtworkInput = z.infer<typeof artworkSchema>;

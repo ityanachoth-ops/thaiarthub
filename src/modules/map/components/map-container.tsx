@@ -189,6 +189,7 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
                       src={selectedLocation.coverImageUrl}
                       alt={selectedLocation.title}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                      style={{ objectPosition: selectedLocation.coverPosition }}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground/50">

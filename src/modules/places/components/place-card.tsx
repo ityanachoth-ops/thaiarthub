@@ -35,6 +35,7 @@ export function PlaceCard({ place, isSaved = false }: PlaceCardProps) {
             src={place.coverImageUrl}
             alt={place.name}
             className="h-full w-full object-cover transition group-hover:scale-105"
+            style={{ objectPosition: place.coverPosition }}
           />
         ) : (
           <div className="flex h-full items-center justify-center">

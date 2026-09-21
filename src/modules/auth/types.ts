@@ -38,6 +38,7 @@ export const onboardingSchema = z.object({
   bio: z.string().trim().max(1500, "ประวัติโดยย่อยาวเกิน 1,500 ตัวอักษร").optional(),
   location: z.string().trim().max(100, "ชื่อสถานที่ยาวเกินไป").optional(),
   avatarUrl: z.string().trim().url("รูปแบบ URL ไม่ถูกต้อง").or(z.literal("")).optional(),
+  coverPosition: z.string().default("50% 50%"),
 });
 
 export type OnboardingFormValues = z.infer<typeof onboardingSchema>;

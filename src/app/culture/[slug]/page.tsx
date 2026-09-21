@@ -123,6 +123,7 @@ export default async function CultureArticlePage({
             src={article.coverImageUrl}
             alt={article.title}
             className="aspect-[16/9] w-full object-cover"
+            style={{ objectPosition: article.coverPosition }}
           />
         </div>
       ) : null}

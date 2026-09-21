@@ -23,6 +23,7 @@ export function ArtistCard({ artist, isSaved = false }: ArtistCardProps) {
             src={artist.coverUrl}
             alt={artist.name}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            style={{ objectPosition: artist.coverPosition }}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-3xl font-display font-medium text-muted-foreground/35">
