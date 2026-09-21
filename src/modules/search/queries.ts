@@ -112,7 +112,7 @@ export async function performSearch(params: {
     if (fetchArtists) {
       let query = supabase
         .from("artists")
-        .select("id, slug, name, location, cover_image_url, status")
+        .select("id, slug, name, location, cover_image_url, cover_position, status")
         .eq("status", "published");
 
       if (category && artistIds && artistIds.length > 0) {
@@ -133,6 +133,7 @@ export async function performSearch(params: {
           location: a.location,
           avatarUrl: null,
           coverUrl: resolveUrl(a.cover_image_url, covers),
+          coverPosition: (a as { cover_position?: string }).cover_position ?? "50% 50%",
           categories: [],
         }));
       }
@@ -190,6 +191,7 @@ results.artworks = data.map((w: ArtworkRow) => ({
   title: w.title,
   type: w.type,
   imageUrl: resolveUrl(w.image_url, images),
+  coverPosition: (w as { cover_position?: string }).cover_position ?? "50% 50%",
   artist: w.artists.length > 0
   ? {
       slug: w.artists[0].slug,
@@ -237,7 +239,7 @@ results.artworks = data.map((w: ArtworkRow) => ({
     if (fetchEvents) {
       let query = supabase
         .from("events")
-        .select("id, title, slug, cover_image_url, venue_name, province, start_at, end_at, is_featured")
+        .select("id, title, slug, cover_image_url, cover_position, venue_name, province, start_at, end_at, is_featured")
         .eq("status", "published");
 
       if (category && eventIds && eventIds.length > 0) {
@@ -260,6 +262,7 @@ results.artworks = data.map((w: ArtworkRow) => ({
           title: e.title,
           slug: e.slug,
           coverImageUrl: resolveUrl(e.cover_image_url, covers),
+          coverPosition: (e as { cover_position?: string }).cover_position ?? "50% 50%",
           venueName: e.venue_name,
           province: e.province,
           startAt: e.start_at,

@@ -26,8 +26,8 @@ const WORKS_BUCKET = "works";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
 const CATEGORY_COLUMNS = "id, name, slug, description";
-const ARTIST_COLUMNS = "id, name, slug, cover_image_url, location, status";
-const WORK_COLUMNS = "id, title, slug, image_url, type, artist_id";
+const ARTIST_COLUMNS = "id, name, slug, cover_image_url, cover_position, location, status";
+const WORK_COLUMNS = "id, title, slug, image_url, cover_position, type, artist_id";
 
 export type CategoryListItem = {
   id: string;
@@ -198,6 +198,7 @@ async function getPublishedArtistsByCategoryId(
     location: row.location,
     avatarUrl: null,
     coverUrl: resolveUrl(row.cover_image_url, covers),
+    coverPosition: (row as { cover_position?: string }).cover_position ?? "50% 50%",
     categories: categoryMap.get(row.id) ?? [],
   }));
 }
@@ -238,6 +239,7 @@ async function getPublishedWorksByArtists(
         title: row.title,
         type: row.type,
         imageUrl: resolveUrl(row.image_url, images),
+        coverPosition: (row as { cover_position?: string }).cover_position ?? "50% 50%",
         artist,
       },
     ];
