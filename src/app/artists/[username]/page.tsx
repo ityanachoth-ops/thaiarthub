@@ -239,7 +239,6 @@ export default async function ArtistProfilePage({
                 />
               </div>
             </header>
-          </section>
 
           {artist.gallery && artist.gallery.length > 0 ? (
             <section className="space-y-4">
