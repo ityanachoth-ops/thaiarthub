@@ -32,6 +32,13 @@ const artistSlugSchema = z
   .string()
   .regex(/^[a-z0-9][a-z0-9-]{2,159}$/);
 
+export interface ArtistGalleryImage {
+  id: string;
+  imageUrl: string | null;
+  sortOrder: number;
+  createdAt: string;
+}
+
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 type CategoryRow = Pick<Database["public"]["Tables"]["categories"]["Row"], "id" | "name" | "slug">;
 
@@ -82,6 +89,7 @@ export interface ArtistDetail extends ArtistListItem {
   facebookUrl: string | null;
   tiktokUrl: string | null;
   contactUrl: string | null;
+  gallery: ArtistGalleryImage[];
 }
 
 const ARTIST_SELECT = `
@@ -100,6 +108,44 @@ async function resolveCoverUrl(
     .createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
   if (error || !data) return null;
   return data.signedUrl;
+}
+
+async function getArtistGallery(
+  supabase: SupabaseServerClient,
+  artistId: string,
+): Promise<ArtistGalleryImage[]> {
+  const { data, error } = await supabase
+    .from("artist_images")
+    .select("id, image_path, sort_order, created_at")
+    .eq("artist_id", artistId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(`Failed to load artist gallery: ${error.message}`);
+
+  const rows = data ?? [];
+  const paths = rows
+    .map((row) => row.image_path)
+    .filter((path) => !/^https?:\/\//i.test(path));
+  const signedUrls = new Map<string, string>();
+
+  if (paths.length > 0) {
+    const { data: signedData } = await supabase.storage
+      .from(ARTIST_COVERS_BUCKET)
+      .createSignedUrls(Array.from(new Set(paths)), SIGNED_URL_TTL_SECONDS);
+    for (const item of signedData ?? []) {
+      if (item.path && item.signedUrl) signedUrls.set(item.path, item.signedUrl);
+    }
+  }
+
+  return rows.map((row) => ({
+    id: row.id,
+    imageUrl: /^https?:\/\//i.test(row.image_path)
+      ? row.image_path
+      : signedUrls.get(row.image_path) ?? null,
+    sortOrder: row.sort_order,
+    createdAt: row.created_at,
+  }));
 }
 
 const AVATARS_BUCKET = "avatars";
@@ -189,7 +235,10 @@ export async function getPublishedArtistBySlug(slug: string): Promise<ArtistDeta
   if (!data) return null;
 
   const row = data as unknown as ArtistQueryRow;
-  const listItem = await toListItem(supabase, row);
+  const [listItem, gallery] = await Promise.all([
+    toListItem(supabase, row),
+    getArtistGallery(supabase, row.id),
+  ]);
 
   return {
     ...listItem,
@@ -199,6 +248,7 @@ export async function getPublishedArtistBySlug(slug: string): Promise<ArtistDeta
     facebookUrl: row.facebook_url,
     tiktokUrl: row.tiktok_url,
     contactUrl: row.contact_url,
+    gallery,
   };
 }
 
@@ -296,6 +346,7 @@ export interface AdminArtistDetail {
   contactUrl: string | null;
   ownerProfileId: string;
   categories: ArtistCategorySummary[];
+  gallery: ArtistGalleryImage[];
 }
 
 type AdminArtistDetailRow = Pick<
@@ -324,9 +375,10 @@ export async function getAdminArtistById(id: string): Promise<AdminArtistDetail 
   if (!data) return null;
 
   const row = data as unknown as AdminArtistDetailRow;
-  const [coverImageUrl, avatarUrl] = await Promise.all([
+  const [coverImageUrl, avatarUrl, gallery] = await Promise.all([
     resolveCoverUrl(supabase, row.cover_image_url),
     resolveAvatarUrl(supabase, row.avatar_url),
+    getArtistGallery(supabase, row.id),
   ]);
 
   return {
@@ -348,5 +400,6 @@ export async function getAdminArtistById(id: string): Promise<AdminArtistDetail 
     contactUrl: row.contact_url,
     ownerProfileId: row.profile_id,
     categories: mapCategories(row.artist_categories),
+    gallery,
   };
 }

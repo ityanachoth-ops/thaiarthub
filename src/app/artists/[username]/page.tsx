@@ -211,7 +211,7 @@ export default async function ArtistProfilePage({
 						</p>
 					) : null}
 
-                {externalLinks.length > 0 ? (
+{externalLinks.length > 0 ? (
                   <div className="flex flex-wrap gap-2.5">
                     {externalLinks.map(([label, href]) => (
                       <a
@@ -239,8 +239,30 @@ export default async function ArtistProfilePage({
                 />
               </div>
             </header>
+          </section>
 
-			<section className="space-y-4">
+          {artist.gallery && artist.gallery.length > 0 ? (
+            <section className="space-y-4">
+              <div className="flex items-baseline justify-between gap-4 border-b border-border/50 pb-2">
+                <h2 className="font-display text-2xl font-semibold text-foreground">ภาพเพิ่มเติม</h2>
+                <span className="text-xs text-muted-foreground">{artist.gallery.length} รูป</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
+                {artist.gallery.map((image) => (
+                  <div key={image.id} className="aspect-square overflow-hidden rounded-xl border border-border bg-muted/30">
+                    {image.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={image.imageUrl} alt={`ภาพของ ${artist.name}`} className="h-full w-full object-cover hover:scale-105 transition-transform duration-300" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-xs text-muted-foreground">โหลดภาพไม่สำเร็จ</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          <section className="space-y-4">
 				<div className="flex items-baseline justify-between gap-4 border-b border-border/50 pb-2">
 					<h2 className="font-display text-2xl font-semibold text-foreground">ผลงาน</h2>
 					<span className="text-xs text-muted-foreground">{artworks.length} ชิ้น</span>

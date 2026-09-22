@@ -243,7 +243,13 @@ export async function deleteAdminArtistAction(input: DeleteAdminArtistInput) {
     .select("image_path")
     .in("work_id", works?.map((w) => w.id) ?? []);
 
-  // Delete artist (cascades to works, work_images, artist_categories, claim_requests)
+  // Fetch artist gallery images for storage cleanup
+  const { data: artistGalleryImages } = await supabase
+    .from("artist_images")
+    .select("image_path")
+    .eq("artist_id", artistId);
+
+  // Delete artist (cascades to works, work_images, artist_images, artist_categories, claim_requests)
   const { error: deleteError } = await supabase.from("artists").delete().eq("id", artistId);
 
   if (deleteError) throw new Error(`ลบโปรไฟล์ศิลปินไม่สำเร็จ: ${deleteError.message}`);
@@ -252,9 +258,10 @@ export async function deleteAdminArtistAction(input: DeleteAdminArtistInput) {
   const coverPath = artist.cover_image_url;
   const avatarPath = artist.avatar_url;
   const workCoverPaths = (works ?? []).map((w) => w.image_url).filter(Boolean);
-  const galleryPaths = (galleryImages ?? []).map((g) => g.image_path).filter(Boolean);
+  const workGalleryPaths = (galleryImages ?? []).map((g) => g.image_path).filter(Boolean);
+  const artistGalleryPaths = (artistGalleryImages ?? []).map((g) => g.image_path).filter(Boolean);
 
-  const allPaths = [coverPath, avatarPath, ...workCoverPaths, ...galleryPaths].filter(
+  const allPaths = [coverPath, avatarPath, ...workCoverPaths, ...workGalleryPaths, ...artistGalleryPaths].filter(
     (p): p is string => Boolean(p) && !/^https?:\/\//i.test(p)
   );
 
@@ -266,8 +273,11 @@ export async function deleteAdminArtistAction(input: DeleteAdminArtistInput) {
     if (workCoverPaths.length > 0) {
       await supabase.storage.from("works").remove(workCoverPaths);
     }
-    if (galleryPaths.length > 0) {
-      await supabase.storage.from("works").remove(galleryPaths);
+    if (workGalleryPaths.length > 0) {
+      await supabase.storage.from("works").remove(workGalleryPaths);
+    }
+    if (artistGalleryPaths.length > 0) {
+      await supabase.storage.from("artist-covers").remove(artistGalleryPaths);
     }
   }
 

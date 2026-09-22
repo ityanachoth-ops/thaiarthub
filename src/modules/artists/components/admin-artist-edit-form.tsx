@@ -2,14 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, ImagePlus, Save, Trash2 } from "lucide-react";
 
 import { updateAdminArtistAction } from "@/app/dashboard/artists/actions";
-import type { AdminArtistDetail } from "../queries";
+import type { AdminArtistDetail, ArtistGalleryImage } from "../queries";
+import { createClient } from "@/lib/supabase/client";
 import {
   deleteAdminArtistImage,
+  deleteAdminArtistGalleryImage,
   revokeObjectUrl,
   uploadAdminArtistImage,
+  uploadAdminArtistGalleryImage,
   validateArtistImageFile,
 } from "../media";
 import { CoverImagePreview } from "@/components/shared/cover-image-preview";
@@ -54,6 +57,11 @@ export function AdminArtistEditForm({ artist, allCategories }: AdminArtistEditFo
   const [avatarPreview, setAvatarPreview] = useState<string | null>(artist.avatarUrl);
   const [avatarPath, setAvatarPath] = useState<string | null>(artist.avatarPath);
 
+  const [galleryImages, setGalleryImages] = useState<ArtistGalleryImage[]>(artist.gallery ?? []);
+  const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
+  const [newGalleryPreviews, setNewGalleryPreviews] = useState<string[]>([]);
+  const [removedGalleryIds, setRemovedGalleryIds] = useState<string[]>([]);
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -69,6 +77,11 @@ export function AdminArtistEditForm({ artist, allCategories }: AdminArtistEditFo
       if (avatarPreview?.startsWith("blob:")) revokeObjectUrl(avatarPreview);
     };
   }, [avatarPreview]);
+  useEffect(() => {
+    return () => {
+      newGalleryPreviews.forEach((p) => p.startsWith("blob:") && revokeObjectUrl(p));
+    };
+  }, [newGalleryPreviews]);
 
   const handleImageChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -103,6 +116,54 @@ export function AdminArtistEditForm({ artist, allCategories }: AdminArtistEditFo
     });
   };
 
+  const handleGalleryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length === 0) return;
+
+    const MAX_GALLERY_IMAGES = 10;
+    const availableSlots = MAX_GALLERY_IMAGES - galleryImages.length - newGalleryFiles.length;
+    if (files.length > availableSlots) {
+      setErrorMessage(`เพิ่มรูปเพิ่มเติมได้อีกไม่เกิน ${Math.max(availableSlots, 0)} รูป`);
+      event.target.value = "";
+      return;
+    }
+
+    const invalidFile = files.find(
+      (file) => !["image/png", "image/jpeg", "image/webp"].includes(file.type),
+    );
+    if (invalidFile) {
+      setErrorMessage("รูปเพิ่มเติมต้องเป็นไฟล์ PNG, JPG หรือ WebP");
+      event.target.value = "";
+      return;
+    }
+
+    const oversizedFile = files.find((file) => file.size > 5 * 1024 * 1024);
+    if (oversizedFile) {
+      setErrorMessage("รูปเพิ่มเติมแต่ละไฟล์ต้องมีขนาดไม่เกิน 5 MB");
+      event.target.value = "";
+      return;
+    }
+
+    setErrorMessage(null);
+    setNewGalleryFiles((current) => [...current, ...files]);
+    setNewGalleryPreviews((current) => [
+      ...current,
+      ...files.map((file) => URL.createObjectURL(file)),
+    ]);
+    event.target.value = "";
+  };
+
+  const removeNewGalleryFile = (index: number) => {
+    URL.revokeObjectURL(newGalleryPreviews[index]);
+    setNewGalleryFiles((current) => current.filter((_, itemIndex) => itemIndex !== index));
+    setNewGalleryPreviews((current) => current.filter((_, itemIndex) => itemIndex !== index));
+  };
+
+  const removeGalleryImage = (image: ArtistGalleryImage) => {
+    setGalleryImages((current) => current.filter((item) => item.id !== image.id));
+    setRemovedGalleryIds((current) => [...current, image.id]);
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setErrorMessage(null);
@@ -113,6 +174,7 @@ export function AdminArtistEditForm({ artist, allCategories }: AdminArtistEditFo
     let newAvatarPath = avatarPath;
     let uploadedCoverPath: string | null = null;
     let uploadedAvatarPath: string | null = null;
+    const uploadedGalleryPaths: string[] = [];
 
     try {
       if (coverFile) {
@@ -146,6 +208,22 @@ export function AdminArtistEditForm({ artist, allCategories }: AdminArtistEditFo
         newAvatarPath = upload.path;
       }
 
+      // Upload new gallery images
+      for (const file of newGalleryFiles) {
+        const upload = await uploadAdminArtistGalleryImage(file, artist.ownerProfileId, artist.id);
+        if ("error" in upload) {
+          // Cleanup uploaded gallery images
+          for (const p of uploadedGalleryPaths) {
+            await deleteAdminArtistGalleryImage(p);
+          }
+          if (uploadedCoverPath) await deleteAdminArtistImage(uploadedCoverPath, "cover");
+          if (uploadedAvatarPath) await deleteAdminArtistImage(uploadedAvatarPath, "avatar");
+          setErrorMessage(`อัปโหลดรูปเพิ่มเติมไม่สำเร็จ: ${upload.error}`);
+          return;
+        }
+        uploadedGalleryPaths.push(upload.path);
+      }
+
       await updateAdminArtistAction({
         id: artist.id,
         name,
@@ -164,6 +242,47 @@ export function AdminArtistEditForm({ artist, allCategories }: AdminArtistEditFo
         categoryIds: Array.from(selectedCategoryIds),
       });
 
+      // Delete removed gallery images from storage and database
+      if (removedGalleryIds.length > 0) {
+        const supabase = createClient();
+        // Get paths of removed images
+        const removedImages = artist.gallery?.filter((img) => removedGalleryIds.includes(img.id)) ?? [];
+        for (const img of removedImages) {
+          if (img.imageUrl && !img.imageUrl.startsWith("http")) {
+            await deleteAdminArtistGalleryImage(img.imageUrl);
+          }
+        }
+        // Delete from database
+        const { error: deleteError } = await supabase
+          .from("artist_images")
+          .delete()
+          .eq("artist_id", artist.id)
+          .in("id", removedGalleryIds);
+        if (deleteError) {
+          setErrorMessage(`ลบรูปเพิ่มเติมจากฐานข้อมูลไม่สำเร็จ: ${deleteError.message}`);
+          return;
+        }
+      }
+
+      // Insert new gallery images into database
+      if (uploadedGalleryPaths.length > 0) {
+        const supabase = createClient();
+        const galleryStartOrder = galleryImages.length;
+        for (const [index, path] of uploadedGalleryPaths.entries()) {
+          const { error: insertError } = await supabase
+            .from("artist_images")
+            .insert({
+              artist_id: artist.id,
+              image_path: path,
+              sort_order: galleryStartOrder + index,
+            });
+          if (insertError) {
+            setErrorMessage(`บันทึกรูปเพิ่มเติมไม่สำเร็จ: ${insertError.message}`);
+            return;
+          }
+        }
+      }
+
       // Delete old cover/avatar from storage only after successful save
       if (coverFile && artist.coverImagePath && artist.coverImagePath !== newCoverPath) {
         await deleteAdminArtistImage(artist.coverImagePath, "cover");
@@ -177,6 +296,18 @@ export function AdminArtistEditForm({ artist, allCategories }: AdminArtistEditFo
       setAvatarPath(newAvatarPath);
       setCoverFile(null);
       setAvatarFile(null);
+      setNewGalleryFiles([]);
+      setNewGalleryPreviews([]);
+      setRemovedGalleryIds([]);
+      setGalleryImages((current) => [
+        ...current.filter((img) => !removedGalleryIds.includes(img.id)),
+        ...uploadedGalleryPaths.map((path, index) => ({
+          id: crypto.randomUUID(),
+          imageUrl: path,
+          sortOrder: galleryImages.length + index,
+          createdAt: new Date().toISOString(),
+        })),
+      ]);
 
       setSuccessMessage("บันทึกข้อมูลแล้ว กำลังนำทางกลับ...");
       setTimeout(() => {
@@ -186,6 +317,9 @@ export function AdminArtistEditForm({ artist, allCategories }: AdminArtistEditFo
     } catch (error) {
       if (uploadedCoverPath) await deleteAdminArtistImage(uploadedCoverPath, "cover");
       if (uploadedAvatarPath) await deleteAdminArtistImage(uploadedAvatarPath, "avatar");
+      for (const p of uploadedGalleryPaths) {
+        await deleteAdminArtistGalleryImage(p);
+      }
       setErrorMessage(error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการบันทึก");
     } finally {
       setIsSaving(false);
@@ -282,6 +416,56 @@ export function AdminArtistEditForm({ artist, allCategories }: AdminArtistEditFo
               {coverPreview ? "เปลี่ยนภาพปก" : "เลือกภาพปก"}
             </button>
           </div>
+        </section>
+
+        {/* Gallery */}
+        <section className="space-y-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <label className="block text-sm font-medium">รูปเพิ่มเติม</label>
+            <span className="text-xs text-muted-foreground">{galleryImages.length + newGalleryFiles.length} / 10</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {galleryImages.map((image) => (
+              <div key={image.id} className="relative aspect-square overflow-hidden rounded-xl border border-border bg-muted/30">
+                {image.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={image.imageUrl} alt="รูปเพิ่มเติมของศิลปิน" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-xs text-muted-foreground">โหลดภาพไม่สำเร็จ</div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeGalleryImage(image)}
+                  className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/65 text-white transition hover:bg-destructive"
+                  aria-label="ลบรูปเพิ่มเติม"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+            {newGalleryPreviews.map((preview, index) => (
+              <div key={preview} className="relative aspect-square overflow-hidden rounded-xl border border-primary/40 bg-muted/30">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={preview} alt="ตัวอย่างรูปเพิ่มเติม" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeNewGalleryFile(index)}
+                  className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black/65 text-white transition hover:bg-destructive"
+                  aria-label="นำรูปเพิ่มเติมออก"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+            {galleryImages.length + newGalleryFiles.length < 10 ? (
+              <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/20 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-primary">
+                <ImagePlus className="h-5 w-5" />
+                <span>เพิ่มรูป</span>
+                <input type="file" multiple accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleGalleryChange} />
+              </label>
+            ) : null}
+          </div>
+          <p className="text-[11px] text-muted-foreground">PNG, JPG หรือ WebP ไม่เกิน 5 MB ต่อไฟล์ และรวมไม่เกิน 10 รูป</p>
         </section>
 
         <Field label="ชื่อศิลปิน *" id="artist-name" value={name} onChange={setName} required />

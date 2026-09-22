@@ -35,10 +35,30 @@ export async function uploadAdminArtistImage(
   return error ? { error: error.message } : { path };
 }
 
+export async function uploadAdminArtistGalleryImage(
+  file: File,
+  ownerProfileId: string,
+  artistId: string,
+): Promise<{ path: string } | { error: string }> {
+  const validationError = validateArtistImageFile(file);
+  if (validationError) return { error: validationError };
+
+  const supabase = createClient();
+  const path = `${ownerProfileId}/${artistId}/gallery/${Date.now()}.${MIME_EXTENSIONS[file.type]}`;
+  const { error } = await supabase.storage.from("artist-covers").upload(path, file, { upsert: false });
+  return error ? { error: error.message } : { path };
+}
+
 export async function deleteAdminArtistImage(path: string, kind: "cover" | "avatar"): Promise<void> {
   if (/^https?:\/\//i.test(path)) return;
   const supabase = createClient();
   await supabase.storage.from(kind === "cover" ? "artist-covers" : "avatars").remove([path]);
+}
+
+export async function deleteAdminArtistGalleryImage(path: string): Promise<void> {
+  if (/^https?:\/\//i.test(path)) return;
+  const supabase = createClient();
+  await supabase.storage.from("artist-covers").remove([path]);
 }
 
 export function revokeObjectUrl(url: string | null) {
