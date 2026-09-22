@@ -174,10 +174,19 @@ export default async function ArtistProfilePage({
 
 				<div className="flex flex-col gap-5 p-6 sm:p-8">
 					<div className="flex items-start gap-4">
+						{artist.avatarUrl ? (
+						// eslint-disable-next-line @next/next/no-img-element
+						<img
+						  src={artist.avatarUrl}
+						  alt=""
+						  className="h-16 w-16 shrink-0 rounded-full object-cover border border-border/60 sm:h-20 sm:w-20"
+						/>
+					) : (
 						<div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-2xl font-display font-semibold text-primary sm:h-20 sm:w-20 sm:text-3xl">
 							{artist.name.charAt(0)}
 						</div>
-						<div className="min-w-0">
+					)}
+					<div className="min-w-0">
 							<h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
 								{artist.name}
 							</h1>
