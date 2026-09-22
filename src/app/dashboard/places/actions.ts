@@ -48,7 +48,7 @@ export async function reorderCreativePlacesAction(input: ReorderCreativePlacesIn
 
   const results = await Promise.all(updates);
   const firstError = results.find((r) => r.error);
-  if (firstError) {
+  if (firstError?.error) {
     throw new Error(`บันทึกลำดับไม่สำเร็จ: ${firstError.error.message}`);
   }
 

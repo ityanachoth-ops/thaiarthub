@@ -55,5 +55,5 @@ export type PublicPlace = {
 
 export type PublicPlaceRow = Pick<
   CreativePlaceRow,
-  "id" | "name" | "slug" | "description" | "cover_image_url" | "cover_position" | "type" | "address" | "province"
+  "id" | "name" | "slug" | "description" | "cover_image_url" | "cover_position" | "type" | "address" | "province" | "sort_order"
 >;

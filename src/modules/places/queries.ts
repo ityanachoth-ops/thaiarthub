@@ -57,6 +57,7 @@ function mapPlace(
   gallery: GalleryImage[] = [],
   includePath = false
 ): CreativePlace {
+  const rowWithSort = row as CreativePlaceRow & { sort_order?: number };
   return {
     id: row.id,
     name: row.name,
@@ -78,7 +79,7 @@ function mapPlace(
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     gallery,
-    sortOrder: row.sort_order ?? 0,
+    sortOrder: rowWithSort.sort_order ?? 0,
   };
 }
 
