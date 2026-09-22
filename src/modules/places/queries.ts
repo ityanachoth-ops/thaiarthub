@@ -8,7 +8,7 @@ import type { CreativePlace, CreativePlaceRow, PublicPlace, PublicPlaceRow } fro
 
 const BUCKET = "creative-places";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
-const PLACE_COLUMNS = "id, name, slug, description, cover_image_url, cover_position, type, address, province, latitude, longitude, external_url, status, created_by, created_at, updated_at";
+const PLACE_COLUMNS = "id, name, slug, description, cover_image_url, cover_position, type, address, province, latitude, longitude, external_url, status, created_by, created_at, updated_at, sort_order";
 type PlaceGalleryRow = Database["public"]["Tables"]["creative_place_images"]["Row"];
 
 function isAbsoluteUrl(value: string) {
@@ -78,6 +78,7 @@ function mapPlace(
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     gallery,
+    sortOrder: row.sort_order ?? 0,
   };
 }
 
@@ -111,7 +112,11 @@ async function getPlaces(
 
 export async function getCreativePlaces(userId: string, isAdmin: boolean) {
   const supabase = await createClient();
-  let query = supabase.from("creative_places").select(PLACE_COLUMNS).order("updated_at", { ascending: false });
+  let query = supabase
+    .from("creative_places")
+    .select(PLACE_COLUMNS)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false });
   if (!isAdmin) query = query.eq("created_by", userId);
   const { data, error } = await query;
   return getPlaces(supabase, data, error, true);
@@ -131,14 +136,15 @@ export async function getCreativePlaceById(id: string, userId: string, isAdmin: 
 }
 
 const PLACE_LIST_COLUMNS =
-  "id, name, slug, description, cover_image_url, cover_position, type, address, province";
+  "id, name, slug, description, cover_image_url, cover_position, type, address, province, sort_order";
 
-export async function getPublishedPlaces(limit = 3): Promise<PublicPlace[]> {
+export async function getPublishedPlaces(limit = 50): Promise<PublicPlace[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("creative_places")
     .select(PLACE_LIST_COLUMNS)
     .eq("status", "published")
+    .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false })
     .limit(limit);
 

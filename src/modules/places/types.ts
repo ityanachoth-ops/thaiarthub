@@ -38,6 +38,7 @@ export type CreativePlace = {
   createdAt: string;
   updatedAt: string;
   gallery: GalleryImage[];
+  sortOrder: number;
 };
 
 export type PublicPlace = {
