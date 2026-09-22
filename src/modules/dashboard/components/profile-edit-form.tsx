@@ -30,6 +30,11 @@ interface ProfileEditFormProps {
   initialCoverPath?: string | null;
   initialCoverPreviewUrl?: string | null;
   initialCoverPosition?: string | null;
+  initialWebsiteUrl?: string | null;
+  initialInstagramUrl?: string | null;
+  initialFacebookUrl?: string | null;
+  initialTiktokUrl?: string | null;
+  initialContactUrl?: string | null;
 }
 
 function isExternalUrl(value: string) {
@@ -47,6 +52,11 @@ export function ProfileEditForm({
   initialCoverPath = "",
   initialCoverPreviewUrl = "",
   initialCoverPosition = "50% 50%",
+  initialWebsiteUrl = "",
+  initialInstagramUrl = "",
+  initialFacebookUrl = "",
+  initialTiktokUrl = "",
+  initialContactUrl = "",
 }: ProfileEditFormProps) {
   const router = useRouter();
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
@@ -76,6 +86,12 @@ export function ProfileEditForm({
     initialCoverPreviewUrl || coverPath || null
   );
   const [coverPosition, setCoverPosition] = useState<string>(initialCoverPosition || "50% 50%");
+
+  const [websiteUrl, setWebsiteUrl] = useState(initialWebsiteUrl || "");
+  const [instagramUrl, setInstagramUrl] = useState(initialInstagramUrl || "");
+  const [facebookUrl, setFacebookUrl] = useState(initialFacebookUrl || "");
+  const [tiktokUrl, setTiktokUrl] = useState(initialTiktokUrl || "");
+  const [contactUrl, setContactUrl] = useState(initialContactUrl || "");
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -240,6 +256,11 @@ export function ProfileEditForm({
             avatar_url: finalAvatarUrl,
             cover_image_url: finalCoverUrl,
             cover_position: coverPosition,
+            website_url: websiteUrl.trim() || null,
+            instagram_url: instagramUrl.trim() || null,
+            facebook_url: facebookUrl.trim() || null,
+            tiktok_url: tiktokUrl.trim() || null,
+            contact_url: contactUrl.trim() || null,
           })
           .eq("id", existingArtist.id);
 
@@ -261,6 +282,11 @@ export function ProfileEditForm({
             avatar_url: finalAvatarUrl,
             cover_image_url: finalCoverUrl,
             cover_position: coverPosition,
+            website_url: websiteUrl.trim() || null,
+            instagram_url: instagramUrl.trim() || null,
+            facebook_url: facebookUrl.trim() || null,
+            tiktok_url: tiktokUrl.trim() || null,
+            contact_url: contactUrl.trim() || null,
             status: "published",
           });
 
@@ -533,6 +559,68 @@ export function ProfileEditForm({
             />
             <div className="text-right text-[11px] text-muted-foreground">
               {bio.length} / 1,500 ตัวอักษร
+            </div>
+          </div>
+
+          {/* Social Links */}
+          <div className="space-y-4 rounded-2xl border border-border/60 bg-muted/20 p-4">
+            <p className="text-xs font-medium text-foreground">ช่องทางโซเชียลและเว็บไซต์</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="website-url" className="block text-xs font-medium text-muted-foreground">เว็บไซต์</label>
+                <input
+                  id="website-url"
+                  type="url"
+                  value={websiteUrl}
+                  onChange={(e) => setWebsiteUrl(e.target.value)}
+                  placeholder="https://yourwebsite.com"
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary transition"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="instagram-url" className="block text-xs font-medium text-muted-foreground">Instagram</label>
+                <input
+                  id="instagram-url"
+                  type="url"
+                  value={instagramUrl}
+                  onChange={(e) => setInstagramUrl(e.target.value)}
+                  placeholder="https://instagram.com/username"
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary transition"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="facebook-url" className="block text-xs font-medium text-muted-foreground">Facebook</label>
+                <input
+                  id="facebook-url"
+                  type="url"
+                  value={facebookUrl}
+                  onChange={(e) => setFacebookUrl(e.target.value)}
+                  placeholder="https://facebook.com/username"
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary transition"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="tiktok-url" className="block text-xs font-medium text-muted-foreground">TikTok</label>
+                <input
+                  id="tiktok-url"
+                  type="url"
+                  value={tiktokUrl}
+                  onChange={(e) => setTiktokUrl(e.target.value)}
+                  placeholder="https://tiktok.com/@username"
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary transition"
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <label htmlFor="contact-url" className="block text-xs font-medium text-muted-foreground">ช่องทางติดต่ออื่น</label>
+                <input
+                  id="contact-url"
+                  type="url"
+                  value={contactUrl}
+                  onChange={(e) => setContactUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary transition"
+                />
+              </div>
             </div>
           </div>
 

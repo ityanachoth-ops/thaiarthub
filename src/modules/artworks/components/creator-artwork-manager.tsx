@@ -29,6 +29,13 @@ export function CreatorArtworkManager({ artworks, artistId }: CreatorArtworkMana
     setNotice(null);
     try {
       const supabase = createClient();
+
+      // Load gallery image paths before deleting the work row (cascade drops DB rows)
+      const { data: galleryRows } = await supabase
+        .from("work_images")
+        .select("image_path")
+        .eq("work_id", artwork.id);
+
       const { error: deleteError } = await supabase
         .from("works")
         .delete()
@@ -40,18 +47,18 @@ export function CreatorArtworkManager({ artworks, artistId }: CreatorArtworkMana
         return;
       }
 
+      // Clean up cover image from storage
       if (artwork.imagePath) {
-        const { error: storageError } = await supabase.storage
-          .from("works")
-          .remove([artwork.imagePath]);
-        if (storageError) {
-          setNotice("ลบผลงานแล้ว แต่ไม่สามารถลบไฟล์รูปภาพเดิมได้");
-        } else {
-          setNotice("ลบผลงานเรียบร้อยแล้ว");
-        }
-      } else {
-        setNotice("ลบผลงานเรียบร้อยแล้ว");
+        await supabase.storage.from("works").remove([artwork.imagePath]);
       }
+
+      // Clean up gallery images from storage
+      const galleryPaths = (galleryRows ?? []).map((r) => r.image_path).filter(Boolean);
+      if (galleryPaths.length > 0) {
+        await supabase.storage.from("works").remove(galleryPaths);
+      }
+
+      setNotice("ลบผลงานเรียบร้อยแล้ว");
       router.refresh();
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการลบผลงาน");

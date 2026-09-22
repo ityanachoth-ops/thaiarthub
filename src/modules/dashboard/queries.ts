@@ -186,7 +186,7 @@ export async function getCreatorProfileEditData(
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("id, name, slug, bio, location, avatar_url, cover_image_url, status")
+    .select("id, name, slug, bio, location, avatar_url, cover_image_url, cover_position, status, website_url, instagram_url, facebook_url, tiktok_url, contact_url")
     .eq("profile_id", userId)
     .order("created_at", { ascending: true })
     .limit(1)

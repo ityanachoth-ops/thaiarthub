@@ -37,6 +37,8 @@ interface ArtworkFormProps {
   artwork?: CreatorArtwork;
   imagePreviewUrl?: string | null;
   gallery: CreatorArtworkGalleryImage[];
+  /** Where to navigate back/after-save. Defaults to "/dashboard". */
+  backHref?: string;
 }
 
 const MAX_GALLERY_IMAGES = 8;
@@ -80,6 +82,7 @@ export function ArtworkForm({
   artwork,
   imagePreviewUrl = null,
   gallery: initialGallery,
+  backHref = "/dashboard",
 }: ArtworkFormProps) {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -312,7 +315,7 @@ export function ArtworkForm({
 
       setSuccessMessage(isEditing ? "บันทึกการแก้ไขแล้ว" : "เพิ่มผลงานแล้ว");
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push(backHref);
         router.refresh();
       }, 500);
     } catch (error) {
@@ -327,7 +330,7 @@ export function ArtworkForm({
   return (
     <div className="mx-auto w-full max-w-2xl">
       <Link
-        href="/dashboard"
+        href={backHref}
         className="mb-6 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
@@ -470,7 +473,7 @@ export function ArtworkForm({
           </fieldset>
 
           <div className="flex flex-wrap justify-end gap-3 border-t border-border/60 pt-5">
-            <Link href="/dashboard" className="rounded-xl border border-border bg-card px-5 py-2.5 text-xs font-medium text-muted-foreground transition hover:bg-muted">ยกเลิก</Link>
+            <Link href={backHref} className="rounded-xl border border-border bg-card px-5 py-2.5 text-xs font-medium text-muted-foreground transition hover:bg-muted">ยกเลิก</Link>
             <button type="submit" disabled={isSaving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50">
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {isSaving ? "กำลังบันทึก..." : "บันทึกผลงาน"}

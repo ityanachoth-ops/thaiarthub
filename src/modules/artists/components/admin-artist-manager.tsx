@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Plus, User } from "lucide-react";
+import { Pencil, Plus, User } from "lucide-react";
 
 import type { AdminArtistListItem } from "../queries";
 
@@ -48,12 +48,21 @@ export function AdminArtistManager({ artists }: { artists: AdminArtistListItem[]
                     {artist.ownerName ? ` · ${artist.ownerName} @${artist.ownerUsername}` : ""}
                   </p>
                 </div>
-                <Link
-                  href={`/artists/${artist.slug}`}
-                  className="inline-flex w-fit items-center rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground transition hover:bg-muted"
-                >
-                  ดูโปรไฟล์
-                </Link>
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    href={`/artists/${artist.slug}`}
+                    className="inline-flex w-fit items-center rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground transition hover:bg-muted"
+                  >
+                    ดูโปรไฟล์
+                  </Link>
+                  <Link
+                    href={`/dashboard/artists/${artist.id}/edit`}
+                    className="inline-flex w-fit items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground transition hover:bg-muted"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    แก้ไข
+                  </Link>
+                </div>
               </div>
             );
           })}

@@ -93,3 +93,49 @@ export async function getCreatorArtworkGallery(
     createdAt: row.created_at,
   }));
 }
+
+/**
+ * Load all works (any status) for a given artist by artist ID.
+ * Used by admin routes that manage works on behalf of any artist,
+ * bypassing the profile_id scope used in the creator flow.
+ * RLS allows admins to SELECT all works via is_admin().
+ */
+export async function getAdminArtistWorksById(
+  supabase: SupabaseServerClient,
+  artistId: string,
+): Promise<import("@/modules/dashboard/types").CreatorArtworkSummary[]> {
+  const { data, error } = await supabase
+    .from("works")
+    .select("id, title, slug, description, image_url, cover_position, external_url, type, year, status")
+    .eq("artist_id", artistId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(`ไม่สามารถโหลดรายการผลงานได้: ${error.message}`);
+
+  const rows = data ?? [];
+  const paths = rows.map((r) => r.image_url).filter((p): p is string => Boolean(p));
+  const signedUrls = new Map<string, string>();
+
+  if (paths.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from(WORKS_BUCKET)
+      .createSignedUrls(Array.from(new Set(paths)), SIGNED_URL_TTL_SECONDS);
+    for (const item of signed ?? []) {
+      if (item.path && item.signedUrl) signedUrls.set(item.path, item.signedUrl);
+    }
+  }
+
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    description: row.description,
+    type: row.type,
+    year: row.year,
+    imagePath: row.image_url,
+    imageUrl: row.image_url ? (signedUrls.get(row.image_url) ?? null) : null,
+    coverPosition: row.cover_position ?? "50% 50%",
+    externalUrl: row.external_url,
+    status: row.status,
+  }));
+}

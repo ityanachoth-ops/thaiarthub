@@ -56,6 +56,12 @@ export default async function DashboardProfilePage() {
       initialAvatarPreviewUrl={avatarPreviewUrl}
       initialCoverPath={artist?.cover_image_url || ""}
       initialCoverPreviewUrl={coverPreviewUrl}
+      initialCoverPosition={artist?.cover_position || "50% 50%"}
+      initialWebsiteUrl={artist?.website_url || ""}
+      initialInstagramUrl={artist?.instagram_url || ""}
+      initialFacebookUrl={artist?.facebook_url || ""}
+      initialTiktokUrl={artist?.tiktok_url || ""}
+      initialContactUrl={artist?.contact_url || ""}
     />
   );
 }

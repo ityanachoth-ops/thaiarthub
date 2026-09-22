@@ -276,3 +276,77 @@ export async function getCreatorOwnerOptions(supabase?: Awaited<ReturnType<typeo
     }));
 }
 
+
+export interface AdminArtistDetail {
+  id: string;
+  name: string;
+  slug: string;
+  bio: string | null;
+  location: string | null;
+  status: "draft" | "published";
+  coverImagePath: string | null;
+  coverImageUrl: string | null;
+  coverPosition: string;
+  avatarPath: string | null;
+  avatarUrl: string | null;
+  websiteUrl: string | null;
+  instagramUrl: string | null;
+  facebookUrl: string | null;
+  tiktokUrl: string | null;
+  contactUrl: string | null;
+  ownerProfileId: string;
+  categories: ArtistCategorySummary[];
+}
+
+type AdminArtistDetailRow = Pick<
+  Database["public"]["Tables"]["artists"]["Row"],
+  | "id" | "name" | "slug" | "bio" | "location" | "status"
+  | "cover_image_url" | "cover_position" | "avatar_url"
+  | "website_url" | "instagram_url" | "facebook_url" | "tiktok_url" | "contact_url"
+  | "profile_id"
+> & { artist_categories: ArtistCategoryJoinRow[] };
+
+export async function getAdminArtistById(id: string): Promise<AdminArtistDetail | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("artists")
+    .select(`
+      id, name, slug, bio, location, status,
+      cover_image_url, cover_position, avatar_url,
+      website_url, instagram_url, facebook_url, tiktok_url, contact_url,
+      profile_id,
+      artist_categories ( category:categories ( id, name, slug ) )
+    `)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw new Error(`ไม่สามารถโหลดข้อมูลศิลปินได้: ${error.message}`);
+  if (!data) return null;
+
+  const row = data as unknown as AdminArtistDetailRow;
+  const [coverImageUrl, avatarUrl] = await Promise.all([
+    resolveCoverUrl(supabase, row.cover_image_url),
+    resolveAvatarUrl(supabase, row.avatar_url),
+  ]);
+
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    bio: row.bio,
+    location: row.location,
+    status: row.status as "draft" | "published",
+    coverImagePath: row.cover_image_url,
+    coverImageUrl,
+    coverPosition: row.cover_position ?? "50% 50%",
+    avatarPath: row.avatar_url,
+    avatarUrl,
+    websiteUrl: row.website_url,
+    instagramUrl: row.instagram_url,
+    facebookUrl: row.facebook_url,
+    tiktokUrl: row.tiktok_url,
+    contactUrl: row.contact_url,
+    ownerProfileId: row.profile_id,
+    categories: mapCategories(row.artist_categories),
+  };
+}
