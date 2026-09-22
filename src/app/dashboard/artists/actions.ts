@@ -12,7 +12,7 @@ const optionalUrl = z
   .optional()
   .transform((value) => value || null)
   .pipe(z.url().nullable());
-  
+
 const createAdminArtistSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().trim().min(1, "กรุณากรอกชื่อศิลปิน"),
@@ -200,4 +200,77 @@ export async function updateAdminArtistAction(input: UpdateAdminArtistInput) {
   if (existing.slug !== values.slug) {
     revalidatePath(`/artists/${existing.slug}`, "page");
   }
+}
+
+const deleteAdminArtistSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export type DeleteAdminArtistInput = z.infer<typeof deleteAdminArtistSchema>;
+
+export async function deleteAdminArtistAction(input: DeleteAdminArtistInput) {
+  const parsed = deleteAdminArtistSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "ข้อมูลไม่ถูกต้อง");
+  }
+
+  const supabase = await createClient();
+  const { user, profile } = await getAuthenticatedProfile(supabase);
+  if (!user || !profile || profile.role !== "admin") {
+    throw new Error("คุณไม่มีสิทธิ์ลบโปรไฟล์ศิลปิน");
+  }
+
+  const artistId = parsed.data.id;
+
+  // Fetch artist data including cover/avatar paths before deletion
+  const { data: artist, error: fetchError } = await supabase
+    .from("artists")
+    .select("id, slug, cover_image_url, avatar_url, profile_id")
+    .eq("id", artistId)
+    .maybeSingle();
+
+  if (fetchError) throw new Error(`ไม่สามารถโหลดข้อมูลศิลปินได้: ${fetchError.message}`);
+  if (!artist) throw new Error("ไม่พบโปรไฟล์ศิลปิน");
+
+  // Fetch works and their gallery image paths for storage cleanup
+  const { data: works } = await supabase
+    .from("works")
+    .select("id, image_url")
+    .eq("artist_id", artistId);
+
+  const { data: galleryImages } = await supabase
+    .from("work_images")
+    .select("image_path")
+    .in("work_id", works?.map((w) => w.id) ?? []);
+
+  // Delete artist (cascades to works, work_images, artist_categories, claim_requests)
+  const { error: deleteError } = await supabase.from("artists").delete().eq("id", artistId);
+
+  if (deleteError) throw new Error(`ลบโปรไฟล์ศิลปินไม่สำเร็จ: ${deleteError.message}`);
+
+  // Clean up storage files
+  const coverPath = artist.cover_image_url;
+  const avatarPath = artist.avatar_url;
+  const workCoverPaths = (works ?? []).map((w) => w.image_url).filter(Boolean);
+  const galleryPaths = (galleryImages ?? []).map((g) => g.image_path).filter(Boolean);
+
+  const allPaths = [coverPath, avatarPath, ...workCoverPaths, ...galleryPaths].filter(
+    (p): p is string => Boolean(p) && !/^https?:\/\//i.test(p)
+  );
+
+  if (allPaths.length > 0) {
+    // Use the artist owner's profile_id for artist-covers/avatars, and work owner's profile_id for works
+    // Since we're admin with INSERT policy bypass, we can delete from any path
+    await supabase.storage.from("artist-covers").remove([coverPath].filter(Boolean));
+    await supabase.storage.from("avatars").remove([avatarPath].filter(Boolean));
+    if (workCoverPaths.length > 0) {
+      await supabase.storage.from("works").remove(workCoverPaths);
+    }
+    if (galleryPaths.length > 0) {
+      await supabase.storage.from("works").remove(galleryPaths);
+    }
+  }
+
+  revalidatePath("/dashboard/artists");
+  revalidatePath("/artists", "layout");
 }

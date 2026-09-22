@@ -1,11 +1,36 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Pencil, Plus, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { AlertCircle, Loader2, Pencil, Plus, Trash2, User } from "lucide-react";
 
+import { deleteAdminArtistAction } from "@/app/dashboard/artists/actions";
 import type { AdminArtistListItem } from "../queries";
 
 export function AdminArtistManager({ artists }: { artists: AdminArtistListItem[] }) {
+  const router = useRouter();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const deleteArtist = async (artist: AdminArtistListItem) => {
+    if (!window.confirm(`ลบโปรไฟล์ศิลปิน "${artist.name}" ใช่หรือไม่? การดำเนินการนี้ย้อนกลับไม่ได้ (จะลบผลงานและภาพทั้งหมดด้วย)`)) {
+      return;
+    }
+
+    setDeletingId(artist.id);
+    setErrorMessage(null);
+
+    try {
+      await deleteAdminArtistAction({ id: artist.id });
+      router.refresh();
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการลบโปรไฟล์ศิลปิน");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <section className="rounded-3xl border border-border/80 bg-card p-6 shadow-xs sm:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -20,6 +45,13 @@ export function AdminArtistManager({ artists }: { artists: AdminArtistListItem[]
           <Plus className="h-4 w-4" /> เพิ่ม Artist
         </Link>
       </div>
+
+      {errorMessage ? (
+        <div className="mt-5 flex gap-2 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          {errorMessage}
+        </div>
+      ) : null}
 
       {artists.length === 0 ? (
         <div className="mt-6 flex flex-col items-center rounded-2xl border border-dashed border-border bg-muted/20 px-6 py-12 text-center">
@@ -62,6 +94,19 @@ export function AdminArtistManager({ artists }: { artists: AdminArtistListItem[]
                     <Pencil className="h-3.5 w-3.5" />
                     แก้ไข
                   </Link>
+                  <button
+                    type="button"
+                    onClick={() => deleteArtist(artist)}
+                    disabled={deletingId === artist.id}
+                    className="inline-flex items-center justify-center rounded-lg border border-destructive/20 px-3 py-2 text-destructive transition hover:bg-destructive/10 disabled:opacity-50"
+                    aria-label={`ลบ ${artist.name}`}
+                  >
+                    {deletingId === artist.id ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-3.5 w-3.5" />
+                    )}
+                  </button>
                 </div>
               </div>
             );
