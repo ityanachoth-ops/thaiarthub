@@ -1,5 +1,5 @@
 -- Migration: 20260921100000_add_admin_storage_insert_policies.sql
--- Description: Allow admins to upload files to the 'works' and 'artist-covers'
+-- Description: Allow admins to upload files to the 'works', 'artist-covers', and 'avatars'
 -- buckets under any folder prefix.
 --
 -- Background: The existing "Creators upload their own work media" policy restricts
@@ -12,14 +12,10 @@
 -- can access/delete those files after a claim. Because the admin's auth.uid() differs
 -- from the artist owner's profile_id, the existing policy blocks the upload.
 --
--- These two policies give admins an unconditional INSERT bypass for those two buckets,
+-- These three policies give admins an unconditional INSERT bypass for those buckets,
 -- mirroring the unconditional SELECT and UPDATE/DELETE bypass they already have via
 -- the "Users read their own media and admins read all media" and
 -- "Users update or delete their own media" policies in the V1 migration.
---
--- The 'avatars' bucket is intentionally excluded: admin-uploaded avatar paths for
--- artists already use the admin's own profile_id as the first segment (via
--- uploadAdminArtistImage), so the existing policy covers that case.
 
 create policy "Admins upload to works bucket"
 on storage.objects
@@ -36,5 +32,14 @@ for insert
 to authenticated
 with check (
   bucket_id = 'artist-covers'
+  and public.is_admin()
+);
+
+create policy "Admins upload to avatars bucket"
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'avatars'
   and public.is_admin()
 );

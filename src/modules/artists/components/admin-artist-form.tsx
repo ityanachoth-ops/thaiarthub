@@ -85,9 +85,12 @@ export function AdminArtistForm({
     let uploadedCoverPath: string | null = null;
     let uploadedAvatarPath: string | null = null;
 
+    // Use adminProfileId for claim-type (artist profile_id = admin), creatorProfileId for creator-type (artist profile_id = creator)
+    const uploadOwnerId = ownership === "creator" ? creatorProfileId : adminProfileId;
+
     try {
       if (coverFile) {
-        const upload = await uploadAdminArtistImage(coverFile, adminProfileId, artistId, "cover");
+        const upload = await uploadAdminArtistImage(coverFile, uploadOwnerId, artistId, "cover");
         if ("error" in upload) {
           setErrorMessage(`อัปโหลดภาพปกไม่สำเร็จ: ${upload.error}`);
           return;
@@ -95,7 +98,7 @@ export function AdminArtistForm({
         uploadedCoverPath = upload.path;
       }
       if (avatarFile) {
-        const upload = await uploadAdminArtistImage(avatarFile, adminProfileId, artistId, "avatar");
+        const upload = await uploadAdminArtistImage(avatarFile, uploadOwnerId, artistId, "avatar");
         if ("error" in upload) {
           if (uploadedCoverPath) await deleteAdminArtistImage(uploadedCoverPath, "cover");
           setErrorMessage(`อัปโหลดรูปโปรไฟล์ไม่สำเร็จ: ${upload.error}`);
