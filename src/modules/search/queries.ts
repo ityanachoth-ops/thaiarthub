@@ -3,7 +3,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { ArtistListItem } from "@/modules/artists/queries";
 import type { ArtworkListItem } from "@/modules/artworks/queries";
-import type { EventListItem } from "@/modules/events/queries";
+import type { EventListItem, CategorySummary } from "@/modules/events/queries";
 
 export type SearchResults = {
   artists: ArtistListItem[];
@@ -75,6 +75,15 @@ function resolveUrl(
 
 function sanitizeSearchQuery(q: string) {
   return q.replace(/[%_]/g, "\\$&");
+}
+
+function mapCategories(
+  rows: Array<{ category: { id: string; name: string; slug: string } | null }>
+): CategorySummary[] {
+  return rows
+    .map((row) => row.category)
+    .filter((category): category is { id: string; name: string; slug: string } => category !== null)
+    .map((category) => ({ id: category.id, name: category.name, slug: category.slug }));
 }
 
 export async function performSearch(params: {
@@ -239,7 +248,7 @@ results.artworks = data.map((w: ArtworkRow) => ({
     if (fetchEvents) {
       let query = supabase
         .from("events")
-        .select("id, title, slug, cover_image_url, cover_position, venue_name, province, start_at, end_at, is_featured")
+        .select("id, title, slug, cover_image_url, cover_position, venue_name, province, start_at, end_at, is_featured, event_categories ( category:categories ( id, name, slug ) )")
         .eq("status", "published");
 
       if (category && eventIds && eventIds.length > 0) {
@@ -268,6 +277,7 @@ results.artworks = data.map((w: ArtworkRow) => ({
           startAt: e.start_at,
           endAt: e.end_at,
           isFeatured: e.is_featured,
+          categories: mapCategories((e as any).event_categories ?? []),
         }));
       }
     }

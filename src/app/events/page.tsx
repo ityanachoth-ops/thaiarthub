@@ -18,7 +18,7 @@ export default async function EventsPage({
 }: {
   searchParams: Promise<{ category?: string }>;
 }) {
-  const [{ events, categories }, savedIds, params] = await Promise.all([
+  const [[events, categories], savedIds, params] = await Promise.all([
     Promise.all([getPublishedEvents(), getAllCategories()]),
     getUserSavedItemIds(),
     searchParams,
