@@ -10,6 +10,7 @@ const BUCKET = "creative-places";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 const PLACE_COLUMNS = "id, name, slug, description, cover_image_url, cover_position, type, address, province, latitude, longitude, external_url, status, created_by, created_at, updated_at, sort_order";
 type PlaceGalleryRow = Database["public"]["Tables"]["creative_place_images"]["Row"];
+type PlaceRowWithSort = CreativePlaceRow & { sort_order: number };
 
 function isAbsoluteUrl(value: string) {
   return /^https?:\/\//i.test(value);
@@ -52,12 +53,11 @@ async function getPlaceGallery(
 }
 
 function mapPlace(
-  row: CreativePlaceRow,
+  row: PlaceRowWithSort,
   signed: Map<string, string>,
   gallery: GalleryImage[] = [],
   includePath = false
 ): CreativePlace {
-  const rowWithSort = row as CreativePlaceRow & { sort_order?: number };
   return {
     id: row.id,
     name: row.name,
@@ -79,7 +79,7 @@ function mapPlace(
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     gallery,
-    sortOrder: rowWithSort.sort_order ?? 0,
+    sortOrder: row.sort_order ?? 0,
   };
 }
 
@@ -106,7 +106,7 @@ async function getPlaces(
   includePath = false,
 ) {
   if (error) throw new Error(`ไม่สามารถโหลด Creative Places ได้: ${error.message}`);
-  const rows = (data ?? []) as CreativePlaceRow[];
+  const rows = (data ?? []) as PlaceRowWithSort[];
   const signed = await signPaths(supabase, rows.map((row) => row.cover_image_url).filter((path): path is string => Boolean(path)));
   return rows.map((row) => mapPlace(row, signed, [], includePath));
 }
@@ -133,7 +133,7 @@ export async function getCreativePlaceById(id: string, userId: string, isAdmin: 
   const gallery = await getPlaceGallery(supabase, data.id, true);
   const galleryPaths = gallery.map((g) => g.imagePath).filter((p): p is string => Boolean(p));
   const signed = await signPaths(supabase, [data.cover_image_url, ...galleryPaths].filter((p): p is string => Boolean(p)));
-  return mapPlace(data, signed, gallery, true);
+  return mapPlace(data as PlaceRowWithSort, signed, gallery, true);
 }
 
 const PLACE_LIST_COLUMNS =
@@ -170,5 +170,5 @@ export async function getPublishedPlaceBySlug(slug: string): Promise<CreativePla
   const gallery = await getPlaceGallery(supabase, data.id, false);
   const galleryPaths = gallery.map((g) => g.imageUrl).filter((p): p is string => Boolean(p));
   const signed = await signPaths(supabase, [data.cover_image_url, ...galleryPaths].filter((p): p is string => Boolean(p)));
-  return mapPlace(data, signed, gallery, true);
+  return mapPlace(data as PlaceRowWithSort, signed, gallery, true);
 }

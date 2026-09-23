@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { EventGrid } from "@/modules/events/components/event-grid";
-import { getPublishedEvents } from "@/modules/events/queries";
+import { getPublishedEvents, getAllCategories } from "@/modules/events/queries";
 import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
 import { getTodayInBangkok, isEventUpcoming } from "@/modules/events/format";
 
@@ -13,17 +13,33 @@ export const metadata: Metadata = {
   description: "ค้นพบกิจกรรมศิลปะ ดนตรี และวัฒนธรรมใต้ดินทั่วประเทศไทย",
 };
 
-export default async function EventsPage() {
-  const [events, savedIds] = await Promise.all([
-    getPublishedEvents(),
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const [{ events, categories }, savedIds, params] = await Promise.all([
+    Promise.all([getPublishedEvents(), getAllCategories()]),
     getUserSavedItemIds(),
+    searchParams,
   ]);
 
+  const selectedCategories = params.category
+    ? params.category.split(",").filter(Boolean)
+    : [];
+
   const today = getTodayInBangkok();
-  
+
+  // Filter events by selected categories
+  const filteredEvents = selectedCategories.length > 0
+    ? events.filter((event) =>
+        event.categories?.some((cat) => selectedCategories.includes(cat.slug))
+      )
+    : events;
+
   // Split events into upcoming and past
-  const upcomingEvents = events.filter(event => isEventUpcoming(event, today));
-  const pastEvents = events.filter(event => !isEventUpcoming(event, today));
+  const upcomingEvents = filteredEvents.filter((event) => isEventUpcoming(event, today));
+  const pastEvents = filteredEvents.filter((event) => !isEventUpcoming(event, today));
 
   // Sort upcoming events: nearest first (by end_date or start_date if no end_date)
   upcomingEvents.sort((a, b) => {
@@ -50,6 +66,35 @@ export default async function EventsPage() {
         </p>
       </header>
 
+      {/* Category Filter */}
+      <nav className="flex flex-wrap gap-2" aria-label="กรองตามหมวดหมู่">
+        <a
+          href="/events"
+          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+            selectedCategories.length === 0
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted/80"
+          }`}
+        >
+          ทั้งหมด
+        </a>
+        {categories.map((cat) => (
+          <a
+            key={cat.id}
+            href={`/events?category=${selectedCategories.includes(cat.slug)
+              ? selectedCategories.filter((c) => c !== cat.slug).join(",")
+              : [...selectedCategories, cat.slug].join(",")}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+              selectedCategories.includes(cat.slug)
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            {cat.name}
+          </a>
+        ))}
+      </nav>
+
       {/* Upcoming Events Section */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold font-display tracking-tight text-foreground">
@@ -60,7 +105,9 @@ export default async function EventsPage() {
         ) : (
           <div className="rounded-xl border border-dashed p-10 text-center">
             <p className="text-sm text-muted-foreground">
-              ยังไม่มีกิจกรรมที่กำลังจะมาถึงในขณะนี้
+              {selectedCategories.length > 0
+                ? "ไม่พบกิจกรรมในหมวดหมู่ที่เลือก"
+                : "ยังไม่มีกิจกรรมที่กำลังจะมาถึงในขณะนี้"}
             </p>
           </div>
         )}
@@ -76,7 +123,9 @@ export default async function EventsPage() {
         ) : (
           <div className="rounded-xl border border-dashed p-10 text-center">
             <p className="text-sm text-muted-foreground">
-              ยังไม่มีกิจกรรมที่ผ่านมาในขณะนี้
+              {selectedCategories.length > 0
+                ? "ไม่พบกิจกรรมในหมวดหมู่ที่เลือก"
+                : "ยังไม่มีกิจกรรมที่ผ่านมาในขณะนี้"}
             </p>
           </div>
         )}

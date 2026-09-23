@@ -6,7 +6,7 @@ import { ArrowLeft, Save } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import { deleteCoverImage, revokeObjectUrl, uploadCoverImage, validateCoverFile } from "../cover";
-import type { AdminEventDetail } from "../queries";
+import type { AdminEventDetail, CategorySummary } from "../queries";
 import { CoverImagePreview } from "@/components/shared/cover-image-preview";
 
 function toLocalDateTime(value: string | null) {
@@ -35,10 +35,29 @@ export function EventForm({ profileId, event }: { profileId: string; event?: Adm
   const [coverPosition, setCoverPosition] = useState<string>(event?.coverPosition ?? "50% 50%");
   const [status, setStatus] = useState<"draft" | "published" | "cancelled">(event?.status ?? "draft");
   const [isFeatured, setIsFeatured] = useState(event?.isFeatured ?? false);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<Set<string>>(
+    new Set(event?.categories?.map((c) => c.id) ?? []),
+  );
+  const [allCategories, setAllCategories] = useState<CategorySummary[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => () => revokeObjectUrl(coverImagePreview), [coverImagePreview]);
+
+  // Load all categories on mount
+  useEffect(() => {
+    let cancelled = false;
+    createClient()
+      .from("categories")
+      .select("id, name, slug")
+      .order("name", { ascending: true })
+      .then(({ data, error }) => {
+        if (!cancelled && !error) {
+          setAllCategories(data ?? []);
+        }
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const handleCoverChange = (changeEvent: React.ChangeEvent<HTMLInputElement>) => {
     const file = changeEvent.target.files?.[0];
@@ -103,6 +122,27 @@ export function EventForm({ profileId, event }: { profileId: string; event?: Adm
         setErrorMessage(`บันทึกกิจกรรมไม่สำเร็จ: ${result.error.message}`);
         return;
       }
+
+      // Sync event_categories
+      const categoryIds = Array.from(selectedCategoryIds);
+      const { error: deleteCatError } = await supabase
+        .from("event_categories")
+        .delete()
+        .eq("event_id", eventId);
+      if (deleteCatError) {
+        setErrorMessage(`ลบหมวดหมู่เดิมไม่สำเร็จ: ${deleteCatError.message}`);
+        return;
+      }
+      if (categoryIds.length > 0) {
+        const { error: insertCatError } = await supabase
+          .from("event_categories")
+          .insert(categoryIds.map((categoryId) => ({ event_id: eventId, category_id: categoryId })));
+        if (insertCatError) {
+          setErrorMessage(`บันทึกหมวดหมู่ไม่สำเร็จ: ${insertCatError.message}`);
+          return;
+        }
+      }
+
       if (uploadedCoverPath && oldCoverPath && oldCoverPath !== uploadedCoverPath) {
         await deleteCoverImage(oldCoverPath);
       }
@@ -124,6 +164,46 @@ export function EventForm({ profileId, event }: { profileId: string; event?: Adm
       <Field label="รหัส URL *" id="event-slug" value={slug} onChange={(value) => setSlug(value.toLowerCase())} required />
       <section className="space-y-3"><label className="block text-sm font-medium">ภาพปก</label><div className="flex flex-col gap-4 sm:flex-row sm:items-center"><div className="flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted/40 sm:w-56">{coverImagePreview ? <CoverImagePreview src={coverImagePreview} alt="ตัวอย่างภาพปก" className="h-full w-full" initialPosition={coverPosition} onPositionChange={setCoverPosition} /> : <span className="text-xs text-muted-foreground">ยังไม่ได้เลือกภาพ</span>}</div><div><input ref={coverInputRef} id="event-cover" type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleCoverChange} /><button type="button" onClick={() => coverInputRef.current?.click()} className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm font-medium text-foreground hover:bg-muted">{coverImagePreview ? "เปลี่ยนภาพปก" : "เลือกรูปภาพ"}</button><p className="mt-2 text-xs text-muted-foreground">PNG, JPG หรือ WebP ขนาดไม่เกิน 5 MB</p></div></div></section>
       <div className="grid gap-5 sm:grid-cols-2"><Select label="สถานะ" id="event-status" value={status} onChange={(value) => setStatus(value as typeof status)} options={[{ value: "draft", label: "ฉบับร่าง" }, { value: "published", label: "เผยแพร่" }, { value: "cancelled", label: "ยกเลิก" }]} /><Field label="จังหวัด" id="event-province" value={province} onChange={setProvince} /></div>
+
+      {/* Category Multi-select */}
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-medium">หมวดหมู่</legend>
+        {allCategories.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {allCategories.map((cat) => {
+              const checked = selectedCategoryIds.has(cat.id);
+              return (
+                <label
+                  key={cat.id}
+                  className={`flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                    checked
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-background text-muted-foreground hover:border-primary/40"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={checked}
+                    onChange={() => {
+                      setSelectedCategoryIds((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(cat.id)) next.delete(cat.id);
+                        else next.add(cat.id);
+                        return next;
+                      });
+                    }}
+                  />
+                  {cat.name}
+                </label>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">ยังไม่มีหมวดหมู่</p>
+        )}
+      </fieldset>
+
       <div className="grid gap-5 sm:grid-cols-2"><Field label="เริ่มต้น *" id="event-start" value={startAt} onChange={setStartAt} type="datetime-local" required /><Field label="สิ้นสุด" id="event-end" value={endAt} onChange={setEndAt} type="datetime-local" /></div>
       <div className="grid gap-5 sm:grid-cols-2"><Field label="สถานที่" id="event-venue" value={venueName} onChange={setVenueName} /><Field label="ที่อยู่" id="event-address" value={address} onChange={setAddress} /></div>
       <div className="grid gap-5 sm:grid-cols-2"><Field label="ละติจูด" id="event-latitude" value={latitude} onChange={setLatitude} /><Field label="ลองจิจูด" id="event-longitude" value={longitude} onChange={setLongitude} /></div>

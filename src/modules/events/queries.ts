@@ -20,10 +20,16 @@ const EVENTS_BUCKET = "events";
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
 const EVENT_LIST_COLUMNS =
-  "id, title, slug, cover_image_url, cover_position, venue_name, province, start_at, end_at, is_featured";
+  "id, title, slug, cover_image_url, cover_position, venue_name, province, start_at, end_at, is_featured, event_categories ( category:categories ( id, name, slug ) )";
 
 const EVENT_DETAIL_COLUMNS =
-  "id, title, slug, description, cover_image_url, cover_position, venue_name, address, province, latitude, longitude, start_at, end_at, external_url, status, is_featured";
+  "id, title, slug, description, cover_image_url, cover_position, venue_name, address, province, latitude, longitude, start_at, end_at, external_url, status, is_featured, event_categories ( category:categories ( id, name, slug ) )";
+
+export interface CategorySummary {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export type EventListItem = {
   id: string;
@@ -36,6 +42,7 @@ export type EventListItem = {
   startAt: string;
   endAt: string | null;
   isFeatured: boolean;
+  categories: CategorySummary[];
 };
 
 export type EventRelatedArtist = {
@@ -114,6 +121,15 @@ async function getEventGallery(
 ): Promise<GalleryImage[]> {
   const galleries = await getEventGalleries(supabase, [eventId], includeStoragePaths);
   return galleries.get(eventId) ?? [];
+}
+
+function mapCategories(
+  rows: Array<{ category: { id: string; name: string; slug: string } | null }>
+): CategorySummary[] {
+  return rows
+    .map((row) => row.category)
+    .filter((category): category is { id: string; name: string; slug: string } => category !== null)
+    .map((category) => ({ id: category.id, name: category.name, slug: category.slug }));
 }
 
 function isAbsoluteUrl(value: string): boolean {
@@ -209,6 +225,7 @@ export async function getPublishedEvents(): Promise<EventListItem[]> {
     startAt: row.start_at,
     endAt: row.end_at,
     isFeatured: row.is_featured,
+    categories: mapCategories((row as any).event_categories ?? []),
   }));
 }
 
@@ -245,6 +262,7 @@ export async function getFeaturedEvents(limit = 3): Promise<EventListItem[]> {
     startAt: row.start_at,
     endAt: row.end_at,
     isFeatured: row.is_featured,
+    categories: mapCategories((row as any).event_categories ?? []),
   }));
 }
 
@@ -299,6 +317,7 @@ export async function getPublishedEventsByArtistId(
     startAt: row.start_at,
     endAt: row.end_at,
     isFeatured: row.is_featured,
+    categories: mapCategories((row as any).event_categories ?? []),
   }));
 }
 
@@ -377,6 +396,7 @@ export async function getPublishedEventBySlug(
     isFeatured: data.is_featured,
     artists,
     gallery,
+    categories: mapCategories((data as any).event_categories ?? []),
   };
 }
 
@@ -420,6 +440,7 @@ export async function getAdminEvents(): Promise<AdminEventDetail[]> {
     isFeatured: row.is_featured,
     artists: [],
     gallery: galleries.get(row.id) ?? [],
+    categories: mapCategories((row as any).event_categories ?? []),
   }));
 }
 
@@ -454,5 +475,22 @@ export async function getAdminEventById(id: string): Promise<AdminEventDetail | 
     isFeatured: data.is_featured,
     artists: [],
     gallery: await getEventGallery(supabase, data.id),
+    categories: mapCategories((data as any).event_categories ?? []),
   };
+}
+
+export async function getAllCategories(): Promise<CategorySummary[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, slug")
+    .order("name", { ascending: true });
+
+  if (error) throw new Error(`ไม่สามารถโหลดหมวดหมู่ได้: ${error.message}`);
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+  }));
 }

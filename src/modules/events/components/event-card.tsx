@@ -62,6 +62,18 @@ export function EventCard({ event, isSaved = false }: EventCardProps) {
             {location}
           </p>
         ) : null}
+        {event.categories?.length ? (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {event.categories.map((cat) => (
+              <span
+                key={cat.id}
+                className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary"
+              >
+                {cat.name}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
     </Link>
   );
