@@ -29,26 +29,10 @@ using (
   or public.is_admin()
 );
 
--- Creators/Admins manage their own event categories
-create policy "Creators manage their event categories"
+-- Admins manage all event categories (events have no created_by; admin-only management)
+create policy "Admins manage event categories"
 on public.event_categories
 for all
 to authenticated
-using (
-  exists (
-    select 1
-    from public.events
-    where events.id = event_categories.event_id
-      and events.status = 'published'
-  )
-  or public.is_admin()
-  or (
-    select created_by from public.events where id = event_categories.event_id
-  ) = auth.uid()
-)
-with check (
-  public.is_admin()
-  or (
-    select created_by from public.events where id = event_categories.event_id
-  ) = auth.uid()
-);
+using (public.is_admin())
+with check (public.is_admin());

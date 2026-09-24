@@ -212,6 +212,76 @@ export async function getPublishedArtists(): Promise<ArtistListItem[]> {
   return Promise.all((data as unknown as ArtistQueryRow[]).map((row) => toListItem(supabase, row)));
 }
 
+export async function getPublishedArtistsByCategorySlug(categorySlug: string): Promise<ArtistListItem[]> {
+  const supabase = await createClient();
+  
+  // First get the category ID from slug
+  const { data: category, error: catError } = await supabase
+    .from("categories")
+    .select("id")
+    .eq("slug", categorySlug)
+    .maybeSingle();
+
+  if (catError || !category) {
+    // Category not found - return empty array
+    return [];
+  }
+
+  // Query artists through the junction table (similar to getPublishedArtistsByCategoryId)
+  const { data, error } = await supabase
+    .from("artist_categories")
+    .select(`artists!inner(${ARTIST_SELECT})`)
+    .eq("category_id", category.id)
+    .eq("artists.status", "published");
+
+  if (error) {
+    throw new Error(`Failed to load published artists by category: ${error.message}`);
+  }
+  if (!data) return [];
+
+  // Extract artists from the junction table rows
+  const rows = data.flatMap((row) => {
+    const artist = Array.isArray(row.artists) ? row.artists[0] : row.artists;
+    return artist ? [artist] : [];
+  });
+
+  return Promise.all((rows as unknown as ArtistQueryRow[]).map((row) => toListItem(supabase, row)));
+}
+
+export async function getCategoriesWithPublishedArtists(): Promise<ArtistCategorySummary[]> {
+  const supabase = await createClient();
+  
+  // Get unique categories that have at least one published artist
+  const { data, error } = await supabase
+    .from("artist_categories")
+    .select("categories!inner(id, name, slug)")
+    .eq("artists.status", "published");
+
+  if (error) {
+    throw new Error(`Failed to load categories with artists: ${error.message}`);
+  }
+
+  if (!data) return [];
+
+  // Deduplicate categories
+  const seen = new Set<string>();
+  return data
+    .map((row) => {
+      const category = Array.isArray(row.categories) ? row.categories[0] : row.categories;
+      return category;
+    })
+    .filter((category): category is { id: string; name: string; slug: string } => {
+      if (!category || seen.has(category.id)) return false;
+      seen.add(category.id);
+      return true;
+    })
+    .map((category) => ({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+    }));
+}
+
 /**
  * A single published artist by public slug. Returns null (not an error) for
  * both "no such slug" and "exists but not published" -- callers should
