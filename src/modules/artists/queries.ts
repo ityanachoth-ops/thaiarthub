@@ -28,6 +28,68 @@ import type { Database } from "@/types/database.types";
 const ARTIST_COVERS_BUCKET = "artist-covers";
 const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour; regenerated on every render
 
+function isAbsoluteUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value);
+}
+
+async function signPaths(
+  supabase: SupabaseServerClient,
+  paths: string[],
+): Promise<Map<string, string>> {
+  const resolved = new Map<string, string>();
+  const storagePaths = Array.from(new Set(paths.filter((path) => path && !isAbsoluteUrl(path))));
+  if (storagePaths.length === 0) return resolved;
+
+  const { data, error } = await supabase.storage
+    .from(ARTIST_COVERS_BUCKET)
+    .createSignedUrls(storagePaths, SIGNED_URL_TTL_SECONDS);
+
+  if (error || !data) return resolved;
+
+  for (const item of data) {
+    if (item.path && item.signedUrl) resolved.set(item.path, item.signedUrl);
+  }
+  return resolved;
+}
+
+function resolveUrl(raw: string | null, signed: Map<string, string>): string | null {
+  if (!raw) return null;
+  if (isAbsoluteUrl(raw)) return raw;
+  return signed.get(raw) ?? null;
+}
+
+async function getCategorySummariesByArtistIds(
+  supabase: SupabaseServerClient,
+  artistIds: string[],
+): Promise<Map<string, ArtistCategorySummary[]>> {
+  const result = new Map<string, ArtistCategorySummary[]>();
+  if (artistIds.length === 0) return result;
+
+  const { data, error } = await supabase
+    .from("artist_categories")
+    .select("artist_id, categories(id, name, slug)")
+    .in("artist_id", artistIds);
+
+  if (error || !data) return result;
+
+  for (const row of data) {
+    const category = Array.isArray(row.categories)
+      ? row.categories[0]
+      : row.categories;
+    if (!category) continue;
+
+    const existing = result.get(row.artist_id) ?? [];
+    existing.push({
+      id: category.id,
+      name: category.name,
+      slug: category.slug,
+    });
+    result.set(row.artist_id, existing);
+  }
+
+  return result;
+}
+
 const artistSlugSchema = z
   .string()
   .regex(/^[a-z0-9][a-z0-9-]{2,159}$/);
@@ -96,6 +158,11 @@ const ARTIST_SELECT = `
   id, slug, name, bio, location, avatar_url, cover_image_url, cover_position,
   website_url, instagram_url, facebook_url, tiktok_url, contact_url,
   artist_categories ( category:categories ( id, name, slug ) )
+`;
+
+const ARTIST_LIST_SELECT = `
+  id, slug, name, bio, location, avatar_url, cover_image_url, cover_position,
+  website_url, instagram_url, facebook_url, tiktok_url, contact_url
 `;
 
 async function resolveCoverUrl(
@@ -228,9 +295,10 @@ export async function getPublishedArtistsByCategorySlug(categorySlug: string): P
   }
 
   // Query artists through the junction table (similar to getPublishedArtistsByCategoryId)
+  // Use ARTIST_LIST_SELECT to avoid circular reference with artist_categories
   const { data, error } = await supabase
     .from("artist_categories")
-    .select(`artists!inner(${ARTIST_SELECT})`)
+    .select(`artists!inner(${ARTIST_LIST_SELECT})`)
     .eq("category_id", category.id)
     .eq("artists.status", "published");
 
@@ -245,16 +313,42 @@ export async function getPublishedArtistsByCategorySlug(categorySlug: string): P
     return artist ? [artist] : [];
   });
 
-  return Promise.all((rows as unknown as ArtistQueryRow[]).map((row) => toListItem(supabase, row)));
+  if (rows.length === 0) return [];
+
+  // Get artist IDs for fetching categories
+  const artistIds = rows.map((r) => r.id);
+  
+  // Fetch categories for these artists (similar to getPublishedArtistsByCategoryId)
+  const categoryMap = await getCategorySummariesByArtistIds(supabase, artistIds);
+  
+  // Resolve cover URLs
+  const covers = await signPaths(
+    supabase,
+    rows.map((r) => r.cover_image_url).filter(Boolean) as string[],
+  );
+
+  // Map to ArtistListItem with categories
+  return rows.map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    location: row.location,
+    avatarUrl: null, // avatar not resolved in list view (same as category page)
+    coverUrl: resolveUrl(row.cover_image_url, covers),
+    coverPosition: (row as { cover_position?: string }).cover_position ?? "50% 50%",
+    categories: categoryMap.get(row.id) ?? [],
+  }));
 }
 
 export async function getCategoriesWithPublishedArtists(): Promise<ArtistCategorySummary[]> {
   const supabase = await createClient();
   
   // Get unique categories that have at least one published artist
+  // Query from artist_categories, join both categories and artists
+  // Use correct relationship names: "categories" and "artists" (not !inner)
   const { data, error } = await supabase
     .from("artist_categories")
-    .select("categories!inner(id, name, slug)")
+    .select("categories(id, name, slug), artists!inner(id)")
     .eq("artists.status", "published");
 
   if (error) {
