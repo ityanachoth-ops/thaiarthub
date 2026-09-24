@@ -10,6 +10,8 @@ import { MapContainer } from "@/modules/map/components/map-container";
 import { PlaceCard } from "@/modules/places/components/place-card";
 import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
 import { getSiteUrl } from "@/lib/site-url";
+import { formatEventDateRange, getTodayInBangkok, isEventUpcoming } from "@/modules/events/format";
+import { SaveButton } from "@/modules/bookmarks/components/save-button";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,11 @@ export default async function Home() {
   ]);
   const mapLocations = [...eventLocations, ...placeLocations];
   const siteOrigin = getSiteUrl().origin;
+
+  // Find next upcoming event for Hero calendar card
+  const today = getTodayInBangkok();
+  const upcomingEvents = featuredEvents.filter((e) => isEventUpcoming(e, today));
+  const nextEvent = upcomingEvents[0];
 
   const jsonLd = [
     {
@@ -62,7 +69,7 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* Hero Section */}
-      <section className="relative min-h-[70vh] sm:min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative min-h-[60vh] sm:min-h-[75vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Subtle geometric background pattern */}
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/10" />
@@ -75,20 +82,20 @@ export default async function Home() {
 
         <div className="relative z-10 max-w-4xl w-full text-center sm:text-left">
           {/* Category badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-[11px] font-medium text-primary uppercase tracking-[0.1em] mb-8 transition-colors hover:bg-primary/10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-[11px] font-medium text-primary uppercase tracking-[0.1em] mb-6 transition-colors hover:bg-primary/10">
             <Sparkles className="h-3.5 w-3.5" />
             <span>แพลตฟอร์มศิลปะและครีเอเตอร์ไทยร่วมสมัย</span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-display-xl sm:text-display-lg lg:text-display-xl font-bold tracking-tight text-foreground leading-[1.1] mb-6">
+          <h1 className="text-4xl font-bold font-display tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.15] mb-6">
             พื้นที่ค้นพบ
             <br />
             <span className="text-primary">ศิลปิน งาน กิจกรรม และสถานที่สร้างสรรค์</span>
           </h1>
 
           {/* Supporting text */}
-          <p className="text-body-lg sm:text-heading-sm max-w-2xl mx-auto sm:mx-0 text-muted-foreground leading-relaxed mb-10">
+          <p className="text-base sm:text-lg max-w-2xl mx-auto sm:mx-0 text-muted-foreground leading-relaxed mb-10">
             เชื่อมโยงผู้คนกับ Creative Scene ทั่วไทย — ตั้งแต่ศิลปินหน้าใหม่ งานฝีมือ กิจกรรมใต้ดิน จนถึงสเปซเล็กๆ ที่ซ่อนอยู่ในมุมเมือง
           </p>
 
@@ -96,22 +103,87 @@ export default async function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3">
             <Link
               href="/artists"
-              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-base font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               <span>เริ่มค้นพบ</span>
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
             </Link>
             <Link
-              href="/map"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-transparent px-6 py-4 text-base font-medium text-foreground transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              href="/artworks"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-transparent px-6 py-3.5 text-sm font-medium text-foreground transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
-              <Compass className="h-5 w-5" aria-hidden="true" />
-              <span>สำรวจแผนที่</span>
+              <span>สำรวจผลงาน</span>
+            </Link>
+            <Link
+              href="/events"
+              className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              <Calendar className="h-4 w-4 text-primary" aria-hidden="true" />
+              <span>ปฏิทินกิจกรรม</span>
             </Link>
           </div>
 
+          {/* Next Event Calendar Card */}
+          {nextEvent && (
+            <div className="mt-10 max-w-sm mx-auto sm:mx-0">
+              <Link
+                href={`/events/${nextEvent.slug}`}
+                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card transition-all duration-200 hover:border-primary/30 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted/60">
+                  {nextEvent.coverImageUrl ? (
+                    <img
+                      src={nextEvent.coverImageUrl}
+                      alt={nextEvent.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                      style={{ objectPosition: nextEvent.coverPosition }}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-primary/5">
+                      <Calendar className="h-12 w-12 text-primary/30" aria-hidden="true" />
+                    </div>
+                  )}
+                  <div className="absolute left-3 top-3 z-10">
+                    <SaveButton itemType="event" itemId={nextEvent.id} initialSaved={savedIds.has(nextEvent.id)} />
+                  </div>
+                  {/* Date badge */}
+                  <div className="absolute right-3 top-3 z-10">
+                    <time dateTime={nextEvent.startAt} className="inline-flex items-center gap-1 rounded-full bg-background/95 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-primary shadow-sm">
+                      <Calendar className="h-3 w-3" aria-hidden="true" />
+                      {formatEventDateRange(nextEvent.startAt, nextEvent.endAt).split(" - ")[0]}
+                    </time>
+                  </div>
+                </div>
+                <div className="flex flex-1 flex-col justify-between gap-2 p-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="w-fit rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium text-primary">
+                      กิจกรรมถัดไป
+                    </span>
+                    <h3 className="font-display font-medium text-base text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                      {nextEvent.title}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {nextEvent.venueName && (
+                      <span className="flex items-center gap-1 line-clamp-1">
+                        <MapPin className="h-3 w-3 shrink-0 text-primary/60" aria-hidden="true" />
+                        {nextEvent.venueName}
+                      </span>
+                    )}
+                    {nextEvent.province && (
+                      <span className="flex items-center gap-1 line-clamp-1 text-primary/70">
+                        {nextEvent.province}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            </div>
+          )}
+
           {/* Subtle trust indicator */}
-          <div className="mt-12 flex flex-wrap items-center justify-center sm:justify-start gap-6 text-caption text-muted-foreground/60">
+          <div className="mt-10 flex flex-wrap items-center justify-center sm:justify-start gap-6 text-caption text-muted-foreground/60">
             <span className="flex items-center gap-1.5">
               <Users className="h-4 w-4" aria-hidden="true" />
               ศิลปิน กิจกรรม สถานที่ เรื่องราว
