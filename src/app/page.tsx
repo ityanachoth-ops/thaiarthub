@@ -81,22 +81,21 @@ export default async function Home() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-3xl font-bold font-display tracking-tight text-foreground sm:text-4xl lg:text-5xl leading-[1.15] mb-6">
-            พื้นที่ค้นพบ
-            <br />
-            <span className="text-primary">ศิลปิน งาน กิจกรรม และสถานที่สร้างสรรค์</span>
+          <h1 className="text-4xl font-bold font-display tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.15]">
+            พื้นที่สำหรับพบเจอศิลปิน <br />
+            <span className="text-primary">และงานสร้างสรรค์</span>
           </h1>
 
           {/* Supporting text */}
-          <p className="text-sm sm:text-base max-w-2xl mx-auto sm:mx-0 text-muted-foreground leading-relaxed mb-10">
-            เชื่อมโยงผู้คนกับ Creative Scene ทั่วไทย — ตั้งแต่ศิลปินหน้าใหม่ งานฝีมือ กิจกรรมใต้ดิน จนถึงสเปซเล็กๆ ที่ซ่อนอยู่ในมุมเมือง
+          <p className="max-w-2xl text-base sm:text-lg leading-relaxed text-muted-foreground mb-10">
+            ThaiArtHub พื้นที่เชื่อมโยงผู้คนเข้ากับศิลปิน นักออกแบบ คราฟต์แมน และกิจกรรมศิลปะทั่วประเทศไทย ค้นพบตัวตน เรื่องราว และแรงบันดาลใจใหม่ๆ ได้ในที่เดียว
           </p>
 
           {/* CTA Group */}
           <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3">
             <Link
               href="/artists"
-              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               <span>เริ่มค้นพบ</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
