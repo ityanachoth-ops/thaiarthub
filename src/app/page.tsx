@@ -62,33 +62,75 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-b from-card to-background p-6 shadow-xs sm:p-12 lg:p-16">
-        <div className="relative z-10 max-w-3xl space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1 text-xs font-medium text-primary">
+      <section className="relative min-h-[70vh] sm:min-h-[85vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Subtle geometric background pattern */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/10" />
+          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/5" />
+          <div className="absolute top-1/2 left-1/2 w-[200px] h-[200px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5" />
+          {/* Thin accent lines */}
+          <div className="absolute top-20 right-20 w-[1px] h-32 bg-primary/10" />
+          <div className="absolute bottom-20 left-20 w-32 h-[1px] bg-primary/10" />
+        </div>
+
+        <div className="relative z-10 max-w-4xl w-full text-center sm:text-left">
+          {/* Category badge */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-[11px] font-medium text-primary uppercase tracking-[0.1em] mb-8 transition-colors hover:bg-primary/10">
             <Sparkles className="h-3.5 w-3.5" />
             <span>แพลตฟอร์มศิลปะและครีเอเตอร์ไทยร่วมสมัย</span>
           </div>
-          <h1 className="text-4xl font-bold font-display tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.15]">
-            พื้นที่สำหรับพบเจอศิลปิน <br />
-            <span className="text-primary">และงานสร้างสรรค์</span>
+
+          {/* Main Headline */}
+          <h1 className="text-display-xl sm:text-display-lg lg:text-display-xl font-bold tracking-tight text-foreground leading-[1.1] mb-6">
+            พื้นที่ค้นพบ
+            <br />
+            <span className="text-primary">ศิลปิน งาน กิจกรรม และสถานที่สร้างสรรค์</span>
           </h1>
-          <p className="max-w-2xl text-base sm:text-lg leading-relaxed text-muted-foreground">
-            ThaiArtHub พื้นที่เชื่อมโยงผู้คนเข้ากับศิลปิน นักออกแบบ คราฟต์แมน และกิจกรรมศิลปะทั่วประเทศไทย ค้นพบตัวตน เรื่องราว และแรงบันดาลใจใหม่ๆ ได้ในที่เดียว
+
+          {/* Supporting text */}
+          <p className="text-body-lg sm:text-heading-sm max-w-2xl mx-auto sm:mx-0 text-muted-foreground leading-relaxed mb-10">
+            เชื่อมโยงผู้คนกับ Creative Scene ทั่วไทย — ตั้งแต่ศิลปินหน้าใหม่ งานฝีมือ กิจกรรมใต้ดิน จนถึงสเปซเล็กๆ ที่ซ่อนอยู่ในมุมเมือง
           </p>
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link href="/artists" className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground shadow-xs transition hover:bg-primary/90 hover:shadow-md">
-              <span>ค้นหาศิลปิน</span><ArrowRight className="h-4 w-4" />
+
+          {/* CTA Group */}
+          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3">
+            <Link
+              href="/artists"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-base font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              <span>เริ่มค้นพบ</span>
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
             </Link>
-            <Link href="/artworks" className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3.5 text-sm font-medium text-foreground shadow-2xs transition hover:border-primary/40 hover:bg-muted/50">
-              <span>สำรวจผลงาน</span>
-            </Link>
-            <Link href="/events" className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-medium text-muted-foreground transition hover:text-primary">
-              <Calendar className="h-4 w-4 text-primary" /><span>ปฏิทินกิจกรรม</span>
+            <Link
+              href="/map"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-transparent px-6 py-4 text-base font-medium text-foreground transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              <Compass className="h-5 w-5" aria-hidden="true" />
+              <span>สำรวจแผนที่</span>
             </Link>
           </div>
+
+          {/* Subtle trust indicator */}
+          <div className="mt-12 flex flex-wrap items-center justify-center sm:justify-start gap-6 text-caption text-muted-foreground/60">
+            <span className="flex items-center gap-1.5">
+              <Users className="h-4 w-4" aria-hidden="true" />
+              ศิลปิน กิจกรรม สถานที่ เรื่องราว
+            </span>
+            <span className="w-[1px] h-4 bg-border" aria-hidden="true" />
+            <span className="flex items-center gap-1.5">
+              <Calendar className="h-4 w-4" aria-hidden="true" />
+              อัปเดตตลอดเวลา
+            </span>
+          </div>
         </div>
-        <div className="pointer-events-none absolute -right-20 -top-20 h-96 w-96 rounded-full bg-primary/5 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 right-1/4 h-72 w-72 rounded-full bg-amber-500/5 blur-3xl" />
+
+        {/* Decorative corner marks - editorial/zine style */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="absolute top-8 left-8 w-16 h-16 border-t-2 border-l-2 border-primary/15" />
+          <div className="absolute top-8 right-8 w-16 h-16 border-t-2 border-r-2 border-primary/15" />
+          <div className="absolute bottom-8 left-8 w-16 h-16 border-b-2 border-l-2 border-primary/15" />
+          <div className="absolute bottom-8 right-8 w-16 h-16 border-b-2 border-r-2 border-primary/15" />
+        </div>
       </section>
 
       {featuredArticles.length > 0 ? (
