@@ -76,8 +76,8 @@ export default async function Home() {
             <span>แพลตฟอร์มศิลปะและครีเอเตอร์ไทยร่วมสมัย</span>
           </div>
 
-          {/* Main Headline - 30-38px target */}
-          <h1 className="font-display font-bold tracking-tight text-foreground leading-[1.1] text-3xl sm:text-4xl lg:text-[38px]">
+          {/* Main Headline */}
+          <h1 className="font-display font-bold tracking-tight text-foreground leading-[1.1] text-xl sm:text-2xl lg:text-[24px]">
             พื้นที่สำหรับพบเจอศิลปิน <br />
             <span className="text-primary">และงานสร้างสรรค์</span>
           </h1>
@@ -138,7 +138,7 @@ export default async function Home() {
       {featuredArticles.length > 0 ? (
         <section className="space-y-5">
           <div className="flex items-baseline justify-between gap-4 px-4 sm:px-6 lg:px-8">
-            <h2 className="font-display font-bold tracking-tight text-foreground text-lg sm:text-xl">เรื่องเด่น</h2>
+            <h2 className="font-display font-bold tracking-tight text-foreground text-sm sm:text-base">เรื่องเด่น</h2>
             <Link href="/culture" className="text-xs font-medium text-primary hover:underline">ดูทั้งหมด</Link>
           </div>
           <div className="px-4 sm:px-6 lg:px-8">
@@ -151,7 +151,7 @@ export default async function Home() {
       {featuredEvents.length > 0 ? (
         <section className="space-y-5">
           <div className="flex items-baseline justify-between gap-4 px-4 sm:px-6 lg:px-8">
-            <h2 className="font-display font-bold tracking-tight text-foreground text-lg sm:text-xl">กิจกรรมเด่น</h2>
+            <h2 className="font-display font-bold tracking-tight text-foreground text-sm sm:text-base">กิจกรรมเด่น</h2>
             <Link href="/events" className="text-xs font-medium text-primary hover:underline">ดูกิจกรรมทั้งหมด</Link>
           </div>
           <div className="px-4 sm:px-6 lg:px-8">
@@ -165,7 +165,7 @@ export default async function Home() {
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between px-4 sm:px-6 lg:px-8">
           <div>
             <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-primary">What&apos;s happening around here?</p>
-            <h2 className="font-display font-bold tracking-tight text-foreground text-lg sm:text-xl">แผนที่ศิลปะและกิจกรรมใกล้ตัว</h2>
+            <h2 className="font-display font-bold tracking-tight text-foreground text-sm sm:text-base">แผนที่ศิลปะและกิจกรรมใกล้ตัว</h2>
           </div>
           <Link href="/map" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">สำรวจแผนที่ <ArrowRight className="h-3 w-3" /></Link>
         </div>
@@ -178,7 +178,7 @@ export default async function Home() {
       {publishedPlaces.length > 0 ? (
         <section className="space-y-5">
           <div className="flex items-baseline justify-between gap-4 px-4 sm:px-6 lg:px-8">
-            <h2 className="font-display font-bold tracking-tight text-foreground text-lg sm:text-xl">พื้นที่สร้างสรรค์</h2>
+            <h2 className="font-display font-bold tracking-tight text-foreground text-sm sm:text-base">พื้นที่สร้างสรรค์</h2>
             <Link href="/map" className="text-xs font-medium text-primary hover:underline">ดูบนแผนที่</Link>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 px-4 sm:px-6 lg:px-8">
@@ -192,7 +192,7 @@ export default async function Home() {
       {/* เริ่มต้นสำรวจตามความสนใจ - Discovery Cards */}
       <section className="space-y-5">
         <div className="flex flex-col gap-1 px-4 sm:px-6 lg:px-8">
-          <h2 className="font-display font-bold tracking-tight text-foreground text-lg sm:text-xl">เริ่มต้นสำรวจตามความสนใจ</h2>
+          <h2 className="font-display font-bold tracking-tight text-foreground text-sm sm:text-base">เริ่มต้นสำรวจตามความสนใจ</h2>
           <p className="text-sm text-muted-foreground/70">เลือกช่องทางการค้นพบที่ตรงกับประสบการณ์ศิลปะที่คุณต้องการ</p>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 px-4 sm:px-6 lg:px-8">
@@ -243,7 +243,7 @@ export default async function Home() {
       <section className="border-t border-border/50 pt-10">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center px-4 sm:px-6 lg:px-8">
           <div className="space-y-2 max-w-2xl">
-            <h3 className="flex items-center gap-2 font-display font-semibold text-base text-foreground">
+            <h3 className="flex items-center gap-2 font-display font-semibold text-sm text-foreground">
               <Compass className="h-4 w-4 text-primary" />
               พื้นที่อิสระสำหรับนักสร้างสรรค์ชาวไทย
             </h3>
@@ -260,7 +260,7 @@ export default async function Home() {
           <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-primary">
             About ThaiArtHub
           </p>
-          <h2 className="font-display font-bold leading-snug tracking-tight text-foreground text-xl sm:text-2xl">
+          <h2 className="font-display font-bold leading-snug tracking-tight text-foreground text-sm sm:text-base">
             พื้นที่สำหรับค้นพบ Creative Scene ในประเทศไทย
           </h2>
           <div className="flex flex-col gap-3 text-sm leading-relaxed text-muted-foreground/80 sm:text-base">
@@ -282,7 +282,7 @@ export default async function Home() {
         {/* CTA Block */}
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-2 sm:max-w-lg">
-            <h3 className="font-display font-semibold text-foreground text-base sm:text-lg">
+            <h3 className="font-display font-semibold text-foreground text-sm sm:text-base">
               มีอะไรอยากให้คนค้นพบ?
             </h3>
             <p className="text-sm leading-relaxed text-muted-foreground/70">
