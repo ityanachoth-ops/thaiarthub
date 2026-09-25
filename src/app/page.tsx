@@ -81,19 +81,19 @@ export default async function Home() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-4xl font-bold font-display tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.15]">
+          <h1 className="text-2xl font-bold font-display tracking-tight text-foreground sm:text-3xl lg:text-3xl leading-[1.2]">
             พื้นที่สำหรับพบเจอศิลปิน <br />
             <span className="text-primary">และงานสร้างสรรค์</span>
           </h1>
 
           {/* Supporting text */}
-          <p className="max-w-2xl text-base sm:text-lg leading-relaxed text-muted-foreground mb-10">
+          <p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed mb-10">
             ThaiArtHub พื้นที่เชื่อมโยงผู้คนเข้ากับศิลปิน นักออกแบบ คราฟต์แมน และกิจกรรมศิลปะทั่วประเทศไทย ค้นพบตัวตน เรื่องราว และแรงบันดาลใจใหม่ๆ ได้ในที่เดียว
           </p>
 
           {/* CTA Group */}
           <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3">
-            <Link
+<Link
               href="/artists"
               className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
