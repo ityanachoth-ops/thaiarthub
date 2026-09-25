@@ -77,7 +77,7 @@ export default async function Home() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="font-display font-bold tracking-tight text-foreground leading-[1.1] text-xl sm:text-2xl lg:text-[24px]">
+          <h1 className="font-display font-bold tracking-tight text-foreground leading-[1.1] text-2xl sm:text-3xl lg:text-[32px]">
             พื้นที่สำหรับพบเจอศิลปิน <br />
             <span className="text-primary">และงานสร้างสรรค์</span>
           </h1>

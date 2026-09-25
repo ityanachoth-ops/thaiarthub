@@ -37,7 +37,7 @@ export function ArticleCard({ article, isSaved = false }: ArticleCardProps) {
         <span className="w-fit rounded-full bg-primary/10 px-2.5 py-1 text-xs sm:text-sm font-medium text-primary">
           {getArticleCategoryLabel(article.category)}
         </span>
-        <h2 className="font-display text-xs sm:text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
+        <h2 className="font-display text-[11px] sm:text-xs font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
           {article.title}
         </h2>
         {article.excerpt ? (

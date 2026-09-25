@@ -58,7 +58,7 @@ export function PlaceCard({ place, isSaved = false }: PlaceCardProps) {
             </span>
           ) : null}
         </div>
-        <h2 className="font-display font-semibold text-xs sm:text-sm text-foreground group-hover:text-primary transition-colors">
+        <h2 className="font-display font-semibold text-[11px] sm:text-xs text-foreground group-hover:text-primary transition-colors">
           {place.name}
         </h2>
         {place.description ? (

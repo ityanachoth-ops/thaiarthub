@@ -52,7 +52,7 @@ export function EventCard({ event, isSaved = false }: EventCardProps) {
           >
             {formatEventDateRange(event.startAt, event.endAt)}
           </time>
-          <h3 className="font-display font-medium text-xs sm:text-sm text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+          <h3 className="font-display font-medium text-[11px] sm:text-xs text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
             {event.title}
           </h3>
         </div>
