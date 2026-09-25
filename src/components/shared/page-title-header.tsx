@@ -25,23 +25,16 @@ export function PageTitleHeader({
 }: PageTitleHeaderProps) {
   return (
     <header className={`flex flex-col gap-3 section-space ${className}`}>
-      <div className="relative">
-        <div className="relative z-10" aria-hidden="true">
-          {variant === "artist" && <ArtistFrame />}
-          {variant === "artwork" && <ArtworkFrame />}
-          {variant === "event" && <EventFrame />}
-          {variant === "place" && <PlaceFrame />}
-          {variant === "culture" && <CultureFrame />}
-          {variant === "map" && <MapFrame />}
-        </div>
-        <div className="relative z-20 px-5 py-4 sm:px-6 sm:py-5">
-          <h1 className="text-display-lg text-foreground text-center">
-            {title}
-          </h1>
-        </div>
+      <div className="relative" aria-hidden="true">
+        {variant === "artist" && <ArtistFrame>{title}</ArtistFrame>}
+        {variant === "artwork" && <ArtworkFrame>{title}</ArtworkFrame>}
+        {variant === "event" && <EventFrame>{title}</EventFrame>}
+        {variant === "place" && <PlaceFrame>{title}</PlaceFrame>}
+        {variant === "culture" && <CultureFrame>{title}</CultureFrame>}
+        {variant === "map" && <MapFrame>{title}</MapFrame>}
       </div>
       {description && (
-        <p className="max-w-2xl text-body-sm text-muted-foreground text-center">
+        <p className="max-w-2xl text-body-sm text-muted-foreground">
           {description}
         </p>
       )}
@@ -52,118 +45,94 @@ export function PageTitleHeader({
 function BaseFrame({
   children,
   className = "",
-}: { children: ReactNode; className?: string }) {
+  style,
+}: { children: ReactNode; className?: string; style?: React.CSSProperties }) {
   return (
-    <div className={`relative ${className}`} aria-hidden="true">
-      <div className="absolute inset-0 border border-border/60" />
-      <div className="absolute inset-[-2px] border border-border/30" />
+    <span className={`inline-flex relative ${className}`} style={style} aria-hidden="true">
+      <span className="relative z-10 px-3 py-1.5 sm:px-4 sm:py-2 text-display-lg text-foreground">
+        {children}
+      </span>
+      <span className="absolute inset-0 border border-foreground/60 pointer-events-none" />
+      <span className="absolute inset-[-2px] border border-foreground/20 pointer-events-none" />
+    </span>
+  );
+}
+
+function AccentCorner({
+  variant = "tr",
+}: { variant?: "tl" | "tr" | "bl" | "br" }) {
+  const positions: Record<string, string> = {
+    tl: "top-[-2px] left-[-2px]",
+    tr: "top-[-2px] right-[-2px]",
+    bl: "bottom-[-2px] left-[-2px]",
+    br: "bottom-[-2px] right-[-2px]",
+  };
+  return (
+    <span className={`absolute ${positions[variant]} w-2 h-2 bg-primary/90 pointer-events-none`} />
+  );
+}
+
+function OffsetFrame({ className = "" }: { className?: string }) {
+  return (
+    <span className={`absolute inset-[-4px] border border-foreground/15 pointer-events-none ${className}`} />
+  );
+}
+
+function ArtistFrame({ children }: { children: ReactNode }) {
+  return (
+    <BaseFrame>
       {children}
-    </div>
-  );
-}
-
-function AccentCorner({ variant = "default" }: { variant?: "default" | "tl" | "tr" | "bl" | "br" }) {
-  const positions = {
-    default: "top-0 right-0",
-    tl: "top-0 left-0",
-    tr: "top-0 right-0",
-    bl: "bottom-0 left-0",
-    br: "bottom-0 right-0",
-  };
-  return (
-    <div className={`absolute ${positions[variant]} w-3 h-3 border-2 border-primary/40 pointer-events-none`}>
-      <div className="absolute inset-[2px] bg-primary/20" />
-    </div>
-  );
-}
-
-function CropMark({
-  position,
-}: { position: "tl" | "tr" | "bl" | "br" }) {
-  const styles: Record<string, string> = {
-    tl: "top-0 left-0",
-    tr: "top-0 right-0",
-    bl: "bottom-0 left-0",
-    br: "bottom-0 right-0",
-  };
-  return (
-    <div className={`absolute ${styles[position]} w-4 h-4 border-t border-l border-border/40 pointer-events-none`} />
-  );
-}
-
-function ArtistFrame() {
-  return (
-    <BaseFrame>
-      <CropMark position="tl" />
-      <CropMark position="tr" />
-      <CropMark position="bl" />
-      <CropMark position="br" />
       <AccentCorner variant="tr" />
-      <div className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-[60px] h-[1px] bg-border/60" />
-      <div className="absolute -bottom-[1px] left-1/2 -translate-x-1/2 w-[60px] h-[1px] bg-border/60" />
     </BaseFrame>
   );
 }
 
-function ArtworkFrame() {
+function ArtworkFrame({ children }: { children: ReactNode }) {
   return (
     <BaseFrame>
-      <CropMark position="tl" />
-      <CropMark position="bl" />
-      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-primary/30" />
-      <div className="absolute bottom-[2px] left-1/2 -translate-x-1/2 w-[80px] h-[1px] bg-primary/50" />
+      {children}
+      <span className="absolute bottom-[-2px] left-0 right-0 border-b border-primary/40 pointer-events-none" />
     </BaseFrame>
   );
 }
 
-function EventFrame() {
+function EventFrame({ children }: { children: ReactNode }) {
   return (
     <BaseFrame>
-      <CropMark position="tr" />
-      <CropMark position="br" />
+      {children}
       <AccentCorner variant="tl" />
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-primary/20" />
+      <span className="absolute top-[-2px] left-0 right-0 border-t border-primary/30 pointer-events-none" />
     </BaseFrame>
   );
 }
 
-function PlaceFrame() {
+function PlaceFrame({ children }: { children: ReactNode }) {
   return (
     <BaseFrame>
-      <CropMark position="tl" />
-      <CropMark position="tr" />
-      <CropMark position="bl" />
-      <CropMark position="br" />
-      <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-border/40" />
-      <div className="absolute top-0 bottom-0 left-[calc(50%+2px)] w-[1px] bg-border/30" />
+      {children}
+      <OffsetFrame />
+      <span className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-foreground/15 pointer-events-none" />
     </BaseFrame>
   );
 }
 
-function CultureFrame() {
+function CultureFrame({ children }: { children: ReactNode }) {
   return (
-    <BaseFrame className="relative">
-      <div className="absolute inset-[-4px] border border-border/20 pointer-events-none" />
-      <CropMark position="tl" />
-      <CropMark position="tr" />
-      <CropMark position="bl" />
-      <CropMark position="br" />
+    <BaseFrame>
+      {children}
+      <OffsetFrame />
+      <OffsetFrame className="inset-[-8px] border-foreground/10" />
       <AccentCorner variant="bl" />
-      <div className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-[100px] h-[1px] bg-border/40" />
-      <div className="absolute -bottom-[1px] left-1/2 -translate-x-1/2 w-[100px] h-[1px] bg-border/40" />
     </BaseFrame>
   );
 }
 
-function MapFrame() {
+function MapFrame({ children }: { children: ReactNode }) {
   return (
     <BaseFrame>
-      <CropMark position="tl" />
-      <CropMark position="tr" />
-      <CropMark position="bl" />
-      <CropMark position="br" />
-      <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-primary/30 pointer-events-none" />
-      <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-primary/20 pointer-events-none" />
+      {children}
+      <span className="absolute top-[-2px] right-[-2px] w-3 h-3 border-t-2 border-r-2 border-primary/40 pointer-events-none" />
+      <span className="absolute top-[1px] right-[1px] w-2 h-2 border-t border-r border-primary/20 pointer-events-none" />
     </BaseFrame>
   );
 }
