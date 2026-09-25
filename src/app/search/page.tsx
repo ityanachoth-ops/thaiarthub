@@ -50,7 +50,7 @@ export default async function SearchPage(props: {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-1.5 section-space">
-        <h1 className="text-display-md text-foreground">
+        <h1 className="text-display-lg text-foreground">
           ค้นหา
         </h1>
         <p className="text-body-sm text-muted-foreground">
