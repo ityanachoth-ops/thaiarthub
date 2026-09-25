@@ -62,25 +62,67 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* Hero Section */}
-      <section className="relative min-h-[50vh] sm:min-h-[60vh] flex items-center px-4 sm:px-6 lg:px-8">
+      <section className="relative min-h-[50vh] sm:min-h-[60vh] flex items-center px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Subtle atmospheric gradient */}
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-primary/3 via-transparent to-transparent" />
         </div>
 
+        {/* Print-inspired texture overlay */}
+        <div className="pointer-events-none absolute inset-0 opacity-[0.015]" aria-hidden="true">
+          <div className="absolute inset-0" style={{
+            backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E\")",
+            backgroundSize: "400px 400px",
+            mixBlendMode: "multiply"
+          }} />
+        </div>
+
+        {/* Abstract geometric shapes - subtle decorative */}
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          {/* Circle - top right */}
+          <div className="absolute top-1/4 right-8 w-32 h-32 rounded-full border border-primary/10" />
+          <div className="absolute top-1/4 right-8 w-8 h-8 rounded-full bg-primary/5" />
+          
+          {/* Half circle - bottom left */}
+          <div className="absolute bottom-1/4 left-8 w-24 h-24 rounded-full border-b-2 border-l-2 border-primary/10 rotate-45" />
+          
+          {/* Thin vertical line - right side */}
+          <div className="absolute top-1/3 right-4 w-px h-24 bg-primary/10" />
+          
+          {/* Thin horizontal line - left side, offset */}
+          <div className="absolute top-1/2 left-4 w-16 h-px bg-primary/10" />
+          
+          {/* Small rectangle block - bottom right */}
+          <div className="absolute bottom-8 right-12 w-12 h-4 border border-primary/10" />
+          
+          {/* Irregular accent shape behind "และงานสร้างสรรค์" area */}
+          <div className="absolute top-1/2 left-0 w-20 h-20 rounded-tr-full rounded-bl-full bg-primary/5 rotate-3" />
+        </div>
+
         <div className="relative z-10 max-w-4xl w-full">
           {/* Category badge - refined */}
-          <div className="badge mb-5">
+          <div className="badge mb-5 relative">
             <Sparkles className="h-3 w-3" />
             <span>แพลตฟอร์มศิลปะและครีเอเตอร์ไทยร่วมสมัย</span>
+            {/* Subtle accent line under badge */}
+            <span className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-8 h-px bg-primary/30 rounded-full" aria-hidden="true" />
           </div>
 
-          {/* Main Headline */}
-          <h1 className="text-hero text-foreground leading-[1.1]">
+          {/* Main Headline - with typography treatment */}
+          <h1 className="text-hero text-foreground leading-[1.1] relative">
             พื้นที่สำหรับพบเจอศิลปิน <br />
-            <span className="text-primary">และงานสร้างสรรค์</span>
+            <span className="text-primary relative">
+              และงานสร้างสรรค์
+              {/* Highlight accent behind primary text */}
+              <span className="absolute -bottom-1 left-0 right-0 h-2 bg-primary/15 rounded-full -z-10" aria-hidden="true" />
+            </span>
           </h1>
+
+          {/* Editorial horizontal rule - offset, not full width */}
+          <div className="mt-6 w-20 h-px bg-primary/40 relative" aria-hidden="true">
+            <span className="absolute right-[-24px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary/30" />
+          </div>
 
           {/* Supporting text */}
           <p className="max-w-xl mt-5 text-body-lg text-muted-foreground/80">
@@ -91,10 +133,12 @@ export default async function Home() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3">
             <Link
               href="/artists"
-              className="btn-primary group"
+              className="btn-primary group relative overflow-hidden"
             >
-              <span>เริ่มค้นพบ</span>
+              <span className="relative z-10">เริ่มค้นพบ</span>
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              {/* Subtle accent line on hover */}
+              <span className="absolute bottom-0 left-0 right-0 h-px bg-primary-foreground/30 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" aria-hidden="true" />
             </Link>
             <Link
               href="/artworks"
@@ -113,9 +157,10 @@ export default async function Home() {
 
           {/* Subtle trust indicator */}
           <div className="mt-8 flex flex-wrap items-center justify-center sm:justify-start gap-5 text-micro text-muted-foreground/50">
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 relative">
               <Users className="h-3 w-3" aria-hidden="true" />
               ศิลปิน กิจกรรม สถานที่ เรื่องราว
+              <span className="absolute -bottom-[4px] left-0 right-0 h-px bg-primary/20" aria-hidden="true" />
             </span>
             <span className="w-[1px] h-3 bg-border" aria-hidden="true" />
             <span className="flex items-center gap-1">
@@ -124,12 +169,15 @@ export default async function Home() {
             </span>
           </div>
 
-          {/* Editorial corner marks - thinner */}
+          {/* Editorial corner marks - thinner, extended */}
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-            <div className="absolute top-6 left-6 w-12 h-12 border-t border-l border-primary/10" />
-            <div className="absolute top-6 right-6 w-12 h-12 border-t border-r border-primary/10" />
-            <div className="absolute bottom-6 left-6 w-12 h-12 border-b border-l border-primary/10" />
-            <div className="absolute bottom-6 right-6 w-12 h-12 border-b border-r border-primary/10" />
+            <div className="absolute top-6 left-6 w-16 h-16 border-t border-l border-primary/10" />
+            <div className="absolute top-6 right-6 w-16 h-16 border-t border-r border-primary/10" />
+            <div className="absolute bottom-6 left-6 w-16 h-16 border-b border-l border-primary/10" />
+            <div className="absolute bottom-6 right-6 w-16 h-16 border-b border-r border-primary/10" />
+            {/* Additional subtle marks */}
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 w-px h-8 bg-primary/10" />
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-px h-8 bg-primary/10" />
           </div>
         </div>
       </section>
