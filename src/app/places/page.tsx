@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { PageTitleHeader } from "@/components/shared/page-title-header";
 import { getPublishedPlaces } from "@/modules/places/queries";
 import { PlaceCard } from "@/modules/places/components/place-card";
 import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
@@ -20,14 +21,11 @@ export default async function PlacesPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2 section-space">
-        <h1 className="text-display-md text-foreground">
-          Creative Places
-        </h1>
-        <p className="max-w-2xl text-body-sm text-muted-foreground">
-          ค้นพบพื้นที่สร้างสรรค์ แกลเลอรี สตูดิโอ และอาตส์สเปซทั่วประเทศไทย
-        </p>
-      </header>
+      <PageTitleHeader
+        title="พื้นที่สร้างสรรค์"
+        description="ค้นพบพื้นที่สร้างสรรค์ แกลเลอรี สตูดิโอ และอาตส์สเปซทั่วประเทศไทย"
+        variant="place"
+      />
 
       {places.length === 0 ? (
         <EmptyState

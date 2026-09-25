@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { PageTitleHeader } from "@/components/shared/page-title-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ArticleGrid } from "@/modules/culture/components/article-grid";
 import { getPublishedArticles } from "@/modules/culture/queries";
@@ -20,14 +21,11 @@ export default async function CulturePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2 section-space">
-        <h1 className="text-display-md text-foreground">
-          เรื่องราว
-        </h1>
-        <p className="max-w-2xl text-body-sm text-muted-foreground">
-          สำรวจเรื่องราวจากศิลปิน ชุมชน แบรนด์ท้องถิ่น และวัฒนธรรมสร้างสรรค์ไทย
-        </p>
-      </header>
+      <PageTitleHeader
+        title="วัฒนธรรม"
+        description="สำรวจเรื่องราวจากศิลปิน ชุมชน แบรนด์ท้องถิ่น และวัฒนธรรมสร้างสรรค์ไทย"
+        variant="culture"
+      />
 
       {articles.length > 0 ? (
         <ArticleGrid articles={articles} savedIds={savedIds} />

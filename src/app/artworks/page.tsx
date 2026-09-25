@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { EmptyState } from "@/components/shared/empty-state";
+import { PageTitleHeader } from "@/components/shared/page-title-header";
 import { ArtworkGrid } from "@/modules/artworks/components/artwork-grid";
 import { getPublishedArtworks } from "@/modules/artworks/queries";
 import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
@@ -18,14 +19,11 @@ export default async function ArtworksPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2 section-space">
-        <h1 className="text-display-md text-foreground">
-          ผลงาน
-        </h1>
-        <p className="max-w-2xl text-body-sm text-muted-foreground">
-          รวมผลงานที่ศิลปินไทยเผยแพร่ไว้ เลือกดูรายละเอียดเพื่อรู้จักผลงานและศิลปินเจ้าของผลงาน
-        </p>
-      </header>
+      <PageTitleHeader
+        title="ผลงาน"
+        description="รวมผลงานที่ศิลปินไทยเผยแพร่ไว้ เลือกดูรายละเอียดเพื่อรู้จักผลงานและศิลปินเจ้าของผลงาน"
+        variant="artwork"
+      />
 
       {artworks.length === 0 ? (
         <EmptyState

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { PageTitleHeader } from "@/components/shared/page-title-header";
 import { EventGrid } from "@/modules/events/components/event-grid";
 import { getPublishedEvents, getAllCategories } from "@/modules/events/queries";
 import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
@@ -59,14 +60,11 @@ export default async function EventsPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2 section-space">
-        <h1 className="text-display-md text-foreground">
-          กิจกรรม
-        </h1>
-        <p className="max-w-2xl text-body-sm text-muted-foreground">
-          ค้นพบกิจกรรมศิลปะ ดนตรี และวัฒนธรรมใต้ดินทั่วประเทศไทย
-        </p>
-      </header>
+      <PageTitleHeader
+        title="กิจกรรม"
+        description="ค้นพบกิจกรรมศิลปะ ดนตรี และวัฒนธรรมใต้ดินทั่วประเทศไทย"
+        variant="event"
+      />
 
       {/* Category Filter */}
       <nav className="flex flex-wrap gap-2 section-space" aria-label="กรองตามหมวดหมู่">
