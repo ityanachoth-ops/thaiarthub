@@ -48,21 +48,21 @@ export function PlaceCard({ place, isSaved = false }: PlaceCardProps) {
       </div>
       <div className="p-5 space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+          <span className="rounded-full bg-muted px-2.5 py-1 text-xs sm:text-sm font-medium text-muted-foreground">
             {typeLabels[place.type] ?? place.type}
           </span>
           {place.province ? (
-            <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+            <span className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
               <MapPin className="h-3 w-3 text-primary" />
               {place.province}
             </span>
           ) : null}
         </div>
-        <h2 className="font-display font-semibold text-base text-foreground group-hover:text-primary transition-colors">
+        <h2 className="font-display font-semibold text-base sm:text-lg text-foreground group-hover:text-primary transition-colors">
           {place.name}
         </h2>
         {place.description ? (
-          <p className="line-clamp-2 text-xs text-muted-foreground leading-relaxed">
+          <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed">
             {place.description}
           </p>
         ) : null}

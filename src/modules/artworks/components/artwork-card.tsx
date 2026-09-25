@@ -38,15 +38,15 @@ export function ArtworkCard({ artwork, isSaved = false }: ArtworkCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col justify-between gap-1 p-4">
-        <h3 className="font-display font-medium text-base text-foreground group-hover:text-primary transition-colors line-clamp-1">
+        <h3 className="font-display font-medium text-base sm:text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">
           {artwork.title}
         </h3>
         {metadata ? (
-          <p className="text-xs text-muted-foreground line-clamp-1">
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
             {metadata}
           </p>
         ) : (
-          <p className="text-xs text-muted-foreground line-clamp-1">
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
             ศิลปินไม่ระบุ
           </p>
         )}

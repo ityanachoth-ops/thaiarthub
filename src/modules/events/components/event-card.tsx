@@ -48,17 +48,17 @@ export function EventCard({ event, isSaved = false }: EventCardProps) {
         <div className="flex flex-col gap-1">
           <time
             dateTime={toDateAttribute(event.startAt)}
-            className="text-xs font-semibold text-primary"
+            className="text-xs sm:text-sm font-semibold text-primary"
           >
             {formatEventDateRange(event.startAt, event.endAt)}
           </time>
-          <h3 className="font-display font-medium text-base text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+          <h3 className="font-display font-medium text-base sm:text-lg text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
             {event.title}
           </h3>
         </div>
 
         {location ? (
-          <p className="text-xs text-muted-foreground line-clamp-1">
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
             {location}
           </p>
         ) : null}
@@ -67,7 +67,7 @@ export function EventCard({ event, isSaved = false }: EventCardProps) {
             {event.categories.map((cat) => (
               <span
                 key={cat.id}
-                className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary"
+                className="rounded-full bg-primary/10 px-2 py-0.5 text-xs sm:text-sm font-medium text-primary"
               >
                 {cat.name}
               </span>

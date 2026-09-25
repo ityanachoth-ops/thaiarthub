@@ -34,14 +34,14 @@ export function ArticleCard({ article, isSaved = false }: ArticleCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <span className="w-fit rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary">
+        <span className="w-fit rounded-full bg-primary/10 px-2.5 py-1 text-xs sm:text-sm font-medium text-primary">
           {getArticleCategoryLabel(article.category)}
         </span>
-        <h2 className="font-display text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
+        <h2 className="font-display text-base sm:text-lg font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
           {article.title}
         </h2>
         {article.excerpt ? (
-          <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+          <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">
             {article.excerpt}
           </p>
         ) : null}

@@ -47,17 +47,17 @@ export function ArtistCard({ artist, isSaved = false }: ArtistCardProps) {
           ) : null}
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline justify-between gap-2">
-              <h3 className="font-display font-semibold text-base text-foreground group-hover:text-primary transition-colors line-clamp-1">
+              <h3 className="font-display font-semibold text-base sm:text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">
                 {artist.name}
               </h3>
               {artist.location ? (
-                <span className="shrink-0 text-xs text-muted-foreground line-clamp-1">
+                <span className="shrink-0 text-xs sm:text-sm text-muted-foreground line-clamp-1">
                   {artist.location}
                 </span>
               ) : null}
             </div>
             {categoryList ? (
-              <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-0.5">
                 {categoryList}
               </p>
             ) : null}
