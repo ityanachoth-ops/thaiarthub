@@ -2,9 +2,18 @@
 
 import type { ReactNode } from "react";
 
+type PageTitleHeaderVariant =
+  | "artist"
+  | "artwork"
+  | "event"
+  | "place"
+  | "culture"
+  | "map";
+
 interface PageTitleHeaderProps {
   title: string;
   description?: ReactNode;
+  variant?: PageTitleHeaderVariant;
   className?: string;
 }
 
