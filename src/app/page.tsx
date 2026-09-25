@@ -56,126 +56,134 @@ export default async function Home() {
   ];
 
   return (
-    <div className="home-background-texture flex flex-col gap-14 py-4 sm:gap-20 sm:py-8">
+    <div className="home-background-texture flex flex-col gap-12 py-6 sm:gap-16 sm:py-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* Hero Section */}
-      <section className="relative min-h-[60vh] sm:min-h-[75vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Subtle geometric background pattern */}
+      <section className="relative min-h-[50vh] sm:min-h-[60vh] flex items-center px-4 sm:px-6 lg:px-8">
+        {/* Subtle atmospheric gradient */}
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/10" />
-          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/5" />
-          <div className="absolute top-1/2 left-1/2 w-[200px] h-[200px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5" />
-          {/* Thin accent lines */}
-          <div className="absolute top-20 right-20 w-[1px] h-32 bg-primary/10" />
-          <div className="absolute bottom-20 left-20 w-32 h-[1px] bg-primary/10" />
+          <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-primary/3 via-transparent to-transparent" />
+          {/* Fine grain texture */}
+          <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")}} />
         </div>
 
-        <div className="relative z-10 max-w-4xl w-full text-center sm:text-left">
-          {/* Category badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-[11px] font-medium text-primary uppercase tracking-[0.1em] mb-6 transition-colors hover:bg-primary/10">
-            <Sparkles className="h-3.5 w-3.5" />
+        <div className="relative z-10 max-w-4xl w-full">
+          {/* Category badge - refined */}
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[10px] font-medium text-primary uppercase tracking-[0.12em] mb-5 transition-colors hover:bg-primary/10">
+            <Sparkles className="h-3 w-3" />
             <span>แพลตฟอร์มศิลปะและครีเอเตอร์ไทยร่วมสมัย</span>
           </div>
 
-          {/* Main Headline */}
-          <h1 className="text-xl font-bold font-display tracking-tight text-foreground sm:text-2xl lg:text-2xl leading-[1.2]">
+          {/* Main Headline - 30-38px target */}
+          <h1 className="font-display font-bold tracking-tight text-foreground leading-[1.1] text-3xl sm:text-4xl lg:text-[38px]">
             พื้นที่สำหรับพบเจอศิลปิน <br />
             <span className="text-primary">และงานสร้างสรรค์</span>
           </h1>
 
           {/* Supporting text */}
-          <p className="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed mb-10">
+          <p className="max-w-xl mt-5 text-base sm:text-lg leading-relaxed text-muted-foreground/80">
             ThaiArtHub พื้นที่เชื่อมโยงผู้คนเข้ากับศิลปิน นักออกแบบ คราฟต์แมน และกิจกรรมศิลปะทั่วประเทศไทย ค้นพบตัวตน เรื่องราว และแรงบันดาลใจใหม่ๆ ได้ในที่เดียว
           </p>
 
-          {/* CTA Group */}
-          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3">
-<Link
+          {/* CTA Group - refined */}
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3">
+            <Link
               href="/artists"
-              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="group inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               <span>เริ่มค้นพบ</span>
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
             </Link>
             <Link
               href="/artworks"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-transparent px-6 py-3.5 text-sm font-medium text-foreground transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-transparent px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               <span>สำรวจผลงาน</span>
             </Link>
             <Link
               href="/events"
-              className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
-              <Calendar className="h-4 w-4 text-primary" aria-hidden="true" />
+              <Calendar className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
               <span>ปฏิทินกิจกรรม</span>
             </Link>
           </div>
 
           {/* Subtle trust indicator */}
-          <div className="mt-10 flex flex-wrap items-center justify-center sm:justify-start gap-6 text-caption text-muted-foreground/60">
-            <span className="flex items-center gap-1.5">
-              <Users className="h-4 w-4" aria-hidden="true" />
+          <div className="mt-8 flex flex-wrap items-center justify-center sm:justify-start gap-5 text-[11px] text-muted-foreground/50">
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3" aria-hidden="true" />
               ศิลปิน กิจกรรม สถานที่ เรื่องราว
             </span>
-            <span className="w-[1px] h-4 bg-border" aria-hidden="true" />
-            <span className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" aria-hidden="true" />
+            <span className="w-[1px] h-3 bg-border" aria-hidden="true" />
+            <span className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" aria-hidden="true" />
               อัปเดตตลอดเวลา
             </span>
           </div>
-        </div>
 
-        {/* Decorative corner marks - editorial/zine style */}
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-          <div className="absolute top-8 left-8 w-16 h-16 border-t-2 border-l-2 border-primary/15" />
-          <div className="absolute top-8 right-8 w-16 h-16 border-t-2 border-r-2 border-primary/15" />
-          <div className="absolute bottom-8 left-8 w-16 h-16 border-b-2 border-l-2 border-primary/15" />
-          <div className="absolute bottom-8 right-8 w-16 h-16 border-b-2 border-r-2 border-primary/15" />
+          {/* Editorial corner marks - thinner */}
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            <div className="absolute top-6 left-6 w-12 h-12 border-t border-l border-primary/10" />
+            <div className="absolute top-6 right-6 w-12 h-12 border-t border-r border-primary/10" />
+            <div className="absolute bottom-6 left-6 w-12 h-12 border-b border-l border-primary/10" />
+            <div className="absolute bottom-6 right-6 w-12 h-12 border-b border-r border-primary/10" />
+          </div>
         </div>
       </section>
 
+      {/* เรื่องเด่น */}
       {featuredArticles.length > 0 ? (
-        <section className="space-y-6">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 className="text-xl font-bold font-display text-foreground">เรื่องเด่น</h2>
+        <section className="space-y-5">
+          <div className="flex items-baseline justify-between gap-4 px-4 sm:px-6 lg:px-8">
+            <h2 className="font-display font-bold tracking-tight text-foreground text-lg sm:text-xl">เรื่องเด่น</h2>
             <Link href="/culture" className="text-xs font-medium text-primary hover:underline">ดูทั้งหมด</Link>
           </div>
-          <ArticleGrid articles={featuredArticles} savedIds={savedIds} />
+          <div className="px-4 sm:px-6 lg:px-8">
+            <ArticleGrid articles={featuredArticles} savedIds={savedIds} />
+          </div>
         </section>
       ) : null}
 
+      {/* กิจกรรมเด่น */}
       {featuredEvents.length > 0 ? (
-        <section className="space-y-6">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 className="text-xl font-bold font-display text-foreground">กิจกรรมเด่น</h2>
+        <section className="space-y-5">
+          <div className="flex items-baseline justify-between gap-4 px-4 sm:px-6 lg:px-8">
+            <h2 className="font-display font-bold tracking-tight text-foreground text-lg sm:text-xl">กิจกรรมเด่น</h2>
             <Link href="/events" className="text-xs font-medium text-primary hover:underline">ดูกิจกรรมทั้งหมด</Link>
           </div>
-          <EventGrid events={featuredEvents} savedIds={savedIds} />
+          <div className="px-4 sm:px-6 lg:px-8">
+            <EventGrid events={featuredEvents} savedIds={savedIds} />
+          </div>
         </section>
       ) : null}
 
-      <section className="space-y-6">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+      {/* แผนที่ศิลปะและกิจกรรมใกล้ตัว */}
+      <section className="space-y-5">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between px-4 sm:px-6 lg:px-8">
           <div>
             <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-primary">What&apos;s happening around here?</p>
-            <h2 className="text-xl font-bold font-display text-foreground">แผนที่ศิลปะและกิจกรรมใกล้ตัว</h2>
+            <h2 className="font-display font-bold tracking-tight text-foreground text-lg sm:text-xl">แผนที่ศิลปะและกิจกรรมใกล้ตัว</h2>
           </div>
           <Link href="/map" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">สำรวจแผนที่ <ArrowRight className="h-3 w-3" /></Link>
         </div>
-        <MapContainer initialLocations={mapLocations} />
+        <div className="px-4 sm:px-6 lg:px-8">
+          <MapContainer initialLocations={mapLocations} />
+        </div>
       </section>
 
+      {/* พื้นที่สร้างสรรค์ */}
       {publishedPlaces.length > 0 ? (
-        <section className="space-y-6">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 className="text-xl font-bold font-display text-foreground">พื้นที่สร้างสรรค์</h2>
+        <section className="space-y-5">
+          <div className="flex items-baseline justify-between gap-4 px-4 sm:px-6 lg:px-8">
+            <h2 className="font-display font-bold tracking-tight text-foreground text-lg sm:text-xl">พื้นที่สร้างสรรค์</h2>
             <Link href="/map" className="text-xs font-medium text-primary hover:underline">ดูบนแผนที่</Link>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 px-4 sm:px-6 lg:px-8">
             {publishedPlaces.map((place) => (
               <PlaceCard key={place.id} place={place} isSaved={savedIds.has(place.id)} />
             ))}
@@ -183,34 +191,66 @@ export default async function Home() {
         </section>
       ) : null}
 
-      <section className="space-y-6">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-bold font-display text-foreground">เริ่มต้นสำรวจตามความสนใจ</h2>
-          <p className="text-sm text-muted-foreground">เลือกช่องทางการค้นพบที่ตรงกับประสบการณ์ศิลปะที่คุณต้องการ</p>
+      {/* เริ่มต้นสำรวจตามความสนใจ - Discovery Cards */}
+      <section className="space-y-5">
+        <div className="flex flex-col gap-1 px-4 sm:px-6 lg:px-8">
+          <h2 className="font-display font-bold tracking-tight text-foreground text-lg sm:text-xl">เริ่มต้นสำรวจตามความสนใจ</h2>
+          <p className="text-sm text-muted-foreground/70">เลือกช่องทางการค้นพบที่ตรงกับประสบการณ์ศิลปะที่คุณต้องการ</p>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Link href="/artists" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><Users className="h-5 w-5" /></div><h3 className="font-semibold font-display text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">ศิลปินไทย</h3><p className="text-sm leading-relaxed text-muted-foreground">ค้นพบครีเอเตอร์ นักวาดภาพประกอบ จิตรกร และประติมากรทั่วประเทศ</p></div>
-            <span className="mt-4 flex items-center gap-1 text-xs sm:text-sm font-medium text-primary">ดูศิลปินทั้งหมด <ArrowRight className="h-3 w-3" /></span>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 px-4 sm:px-6 lg:px-8">
+          <Link href="/artists" className="group flex flex-col gap-4 rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/30 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+              <Users className="h-4.5 w-4.5" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="font-display font-semibold text-sm text-foreground group-hover:text-primary transition-colors">ศิลปินไทย</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground/70">ค้นพบครีเอเตอร์ นักวาดภาพประกอบ จิตรกร และประติมากรทั่วประเทศ</p>
+            </div>
+            <span className="pt-2 flex items-center gap-1 text-xs font-medium text-primary border-t border-border/50">ดูศิลปินทั้งหมด <ArrowRight className="h-3 w-3" /></span>
           </Link>
-          <Link href="/artworks" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><Palette className="h-5 w-5" /></div><h3 className="font-semibold font-display text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">ผลงานสร้างสรรค์</h3><p className="text-sm leading-relaxed text-muted-foreground">สำรวจคอลเลกชันชิ้นงาน ภาพวาด ดิจิทัลอาร์ต และงานประดิษฐ์ฝีมือ</p></div>
-            <span className="mt-4 flex items-center gap-1 text-xs sm:text-sm font-medium text-primary">สำรวจผลงาน <ArrowRight className="h-3 w-3" /></span>
+          <Link href="/artworks" className="group flex flex-col gap-4 rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/30 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+              <Palette className="h-4.5 w-4.5" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="font-display font-semibold text-sm text-foreground group-hover:text-primary transition-colors">ผลงานสร้างสรรค์</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground/70">สำรวจคอลเลกชันชิ้นงาน ภาพวาด ดิจิทัลอาร์ต และงานประดิษฐ์ฝีมือ</p>
+            </div>
+            <span className="pt-2 flex items-center gap-1 text-xs font-medium text-primary border-t border-border/50">สำรวจผลงาน <ArrowRight className="h-3 w-3" /></span>
           </Link>
-          <Link href="/events" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><Calendar className="h-5 w-5" /></div><h3 className="font-semibold font-display text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">กิจกรรม & นิทรรศการ</h3><p className="text-sm leading-relaxed text-muted-foreground">ติดตามอีเวนต์ศิลปะ เทศกาลสร้างสรรค์ และนิทรรศการที่น่าสนใจ</p></div>
-            <span className="mt-4 flex items-center gap-1 text-xs sm:text-sm font-medium text-primary">ดูกิจกรรม <ArrowRight className="h-3 w-3" /></span>
+          <Link href="/events" className="group flex flex-col gap-4 rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/30 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+              <Calendar className="h-4.5 w-4.5" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="font-display font-semibold text-sm text-foreground group-hover:text-primary transition-colors">กิจกรรม & นิทรรศการ</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground/70">ติดตามอีเวนต์ศิลปะ เทศกาลสร้างสรรค์ และนิทรรศการที่น่าสนใจ</p>
+            </div>
+            <span className="pt-2 flex items-center gap-1 text-xs font-medium text-primary border-t border-border/50">ดูกิจกรรม <ArrowRight className="h-3 w-3" /></span>
           </Link>
-          <Link href="/map" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><MapPin className="h-5 w-5" /></div><h3 className="font-semibold font-display text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">แผนที่ศิลปะ</h3><p className="text-sm leading-relaxed text-muted-foreground">ค้นพบหมุดหมายทางศิลปะ แกลเลอรี และสเปซสร้างสรรค์ใกล้ตัวคุณ</p></div>
-            <span className="mt-4 flex items-center gap-1 text-xs sm:text-sm font-medium text-primary">เข้าสู่แผนที่ <ArrowRight className="h-3 w-3" /></span>
+          <Link href="/map" className="group flex flex-col gap-4 rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/30 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+              <MapPin className="h-4.5 w-4.5" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="font-display font-semibold text-sm text-foreground group-hover:text-primary transition-colors">แผนที่ศิลปะ</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground/70">ค้นพบหมุดหมายทางศิลปะ แกลเลอรี และสเปซสร้างสรรค์ใกล้ตัวคุณ</p>
+            </div>
+            <span className="pt-2 flex items-center gap-1 text-xs font-medium text-primary border-t border-border/50">เข้าสู่แผนที่ <ArrowRight className="h-3 w-3" /></span>
           </Link>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-dashed border-border bg-muted/40 p-6 sm:p-8">
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div className="space-y-1"><h3 className="flex items-center gap-2 text-base font-semibold font-display text-foreground"><Compass className="h-4 w-4 text-primary" />พื้นที่อิสระสำหรับนักสร้างสรรค์ชาวไทย</h3><p className="max-w-xl text-xs leading-relaxed text-muted-foreground">เราให้ความสำคัญกับการเปิดโอกาสให้ผู้คนได้สัมผัสงานศิลปะไทยในมุมมองที่สดใหม่และเข้าถึงง่าย ร่วมสร้างสรรค์คอมมูนิตี้ศิลปะที่เติบโตอย่างยั่งยืน</p></div>
+      {/* พื้นที่อิสระสำหรับนักสร้างสรรค์ชาวไทย - Editorial band */}
+      <section className="border-t border-border/50 pt-10">
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center px-4 sm:px-6 lg:px-8">
+          <div className="space-y-2 max-w-2xl">
+            <h3 className="flex items-center gap-2 font-display font-semibold text-base text-foreground">
+              <Compass className="h-4 w-4 text-primary" />
+              พื้นที่อิสระสำหรับนักสร้างสรรค์ชาวไทย
+            </h3>
+            <p className="text-sm leading-relaxed text-muted-foreground/70">เราให้ความสำคัญกับการเปิดโอกาสให้ผู้คนได้สัมผัสงานศิลปะไทยในมุมมองที่สดใหม่และเข้าถึงง่าย ร่วมสร้างสรรค์คอมมูนิตี้ศิลปะที่เติบโตอย่างยั่งยืน</p>
+          </div>
           <Link href="/artists" className="shrink-0 text-xs font-medium text-primary hover:underline underline-offset-4">ร่วมค้นพบผลงานไทย →</Link>
         </div>
       </section>
@@ -218,14 +258,14 @@ export default async function Home() {
       {/* About Section */}
       <section className="flex flex-col gap-10 border-t border-border/50 pt-14 sm:pt-20">
         {/* Manifesto */}
-        <div className="flex flex-col gap-6 sm:max-w-2xl">
+        <div className="flex flex-col gap-6 sm:max-w-2xl px-4 sm:px-6 lg:px-8">
           <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-primary">
             About ThaiArtHub
           </p>
-          <h2 className="font-display text-xl font-bold leading-snug tracking-tight text-foreground sm:text-2xl">
+          <h2 className="font-display font-bold leading-snug tracking-tight text-foreground text-xl sm:text-2xl">
             พื้นที่สำหรับค้นพบ Creative Scene ในประเทศไทย
           </h2>
-          <div className="flex flex-col gap-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+          <div className="flex flex-col gap-3 text-sm leading-relaxed text-muted-foreground/80 sm:text-base">
             <p>
               ThaiArtHub คือพื้นที่สำหรับค้นพบศิลปิน ผลงาน กิจกรรม สถานที่ และเรื่องราวของ Creative Scene ในประเทศไทย โดยเริ่มต้นจากอีสาน
             </p>
@@ -242,12 +282,12 @@ export default async function Home() {
         <div className="h-px w-full bg-border/50" />
 
         {/* CTA Block */}
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-2 sm:max-w-lg">
-            <h3 className="font-display text-base font-semibold text-foreground sm:text-lg">
+            <h3 className="font-display font-semibold text-foreground text-base sm:text-lg">
               มีอะไรอยากให้คนค้นพบ?
             </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
+            <p className="text-sm leading-relaxed text-muted-foreground/70">
               หากคุณมีผลงาน เป็นศิลปิน จัดกิจกรรม หรือรู้จัก Creative Place ที่น่าสนใจ สามารถเข้ามาสร้างโปรไฟล์ เพิ่มผลงาน ประกาศกิจกรรม หรือแนะนำสถานที่บน ThaiArtHub ได้
             </p>
             <p className="text-sm font-medium text-foreground">
@@ -257,14 +297,14 @@ export default async function Home() {
           <div className="flex shrink-0 flex-wrap items-center gap-3">
             <Link
               href="/login?redirect=/dashboard"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-xs transition hover:bg-primary/90 hover:shadow-md"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               ฝากผลงาน / เพิ่มข้อมูล
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/artists"
-              className="inline-flex items-center justify-center rounded-xl border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition hover:border-primary/40 hover:bg-muted/50"
+              className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary/50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               สำรวจ ThaiArtHub
             </Link>
