@@ -20,18 +20,15 @@ export function EventCard({ event, isSaved = false }: EventCardProps) {
   return (
     <Link
       href={`/events/${event.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="card-base group"
     >
-      <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted/60">
+      <div className="card-image" style={{ aspectRatio: "16/9" }}>
         {event.coverImageUrl ? (
-          // Signed URL from a private bucket; plain <img> avoids requiring
-          // next.config image remotePatterns changes.
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={event.coverImageUrl}
             alt={event.title}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             style={{ objectPosition: event.coverPosition }}
           />
         ) : (
@@ -44,30 +41,30 @@ export function EventCard({ event, isSaved = false }: EventCardProps) {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-2.5 p-4">
+      <div className="card-content gap-2">
         <div className="flex flex-col gap-1">
           <time
             dateTime={toDateAttribute(event.startAt)}
-            className="text-xs sm:text-sm font-semibold text-primary"
+            className="card-meta text-primary font-semibold"
           >
             {formatEventDateRange(event.startAt, event.endAt)}
           </time>
-          <h3 className="font-display font-medium text-[11px] sm:text-xs text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+          <h3 className="card-title group-hover:text-primary transition-colors line-clamp-2 leading-snug">
             {event.title}
           </h3>
         </div>
 
         {location ? (
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+          <p className="card-meta line-clamp-1">
             {location}
           </p>
         ) : null}
         {event.categories?.length ? (
-          <div className="flex flex-wrap gap-1 mt-2">
+          <div className="flex flex-wrap gap-1 mt-1">
             {event.categories.map((cat) => (
               <span
                 key={cat.id}
-                className="rounded-full bg-primary/10 px-2 py-0.5 text-xs sm:text-sm font-medium text-primary"
+                className="badge"
               >
                 {cat.name}
               </span>

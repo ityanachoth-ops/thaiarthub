@@ -20,11 +20,11 @@ export default async function CulturePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2">
-        <h1 className="font-display text-xl font-bold tracking-tight text-foreground">
+      <header className="flex flex-col gap-2 section-space">
+        <h1 className="text-display-md text-foreground">
           เรื่องราว
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        <p className="max-w-2xl text-body-sm text-muted-foreground">
           สำรวจเรื่องราวจากศิลปิน ชุมชน แบรนด์ท้องถิ่น และวัฒนธรรมสร้างสรรค์ไทย
         </p>
       </header>

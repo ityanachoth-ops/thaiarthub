@@ -83,27 +83,25 @@ export default async function CultureArticlePage({
   };
 
   return (
-    <article className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+    <article className="flex flex-col gap-8 section-space container-public">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Link
         href="/culture"
-        className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-muted-foreground transition hover:text-primary"
+        className="inline-flex w-fit items-center gap-1.5 text-micro font-medium text-muted-foreground transition hover:text-primary"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-3.5 w-3.5" />
         กลับไปเรื่องราวทั้งหมด
       </Link>
 
       <header className="flex flex-col gap-4">
-        <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+        <span className="w-fit badge">
           {getArticleCategoryLabel(article.category)}
         </span>
-        <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-5xl">
-          {article.title}
-        </h1>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+        <h1 className="text-display-lg text-foreground">{article.title}</h1>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-micro text-muted-foreground">
           <span>
             {new Intl.DateTimeFormat("th-TH", {
               dateStyle: "medium",
@@ -117,8 +115,7 @@ export default async function CultureArticlePage({
       </header>
 
       {article.coverImageUrl ? (
-        <div className="overflow-hidden rounded-2xl border border-border/80 bg-muted/60 shadow-xs">
-          {/* eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL */}
+        <div className="overflow-hidden rounded-xl border border-border bg-muted/50">
           <img
             src={article.coverImageUrl}
             alt={article.title}
@@ -129,28 +126,28 @@ export default async function CultureArticlePage({
       ) : null}
 
       {article.excerpt ? (
-        <p className="border-l-2 border-primary pl-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
+        <p className="border-l-2 border-primary pl-4 text-body leading-relaxed text-muted-foreground">
           {article.excerpt}
         </p>
       ) : null}
 
-      <div className="whitespace-pre-line text-base leading-8 text-foreground/85">
+      <div className="whitespace-pre-line text-body leading-relaxed text-foreground/85">
         {article.content}
       </div>
 
       <GalleryGrid images={article.gallery} />
 
-      <footer className="flex flex-wrap items-center gap-3 border-t border-border/60 pt-6">
+      <footer className="flex flex-wrap items-center gap-3 border-t border-border/50 pt-6">
         <Link
           href="/artists"
-          className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-medium text-foreground transition hover:border-primary/40 hover:text-primary"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40 hover:text-primary"
         >
           สำรวจศิลปิน
           <ExternalLink className="h-3.5 w-3.5" />
         </Link>
         <Link
           href="/events"
-          className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-medium text-foreground transition hover:border-primary/40 hover:text-primary"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-primary/40 hover:text-primary"
         >
           ดูกิจกรรม
           <ExternalLink className="h-3.5 w-3.5" />

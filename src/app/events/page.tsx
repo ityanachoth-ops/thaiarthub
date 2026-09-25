@@ -4,6 +4,8 @@ import { EventGrid } from "@/modules/events/components/event-grid";
 import { getPublishedEvents, getAllCategories } from "@/modules/events/queries";
 import { getUserSavedItemIds } from "@/modules/bookmarks/queries";
 import { getTodayInBangkok, isEventUpcoming } from "@/modules/events/format";
+import Link from "next/link";
+import { EmptyState } from "@/components/shared/empty-state";
 
 // Signed URLs are short-lived and the session is cookie-scoped.
 export const dynamic = "force-dynamic";
@@ -57,18 +59,18 @@ export default async function EventsPage({
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-xl font-bold font-display tracking-tight text-foreground">
+      <header className="flex flex-col gap-2 section-space">
+        <h1 className="text-display-md text-foreground">
           กิจกรรม
         </h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
+        <p className="max-w-2xl text-body-sm text-muted-foreground">
           ค้นพบกิจกรรมศิลปะ ดนตรี และวัฒนธรรมใต้ดินทั่วประเทศไทย
         </p>
       </header>
 
       {/* Category Filter */}
-      <nav className="flex flex-wrap gap-2" aria-label="กรองตามหมวดหมู่">
-        <a
+      <nav className="flex flex-wrap gap-2 section-space" aria-label="กรองตามหมวดหมู่">
+        <Link
           href="/events"
           className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
             selectedCategories.length === 0
@@ -77,9 +79,9 @@ export default async function EventsPage({
           }`}
         >
           ทั้งหมด
-        </a>
+        </Link>
         {categories.map((cat) => (
-          <a
+          <Link
             key={cat.id}
             href={`/events?category=${selectedCategories.includes(cat.slug)
               ? selectedCategories.filter((c) => c !== cat.slug).join(",")
@@ -91,43 +93,47 @@ export default async function EventsPage({
             }`}
           >
             {cat.name}
-          </a>
+          </Link>
         ))}
       </nav>
 
       {/* Upcoming Events Section */}
       <section className="space-y-4">
-        <h2 className="text-xl font-bold font-display tracking-tight text-foreground">
-          กิจกรรมที่กำลังจะมาถึง
-        </h2>
+        <div className="flex items-baseline justify-between gap-4 border-b border-border/50 pb-2">
+          <h2 className="text-display-sm text-foreground">
+            กิจกรรมที่กำลังจะมาถึง
+          </h2>
+          <span className="text-micro text-muted-foreground">
+            {upcomingEvents.length} กิจกรรม
+          </span>
+        </div>
         {upcomingEvents.length > 0 ? (
           <EventGrid events={upcomingEvents} savedIds={savedIds} />
         ) : (
-          <div className="rounded-xl border border-dashed p-10 text-center">
-            <p className="text-sm text-muted-foreground">
-              {selectedCategories.length > 0
-                ? "ไม่พบกิจกรรมในหมวดหมู่ที่เลือก"
-                : "ยังไม่มีกิจกรรมที่กำลังจะมาถึงในขณะนี้"}
-            </p>
-          </div>
+          <EmptyState
+            title={selectedCategories.length > 0 ? "ไม่พบกิจกรรมในหมวดหมู่ที่เลือก" : "ยังไม่มีกิจกรรมที่กำลังจะมาถึงในขณะนี้"}
+            description="ตรวจสอบค้นหาใหม่ภายหลัง"
+          />
         )}
       </section>
 
       {/* Past Events Section */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-bold font-display tracking-tight text-foreground">
-          กิจกรรมที่ผ่านมา
-        </h2>
+      <section className="space-y-4 section-space-lg">
+        <div className="flex items-baseline justify-between gap-4 border-b border-border/50 pb-2">
+          <h2 className="text-display-sm text-foreground">
+            กิจกรรมที่ผ่านมา
+          </h2>
+          <span className="text-micro text-muted-foreground">
+            {pastEvents.length} กิจกรรม
+          </span>
+        </div>
         {pastEvents.length > 0 ? (
           <EventGrid events={pastEvents} savedIds={savedIds} />
         ) : (
-          <div className="rounded-xl border border-dashed p-10 text-center">
-            <p className="text-sm text-muted-foreground">
-              {selectedCategories.length > 0
-                ? "ไม่พบกิจกรรมในหมวดหมู่ที่เลือก"
-                : "ยังไม่มีกิจกรรมที่ผ่านมาในขณะนี้"}
-            </p>
-          </div>
+          <EmptyState
+            title={selectedCategories.length > 0 ? "ไม่พบกิจกรรมในหมวดหมู่ที่เลือก" : "ยังไม่มีกิจกรรมที่ผ่านมาในขณะนี้"}
+            description="ย้อนดูอีเวนต์ก่อนหน้าได้ที่นี่"
+          />
         )}
       </section>
     </div>

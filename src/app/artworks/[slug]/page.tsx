@@ -82,9 +82,8 @@ export default async function ArtworkDetailPage({ params }: ArtworkDetailPagePro
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 sm:aspect-[16/9]">
+      <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-muted/50 sm:aspect-[16/9]">
         {artwork.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL
           <img 
             src={artwork.imageUrl} 
             alt={artwork.title} 
@@ -92,7 +91,7 @@ export default async function ArtworkDetailPage({ params }: ArtworkDetailPagePro
             style={{ objectPosition: artwork.coverPosition }}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-4xl font-semibold text-stone-300">
+          <div className="flex h-full w-full items-center justify-center text-4xl font-semibold text-muted-foreground/30">
             {artwork.title.charAt(0)}
           </div>
         )}
@@ -100,15 +99,14 @@ export default async function ArtworkDetailPage({ params }: ArtworkDetailPagePro
 
       {artwork.gallery.length > 0 ? (
         <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-semibold tracking-tight text-stone-900">ภาพเพิ่มเติม</h2>
+          <h2 className="text-display-sm text-foreground">ภาพเพิ่มเติม</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {artwork.gallery.map((image) => (
-              <a key={image.id} href={image.imageUrl ?? undefined} target="_blank" rel="noreferrer noopener" className="aspect-square overflow-hidden rounded-xl border border-stone-200 bg-stone-100 transition hover:border-orange-300">
+              <a key={image.id} href={image.imageUrl ?? undefined} target="_blank" rel="noreferrer noopener" className="aspect-square overflow-hidden rounded-lg border border-border bg-muted/50 transition hover:border-primary/30">
                 {image.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL
                   <img src={image.imageUrl} alt={`${artwork.title} ภาพเพิ่มเติม`} className="h-full w-full object-contain" loading="lazy" />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-xs text-stone-400">โหลดภาพไม่สำเร็จ</div>
+                  <div className="flex h-full items-center justify-center text-xs text-muted-foreground">โหลดภาพไม่สำเร็จ</div>
                 )}
               </a>
             ))}
@@ -117,35 +115,35 @@ export default async function ArtworkDetailPage({ params }: ArtworkDetailPagePro
       ) : null}
 
       <header className="flex flex-col gap-3">
-        <span className="w-fit rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
+        <span className="w-fit badge">
           {artwork.type}
         </span>
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-900">{artwork.title}</h1>
+        <h1 className="text-display-lg text-foreground">{artwork.title}</h1>
         {artwork.artist ? (
-          <p className="text-stone-600">
+          <p className="text-body text-muted-foreground">
             โดย{" "}
-            <Link href={`/artists/${artwork.artist.slug}`} className="font-medium text-orange-700 hover:underline">
+            <Link href={`/artists/${artwork.artist.slug}`} className="font-medium text-primary hover:underline">
               {artwork.artist.name}
             </Link>
           </p>
         ) : (
-          <p className="text-stone-500">ศิลปินไม่ระบุ</p>
+          <p className="text-body text-muted-foreground">ศิลปินไม่ระบุ</p>
         )}
       </header>
 
       {artwork.description ? (
         <section className="max-w-2xl">
-          <p className="whitespace-pre-line leading-relaxed text-stone-700">{artwork.description}</p>
+          <p className="whitespace-pre-line leading-relaxed text-body text-muted-foreground">{artwork.description}</p>
         </section>
       ) : null}
 
       {artwork.externalUrl ? (
-        <section className="flex flex-col gap-4 border-t border-stone-200 pt-8">
+        <section className="flex flex-col gap-4 border-t border-border/50 pt-6">
           <a
             href={artwork.externalUrl}
             target="_blank"
             rel="noreferrer noopener"
-            className="w-fit rounded-full bg-orange-700 px-5 py-2 text-sm font-medium text-white hover:bg-orange-800"
+            className="w-fit btn-primary"
           >
             ดูผลงานเพิ่มเติม
           </a>

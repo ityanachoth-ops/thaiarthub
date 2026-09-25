@@ -26,19 +26,18 @@ export function PlaceCard({ place, isSaved = false }: PlaceCardProps) {
   return (
     <Link
       href={`/places/${place.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card transition hover:border-primary/40 hover:shadow-xs"
+      className="card-base group"
     >
-      <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+      <div className="card-image" style={{ aspectRatio: "16/9" }}>
         {place.coverImageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={place.coverImageUrl}
             alt={place.name}
-            className="h-full w-full object-cover transition group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             style={{ objectPosition: place.coverPosition }}
           />
         ) : (
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-full w-full items-center justify-center">
             <MapPin className="h-8 w-8 text-muted-foreground/40" />
           </div>
         )}
@@ -46,23 +45,24 @@ export function PlaceCard({ place, isSaved = false }: PlaceCardProps) {
           <SaveButton itemType="place" itemId={place.id} initialSaved={isSaved} />
         </div>
       </div>
-      <div className="p-5 space-y-2">
+
+      <div className="card-content gap-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="rounded-full bg-muted px-2.5 py-1 text-xs sm:text-sm font-medium text-muted-foreground">
+          <span className="badge-muted">
             {typeLabels[place.type] ?? place.type}
           </span>
           {place.province ? (
-            <span className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+            <span className="flex items-center gap-1 card-meta">
               <MapPin className="h-3 w-3 text-primary" />
               {place.province}
             </span>
           ) : null}
         </div>
-        <h2 className="font-display font-semibold text-[11px] sm:text-xs text-foreground group-hover:text-primary transition-colors">
+        <h3 className="card-title group-hover:text-primary transition-colors">
           {place.name}
-        </h2>
+        </h3>
         {place.description ? (
-          <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed">
+          <p className="card-desc">
             {place.description}
           </p>
         ) : null}

@@ -64,11 +64,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const { category, artists, artworks } = data;
 
   return (
-    <div className="flex flex-col gap-10">
-      <header className="flex flex-col gap-3 border-b border-border/60 pb-8">
+    <div className="flex flex-col gap-8">
+      <header className="flex flex-col gap-3 border-b border-border/60 pb-6 section-space">
         <Link
           href="/artists"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition hover:text-primary"
+          className="inline-flex items-center gap-1.5 text-micro font-medium text-muted-foreground transition hover:text-primary"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>ดูศิลปินทั้งหมด</span>
@@ -78,15 +78,15 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Tag className="h-3.5 w-3.5" />
           </span>
-          <span className="text-xs font-medium text-primary">หมวดหมู่งานสร้างสรรค์</span>
+          <span className="text-micro font-medium text-primary">หมวดหมู่งานสร้างสรรค์</span>
         </div>
 
-        <h1 className="text-xl font-bold font-display tracking-tight text-foreground sm:text-2xl">
+        <h1 className="text-display-lg text-foreground">
           {category.name}
         </h1>
 
         {category.description ? (
-          <p className="max-w-2xl leading-relaxed text-muted-foreground text-sm sm:text-base">
+          <p className="max-w-2xl leading-relaxed text-body-sm text-muted-foreground">
             {category.description}
           </p>
         ) : null}
@@ -94,10 +94,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
       <section className="space-y-4">
         <div className="flex items-baseline justify-between gap-4 border-b border-border/50 pb-2">
-          <h2 className="text-xl font-semibold font-display text-foreground">
+          <h2 className="text-display-sm text-foreground">
             ศิลปินในหมวดนี้
           </h2>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-micro text-muted-foreground">
             {artists.length} คน
           </span>
         </div>
@@ -112,12 +112,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         )}
       </section>
 
-      <section className="space-y-4">
+      <section className="space-y-4 section-space-lg">
         <div className="flex items-baseline justify-between gap-4 border-b border-border/50 pb-2">
-          <h2 className="text-xl font-semibold font-display text-foreground">
+          <h2 className="text-display-sm text-foreground">
             ผลงานจากศิลปินในหมวดนี้
           </h2>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-micro text-muted-foreground">
             {artworks.length} ชิ้น
           </span>
         </div>

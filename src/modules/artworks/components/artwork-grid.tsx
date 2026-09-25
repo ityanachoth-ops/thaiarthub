@@ -8,7 +8,7 @@ interface ArtworkGridProps {
 
 export function ArtworkGrid({ artworks, savedIds }: ArtworkGridProps) {
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid-cards-3">
       {artworks.map((artwork) => (
         <ArtworkCard
           key={artwork.id}

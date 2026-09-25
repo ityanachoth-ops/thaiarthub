@@ -16,15 +16,14 @@ export function ArtworkCard({ artwork, isSaved = false }: ArtworkCardProps) {
   return (
     <Link
       href={`/artworks/${artwork.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs"
+      className="card-base group"
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/60">
+      <div className="card-image">
         {artwork.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL, remote pattern not confirmed
           <img
             src={artwork.imageUrl}
             alt={artwork.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             style={{ objectPosition: artwork.coverPosition }}
           />
         ) : (
@@ -37,16 +36,16 @@ export function ArtworkCard({ artwork, isSaved = false }: ArtworkCardProps) {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-1 p-4">
-        <h3 className="font-display font-medium text-base sm:text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">
+      <div className="card-content">
+        <h3 className="card-title group-hover:text-primary transition-colors line-clamp-1">
           {artwork.title}
         </h3>
         {metadata ? (
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+          <p className="card-meta line-clamp-1">
             {metadata}
           </p>
         ) : (
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+          <p className="card-meta line-clamp-1">
             ศิลปินไม่ระบุ
           </p>
         )}

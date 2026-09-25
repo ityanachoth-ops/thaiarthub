@@ -14,15 +14,14 @@ export function ArtistCard({ artist, isSaved = false }: ArtistCardProps) {
   return (
     <Link
       href={`/artists/${artist.slug}`}
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-all duration-200 hover:border-foreground/20 hover:shadow-2xs"
+      className="card-base group"
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/60">
+      <div className="card-image">
         {artist.coverUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- external Supabase signed URL, remote pattern not confirmed
           <img
             src={artist.coverUrl}
             alt={artist.name}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             style={{ objectPosition: artist.coverPosition }}
           />
         ) : (
@@ -35,10 +34,9 @@ export function ArtistCard({ artist, isSaved = false }: ArtistCardProps) {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-1 p-4">
+      <div className="card-content">
         <div className="flex items-center gap-2.5">
           {artist.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={artist.avatarUrl}
               alt=""
@@ -46,18 +44,11 @@ export function ArtistCard({ artist, isSaved = false }: ArtistCardProps) {
             />
           ) : null}
           <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between gap-2">
-              <h3 className="font-display font-semibold text-base sm:text-lg text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                {artist.name}
-              </h3>
-              {artist.location ? (
-                <span className="shrink-0 text-xs sm:text-sm text-muted-foreground line-clamp-1">
-                  {artist.location}
-                </span>
-              ) : null}
-            </div>
+            <h3 className="card-title group-hover:text-primary transition-colors line-clamp-1">
+              {artist.name}
+            </h3>
             {categoryList ? (
-              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1 mt-0.5">
+              <p className="card-meta line-clamp-1">
                 {categoryList}
               </p>
             ) : null}

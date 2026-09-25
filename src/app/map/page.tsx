@@ -19,11 +19,11 @@ export default async function MapPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-col gap-2">
-        <h1 className="text-xl font-bold font-display tracking-tight text-foreground">
+      <header className="flex flex-col gap-2 section-space">
+        <h1 className="text-display-md text-foreground">
           แผนที่ศิลปะ
         </h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
+        <p className="max-w-2xl text-body-sm text-muted-foreground">
           ค้นพบหมุดหมายทางศิลปะ นิทรรศการ และสเปซสร้างสรรค์ตามพิกัดภูมิศาสตร์ทั่วประเทศไทย
         </p>
       </header>

@@ -11,7 +11,7 @@ export function EmptyState({ title, description }: EmptyStateProps) {
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Sparkles className="h-5 w-5" />
       </div>
-      <p className="text-lg font-semibold font-display text-foreground">{title}</p>
+      <p className="text-heading-md font-semibold font-display text-foreground">{title}</p>
       {description ? (
         <p className="max-w-md text-sm text-muted-foreground leading-relaxed">
           {description}

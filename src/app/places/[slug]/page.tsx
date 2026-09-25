@@ -106,103 +106,100 @@ export default async function PlaceDetailPage({ params }: PlaceDetailPageProps) 
   };
 
   return (
-    <main className="container mx-auto px-4 py-10">
+    <article className="flex flex-col gap-8 section-space container-public">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <article className="mx-auto max-w-3xl space-y-8">
-        <div className="overflow-hidden rounded-xl border bg-muted">
-          {place.coverImageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={place.coverImageUrl}
-              alt={place.name}
-              className="aspect-[16/9] w-full object-cover"
-              style={{ objectPosition: place.coverPosition }}
-            />
-          ) : (
-            <div className="flex aspect-[16/9] w-full items-center justify-center text-sm text-muted-foreground">
-              ไม่มีภาพปก
-            </div>
-          )}
-        </div>
+      <div className="overflow-hidden rounded-xl border border-border bg-muted">
+        {place.coverImageUrl ? (
+          <img
+            src={place.coverImageUrl}
+            alt={place.name}
+            className="aspect-[16/9] w-full object-cover"
+            style={{ objectPosition: place.coverPosition }}
+          />
+        ) : (
+          <div className="flex aspect-[16/9] w-full items-center justify-center text-sm text-muted-foreground">
+            ไม่มีภาพปก
+          </div>
+        )}
+      </div>
 
-        <header className="space-y-3">
-          <span className="inline-flex rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-            {typeLabels[place.type] ?? place.type}
-          </span>
-          <h1 className="text-3xl font-bold tracking-tight font-display">{place.name}</h1>
-        </header>
+      <header className="space-y-3">
+        <span className="inline-flex badge">
+          {typeLabels[place.type] ?? place.type}
+        </span>
+        <h1 className="text-display-lg text-foreground">{place.name}</h1>
+      </header>
 
-        {place.description ? (
-          <section className="space-y-3">
-            <h2 className="text-lg font-semibold">รายละเอียด</h2>
-            <p className="whitespace-pre-line leading-relaxed text-muted-foreground">
-              {place.description}
-            </p>
-          </section>
-        ) : null}
+      {place.description ? (
+        <section className="space-y-3">
+          <h2 className="text-heading-md text-foreground">รายละเอียด</h2>
+          <p className="whitespace-pre-line leading-relaxed text-body text-muted-foreground">
+            {place.description}
+          </p>
+        </section>
+      ) : null}
 
-        <GalleryGrid images={place.gallery} />
+      <GalleryGrid images={place.gallery} />
 
-        {place.address || place.province || mapUrl ? (
-          <section className="space-y-3">
-            <h2 className="text-lg font-semibold">ที่ตั้ง</h2>
-            {place.address || place.province ? (
-              <dl className="space-y-2 text-sm">
-                {place.address ? (
-                  <div className="flex gap-2">
-                    <dt className="w-24 shrink-0 text-muted-foreground">ที่อยู่</dt>
-                    <dd className="whitespace-pre-line">{place.address}</dd>
-                  </div>
-                ) : null}
-                {place.province ? (
-                  <div className="flex gap-2">
-                    <dt className="w-24 shrink-0 text-muted-foreground">จังหวัด</dt>
-                    <dd>{place.province}</dd>
-                  </div>
-                ) : null}
-              </dl>
-            ) : null}
+      {place.address || place.province || mapUrl ? (
+        <section className="space-y-3">
+          <h2 className="text-heading-md text-foreground">ที่ตั้ง</h2>
+          {place.address || place.province ? (
+            <dl className="space-y-2 text-body-sm">
+              {place.address ? (
+                <div className="flex gap-2">
+                  <dt className="w-24 shrink-0 text-muted-foreground">ที่อยู่</dt>
+                  <dd className="whitespace-pre-line">{place.address}</dd>
+                </div>
+              ) : null}
+              {place.province ? (
+                <div className="flex gap-2">
+                  <dt className="w-24 shrink-0 text-muted-foreground">จังหวัด</dt>
+                  <dd>{place.province}</dd>
+                </div>
+              ) : null}
+            </dl>
+          ) : null}
 
-            {mapUrl ? (
-              <a
-                href={mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md border px-4 text-sm font-medium transition-colors hover:bg-accent"
-              >
-                <MapPin className="h-4 w-4 text-primary" />
-                <span>เปิดใน Google Maps</span>
-              </a>
-            ) : null}
-          </section>
-        ) : null}
-
-        {place.externalUrl ? (
-          <section>
+          {mapUrl ? (
             <a
-              href={place.externalUrl}
+              href={mapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border px-4 text-sm font-medium text-foreground transition-colors hover:bg-muted hover:text-primary"
             >
-              <ExternalLink className="h-4 w-4" />
-              ดูข้อมูลเพิ่มเติม
+              <MapPin className="h-4 w-4 text-primary" />
+              <span>เปิดใน Google Maps</span>
             </a>
-          </section>
-        ) : null}
+          ) : null}
+        </section>
+      ) : null}
 
-        <div>
-          <Link
-            href="/"
-            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+      {place.externalUrl ? (
+        <section>
+          <a
+            href={place.externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 btn-primary"
           >
-            ← กลับหน้าหลัก
-          </Link>
-        </div>
-      </article>
-    </main>
+            <ExternalLink className="h-4 w-4" />
+            ดูข้อมูลเพิ่มเติม
+          </a>
+        </section>
+      ) : null}
+
+      <div>
+        <Link
+          href="/"
+          className="text-caption text-muted-foreground underline-offset-4 hover:underline"
+        >
+          ← กลับหน้าหลัก
+        </Link>
+      </div>
+    </article>
   );
 }
