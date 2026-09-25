@@ -19,7 +19,7 @@ export default async function ArtworksPage() {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-900">ผลงาน</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-stone-900">ผลงาน</h1>
         <p className="max-w-2xl text-stone-600">
           รวมผลงานที่ศิลปินไทยเผยแพร่ไว้ เลือกดูรายละเอียดเพื่อรู้จักผลงานและศิลปินเจ้าของผลงาน
         </p>

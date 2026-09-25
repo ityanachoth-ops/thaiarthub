@@ -58,7 +58,7 @@ export default async function EventsPage({
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold font-display tracking-tight text-foreground">
+        <h1 className="text-xl font-bold font-display tracking-tight text-foreground">
           กิจกรรม
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
@@ -97,7 +97,7 @@ export default async function EventsPage({
 
       {/* Upcoming Events Section */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold font-display tracking-tight text-foreground">
+        <h2 className="text-xl font-bold font-display tracking-tight text-foreground">
           กิจกรรมที่กำลังจะมาถึง
         </h2>
         {upcomingEvents.length > 0 ? (
@@ -115,7 +115,7 @@ export default async function EventsPage({
 
       {/* Past Events Section */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold font-display tracking-tight text-foreground">
+        <h2 className="text-xl font-bold font-display tracking-tight text-foreground">
           กิจกรรมที่ผ่านมา
         </h2>
         {pastEvents.length > 0 ? (

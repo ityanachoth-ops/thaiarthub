@@ -81,7 +81,7 @@ export default async function Home() {
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-2xl font-bold font-display tracking-tight text-foreground sm:text-3xl lg:text-3xl leading-[1.2]">
+          <h1 className="text-xl font-bold font-display tracking-tight text-foreground sm:text-2xl lg:text-2xl leading-[1.2]">
             พื้นที่สำหรับพบเจอศิลปิน <br />
             <span className="text-primary">และงานสร้างสรรค์</span>
           </h1>
@@ -141,7 +141,7 @@ export default async function Home() {
       {featuredArticles.length > 0 ? (
         <section className="space-y-6">
           <div className="flex items-baseline justify-between gap-4">
-            <h2 className="text-2xl font-bold font-display text-foreground">เรื่องเด่น</h2>
+            <h2 className="text-xl font-bold font-display text-foreground">เรื่องเด่น</h2>
             <Link href="/culture" className="text-xs font-medium text-primary hover:underline">ดูทั้งหมด</Link>
           </div>
           <ArticleGrid articles={featuredArticles} savedIds={savedIds} />
@@ -151,7 +151,7 @@ export default async function Home() {
       {featuredEvents.length > 0 ? (
         <section className="space-y-6">
           <div className="flex items-baseline justify-between gap-4">
-            <h2 className="text-2xl font-bold font-display text-foreground">กิจกรรมเด่น</h2>
+            <h2 className="text-xl font-bold font-display text-foreground">กิจกรรมเด่น</h2>
             <Link href="/events" className="text-xs font-medium text-primary hover:underline">ดูกิจกรรมทั้งหมด</Link>
           </div>
           <EventGrid events={featuredEvents} savedIds={savedIds} />
@@ -162,7 +162,7 @@ export default async function Home() {
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-primary">What&apos;s happening around here?</p>
-            <h2 className="text-2xl font-bold font-display text-foreground">แผนที่ศิลปะและกิจกรรมใกล้ตัว</h2>
+            <h2 className="text-xl font-bold font-display text-foreground">แผนที่ศิลปะและกิจกรรมใกล้ตัว</h2>
           </div>
           <Link href="/map" className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">สำรวจแผนที่ <ArrowRight className="h-3 w-3" /></Link>
         </div>
@@ -172,7 +172,7 @@ export default async function Home() {
       {publishedPlaces.length > 0 ? (
         <section className="space-y-6">
           <div className="flex items-baseline justify-between gap-4">
-            <h2 className="text-2xl font-bold font-display text-foreground">พื้นที่สร้างสรรค์</h2>
+            <h2 className="text-xl font-bold font-display text-foreground">พื้นที่สร้างสรรค์</h2>
             <Link href="/map" className="text-xs font-medium text-primary hover:underline">ดูบนแผนที่</Link>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -185,24 +185,24 @@ export default async function Home() {
 
       <section className="space-y-6">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-bold font-display text-foreground">เริ่มต้นสำรวจตามความสนใจ</h2>
+          <h2 className="text-xl font-bold font-display text-foreground">เริ่มต้นสำรวจตามความสนใจ</h2>
           <p className="text-sm text-muted-foreground">เลือกช่องทางการค้นพบที่ตรงกับประสบการณ์ศิลปะที่คุณต้องการ</p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link href="/artists" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><Users className="h-5 w-5" /></div><h3 className="font-semibold font-display text-base sm:text-lg text-foreground group-hover:text-primary transition-colors">ศิลปินไทย</h3><p className="text-sm leading-relaxed text-muted-foreground">ค้นพบครีเอเตอร์ นักวาดภาพประกอบ จิตรกร และประติมากรทั่วประเทศ</p></div>
+            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><Users className="h-5 w-5" /></div><h3 className="font-semibold font-display text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">ศิลปินไทย</h3><p className="text-sm leading-relaxed text-muted-foreground">ค้นพบครีเอเตอร์ นักวาดภาพประกอบ จิตรกร และประติมากรทั่วประเทศ</p></div>
             <span className="mt-4 flex items-center gap-1 text-xs sm:text-sm font-medium text-primary">ดูศิลปินทั้งหมด <ArrowRight className="h-3 w-3" /></span>
           </Link>
           <Link href="/artworks" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><Palette className="h-5 w-5" /></div><h3 className="font-semibold font-display text-base sm:text-lg text-foreground group-hover:text-primary transition-colors">ผลงานสร้างสรรค์</h3><p className="text-sm leading-relaxed text-muted-foreground">สำรวจคอลเลกชันชิ้นงาน ภาพวาด ดิจิทัลอาร์ต และงานประดิษฐ์ฝีมือ</p></div>
+            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><Palette className="h-5 w-5" /></div><h3 className="font-semibold font-display text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">ผลงานสร้างสรรค์</h3><p className="text-sm leading-relaxed text-muted-foreground">สำรวจคอลเลกชันชิ้นงาน ภาพวาด ดิจิทัลอาร์ต และงานประดิษฐ์ฝีมือ</p></div>
             <span className="mt-4 flex items-center gap-1 text-xs sm:text-sm font-medium text-primary">สำรวจผลงาน <ArrowRight className="h-3 w-3" /></span>
           </Link>
           <Link href="/events" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><Calendar className="h-5 w-5" /></div><h3 className="font-semibold font-display text-base sm:text-lg text-foreground group-hover:text-primary transition-colors">กิจกรรม & นิทรรศการ</h3><p className="text-sm leading-relaxed text-muted-foreground">ติดตามอีเวนต์ศิลปะ เทศกาลสร้างสรรค์ และนิทรรศการที่น่าสนใจ</p></div>
+            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><Calendar className="h-5 w-5" /></div><h3 className="font-semibold font-display text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">กิจกรรม & นิทรรศการ</h3><p className="text-sm leading-relaxed text-muted-foreground">ติดตามอีเวนต์ศิลปะ เทศกาลสร้างสรรค์ และนิทรรศการที่น่าสนใจ</p></div>
             <span className="mt-4 flex items-center gap-1 text-xs sm:text-sm font-medium text-primary">ดูกิจกรรม <ArrowRight className="h-3 w-3" /></span>
           </Link>
           <Link href="/map" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-xs transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md">
-            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><MapPin className="h-5 w-5" /></div><h3 className="font-semibold font-display text-base sm:text-lg text-foreground group-hover:text-primary transition-colors">แผนที่ศิลปะ</h3><p className="text-sm leading-relaxed text-muted-foreground">ค้นพบหมุดหมายทางศิลปะ แกลเลอรี และสเปซสร้างสรรค์ใกล้ตัวคุณ</p></div>
+            <div className="space-y-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"><MapPin className="h-5 w-5" /></div><h3 className="font-semibold font-display text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">แผนที่ศิลปะ</h3><p className="text-sm leading-relaxed text-muted-foreground">ค้นพบหมุดหมายทางศิลปะ แกลเลอรี และสเปซสร้างสรรค์ใกล้ตัวคุณ</p></div>
             <span className="mt-4 flex items-center gap-1 text-xs sm:text-sm font-medium text-primary">เข้าสู่แผนที่ <ArrowRight className="h-3 w-3" /></span>
           </Link>
         </div>
@@ -222,7 +222,7 @@ export default async function Home() {
           <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-primary">
             About ThaiArtHub
           </p>
-          <h2 className="font-display text-2xl font-bold leading-snug tracking-tight text-foreground sm:text-3xl">
+          <h2 className="font-display text-xl font-bold leading-snug tracking-tight text-foreground sm:text-2xl">
             พื้นที่สำหรับค้นพบ Creative Scene ในประเทศไทย
           </h2>
           <div className="flex flex-col gap-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -244,7 +244,7 @@ export default async function Home() {
         {/* CTA Block */}
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col gap-2 sm:max-w-lg">
-            <h3 className="font-display text-lg font-semibold text-foreground sm:text-xl">
+            <h3 className="font-display text-base font-semibold text-foreground sm:text-lg">
               มีอะไรอยากให้คนค้นพบ?
             </h3>
             <p className="text-sm leading-relaxed text-muted-foreground">

@@ -125,7 +125,7 @@ export function MapContainer({ initialLocations }: MapContainerProps) {
             <MapPin className="h-6 w-6" />
           </div>
           <div className="max-w-md space-y-2">
-            <h2 className="font-display text-xl font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               ยังไม่มีพิกัดกิจกรรมหรือพื้นที่สร้างสรรค์ที่เผยแพร่ในขณะนี้
             </h2>
             <p className="text-sm leading-relaxed text-muted-foreground">

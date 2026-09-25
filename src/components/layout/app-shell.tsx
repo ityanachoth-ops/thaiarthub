@@ -66,7 +66,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Sparkles className="h-4 w-4" />
             </span>
             <div className="flex flex-col">
-              <span className="text-lg font-bold tracking-tight font-display leading-tight text-foreground group-hover:text-primary transition-colors">
+              <span className="text-base font-bold tracking-tight font-display leading-tight text-foreground group-hover:text-primary transition-colors">
                 ThaiArtHub
               </span>
               <span className="text-[11px] text-muted-foreground leading-none">
@@ -106,7 +106,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs transition group-hover:scale-105">
               <Sparkles className="h-3.5 w-3.5" />
             </span>
-            <span className="text-base font-bold tracking-tight font-display text-foreground group-hover:text-primary transition-colors">
+            <span className="text-sm font-bold tracking-tight font-display text-foreground group-hover:text-primary transition-colors">
               ThaiArtHub
             </span>
           </Link>
@@ -144,7 +144,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <footer className="border-t border-border bg-card/60 px-4 py-10 text-stone-600">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 sm:flex-row sm:px-6">
           <div className="flex flex-col items-center sm:items-start gap-1">
-            <span className="text-base font-semibold font-display text-foreground">ThaiArtHub</span>
+            <span className="text-sm font-semibold font-display text-foreground">ThaiArtHub</span>
             <p className="text-xs text-muted-foreground text-center sm:text-left">
               แพลตฟอร์มค้นพบศิลปิน ครีเอเตอร์ ผลงาน และกิจกรรมศิลปะไทย
             </p>

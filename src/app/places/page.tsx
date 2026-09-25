@@ -20,7 +20,7 @@ export default async function PlacesPage() {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold font-display tracking-tight text-foreground">
+        <h1 className="text-xl font-bold font-display tracking-tight text-foreground">
           Creative Places
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">

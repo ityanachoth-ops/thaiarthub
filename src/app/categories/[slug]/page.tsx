@@ -81,7 +81,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <span className="text-xs font-medium text-primary">หมวดหมู่งานสร้างสรรค์</span>
         </div>
 
-        <h1 className="text-3xl font-bold font-display tracking-tight text-foreground sm:text-4xl">
+        <h1 className="text-xl font-bold font-display tracking-tight text-foreground sm:text-2xl">
           {category.name}
         </h1>
 
