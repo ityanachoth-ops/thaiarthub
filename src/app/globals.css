@@ -48,7 +48,8 @@
   --font-display: var(--font-thai-display), var(--font-thai-sans), var(--font-geist-sans), sans-serif;
 
   /* Fluid typography scale */
-  --text-display-xl: clamp(2.125rem, 3vw + 0.5rem, 2.5rem);       /* 34-40px - Hero title */
+  --text-hero: clamp(2.25rem, 4vw + 0.5rem, 3.5rem);             /* 36-56px - Hero title */
+  --text-display-xl: clamp(2.125rem, 3vw + 0.5rem, 2.5rem);       /* 34-40px - Page title / Hero fallback */
   --text-display-lg: clamp(1.875rem, 2.5vw + 0.4rem, 2.25rem);    /* 30-36px - Main page title */
   --text-display-md: clamp(1.75rem, 2vw + 0.3rem, 2.125rem);      /* 28-34px - Detail page title */
   --text-display-sm: clamp(1.25rem, 1.5vw + 0.3rem, 1.5rem);      /* 20-24px - Section title */
@@ -89,6 +90,14 @@
 }
 
 /* Tailwind v4 utilities - these are processed and included in the build */
+@utility text-hero {
+  font-size: var(--text-hero);
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
 @utility text-display-xl {
   font-size: var(--text-display-xl);
   font-family: var(--font-display);

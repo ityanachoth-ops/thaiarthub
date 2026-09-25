@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Calendar, Compass, MapPin, Palette, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Calendar, Compass, MapPin, Palette, Sparkles, Users, Music, Building2, Image, Map } from "lucide-react";
 import { getFeaturedArticles } from "@/modules/culture/queries";
 import { getFeaturedEvents } from "@/modules/events/queries";
 import { getMapLocations, getCreativePlaceMapLocations } from "@/modules/map/queries";
@@ -62,74 +62,197 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* Hero Section */}
-      <section className="relative min-h-[50vh] sm:min-h-[60vh] flex items-center px-4 sm:px-6 lg:px-8">
+      <section className="relative min-h-[55vh] sm:min-h-[65vh] flex items-center px-4 sm:px-6 lg:px-8">
         {/* Subtle atmospheric gradient */}
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-primary/5 via-transparent to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 h-[200px] bg-gradient-to-t from-primary/3 via-transparent to-transparent" />
         </div>
 
-        <div className="relative z-10 max-w-4xl w-full">
-          {/* Category badge - refined */}
-          <div className="badge mb-5">
-            <Sparkles className="h-3 w-3" />
-            <span>แพลตฟอร์มศิลปะและครีเอเตอร์ไทยร่วมสมัย</span>
+        <div className="relative z-10 max-w-7xl w-full">
+          {/* Editorial top bar - creative scene labels */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-8 opacity-60">
+            <div className="flex flex-wrap items-center gap-2 text-mini text-primary/70">
+              <span className="font-medium tracking-widest">ARTISTS</span>
+              <span className="w-px h-4 bg-primary/20" aria-hidden="true" />
+              <span className="font-medium tracking-widest">MUSIC</span>
+              <span className="w-px h-4 bg-primary/20" aria-hidden="true" />
+              <span className="font-medium tracking-widest">CULTURE</span>
+              <span className="w-px h-4 bg-primary/20" aria-hidden="true" />
+              <span className="font-medium tracking-widest">EVENTS</span>
+              <span className="w-px h-4 bg-primary/20" aria-hidden="true" />
+              <span className="font-medium tracking-widest">PLACES</span>
+              <span className="w-px h-4 bg-primary/20" aria-hidden="true" />
+              <span className="font-medium tracking-widest">CREATORS</span>
+            </div>
+            <div className="flex items-center gap-2 text-micro text-muted-foreground/50">
+              <span className="font-mono tracking-wider">TH</span>
+              <span className="w-px h-3 bg-border/50" aria-hidden="true" />
+              <span className="font-mono tracking-wider">CREATIVE SCENE</span>
+            </div>
           </div>
 
-          {/* Main Headline */}
-          <h1 className="text-display-xl text-foreground leading-[1.1]">
-            พื้นที่สำหรับพบเจอศิลปิน <br />
-            <span className="text-primary">และงานสร้างสรรค์</span>
-          </h1>
+          {/* Main composition - asymmetric layout */}
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            {/* Left column - Headline */}
+            <div className="lg:col-span-7 lg:pr-8">
+              {/* Category badge */}
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-[10px] font-medium text-primary uppercase tracking-[0.15em] mb-6 transition-colors hover:bg-primary/10">
+                <Sparkles className="h-3 w-3" />
+                <span>Independent Creative Platform</span>
+              </div>
 
-          {/* Supporting text */}
-          <p className="max-w-xl mt-5 text-body-lg text-muted-foreground/80">
-            ThaiArtHub พื้นที่เชื่อมโยงผู้คนเข้ากับศิลปิน นักออกแบบ คราฟต์แมน และกิจกรรมศิลปะทั่วประเทศไทย ค้นพบตัวตน เรื่องราว และแรงบันดาลใจใหม่ๆ ได้ในที่เดียว
-          </p>
+              {/* Main Headline - large, editorial */}
+              <h1 className="text-hero text-foreground leading-[1.05] tracking-tight">
+                พื้นที่สำหรับค้นพบ<br />
+                <span className="text-primary">Creative Scene</span><br />
+                <span className="text-foreground">ของไทย</span>
+              </h1>
 
-          {/* CTA Group - refined */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3">
-            <Link
-              href="/artists"
-              className="btn-primary group"
-            >
-              <span>เริ่มค้นพบ</span>
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-            </Link>
-            <Link
-              href="/artworks"
-              className="btn-secondary"
-            >
-              <span>สำรวจผลงาน</span>
-            </Link>
-            <Link
-              href="/events"
-              className="btn-ghost"
-            >
-              <Calendar className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-              <span>ปฏิทินกิจกรรม</span>
-            </Link>
+              {/* Thin editorial rule */}
+              <div className="mt-6 w-16 h-px bg-primary/30" aria-hidden="true" />
+
+              {/* Supporting text */}
+              <p className="mt-6 max-w-xl text-body-lg text-muted-foreground/80 leading-relaxed">
+                ThaiArtHub เชื่อมโยงผู้คนเข้ากับศิลปิน นักดนตรี คราฟต์แมน นักออกแบบ และกิจกรรมวัฒนธรรม ทุกมุมทุกจังหวัด ค้นพบตัวตน เรื่องราว และแรงบันดาลใจที่ยังไม่เคยถูกเล่า
+              </p>
+
+              {/* CTA Group */}
+              <div className="mt-10 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-3">
+                <Link
+                  href="/artists"
+                  className="btn-primary group"
+                >
+                  <span>เริ่มค้นพบ</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                </Link>
+                <Link
+                  href="/artworks"
+                  className="btn-secondary"
+                >
+                  <span>สำรวจผลงาน</span>
+                </Link>
+                <Link
+                  href="/events"
+                  className="btn-ghost"
+                >
+                  <Calendar className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                  <span>ปฏิทินกิจกรรม</span>
+                </Link>
+              </div>
+
+              {/* Trust indicator */}
+              <div className="mt-8 flex flex-wrap items-center justify-center sm:justify-start gap-5 text-micro text-muted-foreground/50">
+                <span className="flex items-center gap-1">
+                  <Users className="h-3 w-3" aria-hidden="true" />
+                  ศิลปิน กิจกรรม สถานที่ เรื่องราว
+                </span>
+                <span className="w-[1px] h-3 bg-border" aria-hidden="true" />
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" aria-hidden="true" />
+                  อัปเดตตลอดเวลา
+                </span>
+              </div>
+            </div>
+
+            {/* Right column - Editorial graphic sidebar */}
+            <div className="hidden lg:block lg:col-span-5">
+              <div className="relative h-full min-h-[320px]">
+                {/* Floating creative scene cards - asymmetric positions */}
+                <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none" aria-hidden="true">
+                  {/* Card 1 - Artists */}
+                  <div className="absolute top-1/4 left-0 w-[180px] rounded-lg border border-border/60 bg-card/80 p-4 shadow-sm backdrop-blur-sm transition-opacity duration-300 hover:opacity-100 opacity-70">
+                    <div className="flex items-center gap-2 text-micro text-primary font-medium uppercase tracking-wider mb-2">
+                      <Image className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>VISUAL ARTS</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground/70 leading-relaxed">จิตรกร ประติมากร ศิลปินดิจิทัล อิลลัสเตรเตอร์</p>
+                  </div>
+
+                  {/* Card 2 - Music */}
+                  <div className="absolute top-1/2 left-1/4 w-[180px] rounded-lg border border-border/60 bg-card/80 p-4 shadow-sm backdrop-blur-sm transition-opacity duration-300 hover:opacity-100 opacity-70">
+                    <div className="flex items-center gap-2 text-micro text-primary font-medium uppercase tracking-wider mb-2">
+                      <Music className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>MUSIC</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground/70 leading-relaxed">อินดี้ ทดลอง ฟอล์ค อิเล็กทรอนิกส์ ไลฟ์เวนู</p>
+                  </div>
+
+                  {/* Card 3 - Culture */}
+                  <div className="absolute top-3/4 right-0 w-[180px] rounded-lg border border-border/60 bg-card/80 p-4 shadow-sm backdrop-blur-sm transition-opacity duration-300 hover:opacity-100 opacity-70">
+                    <div className="flex items-center gap-2 text-micro text-primary font-medium uppercase tracking-wider mb-2">
+                      <Building2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>CULTURE</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground/70 leading-relaxed">แบรนด์ท้องถิ่น ชุมชนสร้างสรรค์ เรื่องราว ISAN</p>
+                  </div>
+
+                  {/* Card 4 - Events */}
+                  <div className="absolute top-1/3 right-1/4 w-[180px] rounded-lg border border-border/60 bg-card/80 p-4 shadow-sm backdrop-blur-sm transition-opacity duration-300 hover:opacity-100 opacity-70">
+                    <div className="flex items-center gap-2 text-micro text-primary font-medium uppercase tracking-wider mb-2">
+                      <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>EVENTS</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground/70 leading-relaxed">นิทรรศการ เทศกาล วอร์กชอป ตลาดสร้างสรรค์</p>
+                  </div>
+
+                  {/* Card 5 - Places */}
+                  <div className="absolute bottom-1/4 left-1/4 w-[180px] rounded-lg border border-border/60 bg-card/80 p-4 shadow-sm backdrop-blur-sm transition-opacity duration-300 hover:opacity-100 opacity-70">
+                    <div className="flex items-center gap-2 text-micro text-primary font-medium uppercase tracking-wider mb-2">
+                      <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>PLACES</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground/70 leading-relaxed">แกลเลอรี สตูดิโอ คาเฟ่ สเปซสร้างสรรค์</p>
+                  </div>
+
+                  {/* Card 6 - Creators */}
+                  <div className="absolute bottom-1/3 right-0 w-[180px] rounded-lg border border-border/60 bg-card/80 p-4 shadow-sm backdrop-blur-sm transition-opacity duration-300 hover:opacity-100 opacity-70">
+                    <div className="flex items-center gap-2 text-micro text-primary font-medium uppercase tracking-wider mb-2">
+                      <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>CREATORS</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground/70 leading-relaxed">นักออกแบบ ช่างฝีมือ สถาปนิก เมกเกอร์</p>
+                  </div>
+
+                  {/* Editorial coordinate marks */}
+                  <div className="absolute top-4 right-4 text-[10px] font-mono text-muted-foreground/30 tracking-wider">
+                    16.0°N 101.0°E
+                  </div>
+                  <div className="absolute bottom-4 left-4 text-[10px] font-mono text-muted-foreground/30 tracking-wider">
+                    ISAN → BKK → EVERYWHERE
+                  </div>
+
+                  {/* Thin decorative lines */}
+                  <div className="absolute top-20 left-20 w-24 h-24 border-t border-l border-primary/10 pointer-events-none" aria-hidden="true" />
+                  <div className="absolute bottom-20 right-20 w-24 h-24 border-b border-r border-primary/10 pointer-events-none" aria-hidden="true" />
+                  <div className="absolute top-1/2 left-0 w-4 h-px bg-primary/20" aria-hidden="true" />
+                  <div className="absolute top-1/2 right-0 w-4 h-px bg-primary/20" aria-hidden="true" />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Subtle trust indicator */}
-          <div className="mt-8 flex flex-wrap items-center justify-center sm:justify-start gap-5 text-micro text-muted-foreground/50">
-            <span className="flex items-center gap-1">
-              <Users className="h-3 w-3" aria-hidden="true" />
-              ศิลปิน กิจกรรม สถานที่ เรื่องราว
-            </span>
-            <span className="w-[1px] h-3 bg-border" aria-hidden="true" />
-            <span className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" aria-hidden="true" />
-              อัปเดตตลอดเวลา
-            </span>
+          {/* Mobile creative scene tags - shown below headline on mobile */}
+          <div className="lg:hidden mt-8 flex flex-wrap items-center justify-center gap-2 text-micro text-primary/60">
+            <span className="font-medium uppercase tracking-wider">ARTISTS</span>
+            <span className="w-px h-4 bg-primary/20" aria-hidden="true" />
+            <span className="font-medium uppercase tracking-wider">MUSIC</span>
+            <span className="w-px h-4 bg-primary/20" aria-hidden="true" />
+            <span className="font-medium uppercase tracking-wider">CULTURE</span>
+            <span className="w-px h-4 bg-primary/20" aria-hidden="true" />
+            <span className="font-medium uppercase tracking-wider">EVENTS</span>
+            <span className="w-px h-4 bg-primary/20" aria-hidden="true" />
+            <span className="font-medium uppercase tracking-wider">PLACES</span>
+            <span className="w-px h-4 bg-primary/20" aria-hidden="true" />
+            <span className="font-medium uppercase tracking-wider">CREATORS</span>
           </div>
 
-          {/* Editorial corner marks - thinner */}
+          {/* Editorial corner marks */}
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-            <div className="absolute top-6 left-6 w-12 h-12 border-t border-l border-primary/10" />
-            <div className="absolute top-6 right-6 w-12 h-12 border-t border-r border-primary/10" />
-            <div className="absolute bottom-6 left-6 w-12 h-12 border-b border-l border-primary/10" />
-            <div className="absolute bottom-6 right-6 w-12 h-12 border-b border-r border-primary/10" />
+            <div className="absolute top-6 left-6 w-16 h-16 border-t border-l border-primary/10" />
+            <div className="absolute top-6 right-6 w-16 h-16 border-t border-r border-primary/10" />
+            <div className="absolute bottom-6 left-6 w-16 h-16 border-b border-l border-primary/10" />
+            <div className="absolute bottom-6 right-6 w-16 h-16 border-b border-r border-primary/10" />
           </div>
         </div>
       </section>
