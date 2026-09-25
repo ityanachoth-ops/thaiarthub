@@ -48,7 +48,7 @@
   --font-display: var(--font-thai-display), var(--font-thai-sans), var(--font-geist-sans), sans-serif;
 
   /* Fluid typography scale */
-  --text-hero: clamp(2.25rem, 4vw + 0.5rem, 3.5rem);             /* 36-56px - Hero title */
+  --text-hero: clamp(3.5rem, 4vw + 1rem, 4rem);                 /* 56-64px - Hero title */
   --text-display-xl: clamp(2.125rem, 3vw + 0.5rem, 2.5rem);       /* 34-40px - Page title / Hero fallback */
   --text-display-lg: clamp(1.875rem, 2.5vw + 0.4rem, 2.25rem);    /* 30-36px - Main page title */
   --text-display-md: clamp(1.75rem, 2vw + 0.3rem, 2.125rem);      /* 28-34px - Detail page title */
